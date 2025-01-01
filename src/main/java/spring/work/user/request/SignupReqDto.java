@@ -15,4 +15,10 @@ public class SignupReqDto {
 
     @NotBlank(message = "닉네임이 비어있습니다.")
     private String nickname;
+
+    public void encodedPassword(String encodedPassword) {
+        this.password = encodedPassword;
+    }
+
+
 }

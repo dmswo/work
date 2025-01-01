@@ -28,8 +28,8 @@ public class ApiResponse <T> {
         return new ApiResponse<>(SUCCESS_STATUS, data, null, null);
     }
 
-    public static ApiResponse<?> successWithNoContent(ResultCode resultCode) {
-        return new ApiResponse<>(SUCCESS_STATUS, null, ResultCode.OK.getCode(), ResultCode.OK.getMsg());
+    public static ApiResponse<ResultCode> successWithNoContent(ResultCode resultCode) {
+        return new ApiResponse<>(SUCCESS_STATUS, null, resultCode.getCode(), resultCode.getMsg());
     }
 
     public static ApiResponse<?> failResponse(BindingResult bindingResult) {

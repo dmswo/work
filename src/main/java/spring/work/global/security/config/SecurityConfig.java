@@ -9,8 +9,6 @@ import org.springframework.security.config.annotation.web.configurers.HeadersCon
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.web.SecurityFilterChain;
 
-import java.io.IOException;
-
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor

@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import spring.work.global.response.ApiResponse;
+import spring.work.global.response.ResultCode;
 import spring.work.user.request.SignupReqDto;
 import spring.work.user.service.UserService;
 
@@ -26,7 +27,7 @@ public class UserController {
 
     @Operation(summary = "회원가입 API", description = "회원가입 API")
     @PostMapping("/signup")
-    public ResponseEntity<ApiResponse<?>> signup(@RequestBody @Valid SignupReqDto signupReqDto) {
+    public ResponseEntity<ApiResponse<ResultCode>> signup(@RequestBody @Valid SignupReqDto signupReqDto) {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(ApiResponse.successWithNoContent(userService.signup(signupReqDto)));

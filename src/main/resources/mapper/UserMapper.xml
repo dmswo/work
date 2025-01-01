@@ -5,6 +5,6 @@
 
 <mapper namespace="spring.work.user.mapper.UserMapper">
     <insert id="signup">
-        SELECT * FROM TOTAL_BOARD
+        insert into user (loginId, password, nickname) values (#{loginId}, #{password}, #{nickname})
     </insert>
 </mapper>
