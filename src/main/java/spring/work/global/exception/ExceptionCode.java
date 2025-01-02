@@ -4,7 +4,7 @@ import lombok.Getter;
 
 @Getter
 public enum ExceptionCode {
-    FAIL("FAIL", "특정하지 않은 오류가 발생하였습니다.");
+    FAIL("FAIL", "특정하지 않은 오류가 발생하였습니다.1");
 
     private final String code;
     private final String message;
