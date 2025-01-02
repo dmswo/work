@@ -5,7 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.validation.ObjectError;
 import spring.work.global.constant.ResultCode;
-import spring.work.global.exception.ExceptionCode;
+import spring.work.global.constant.ExceptionCode;
 
 import java.util.List;
 

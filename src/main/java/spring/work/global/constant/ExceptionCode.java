@@ -1,4 +1,4 @@
-package spring.work.global.exception;
+package spring.work.global.constant;
 
 import lombok.Getter;
 
