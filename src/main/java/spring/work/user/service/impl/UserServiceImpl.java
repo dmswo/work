@@ -6,7 +6,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import spring.work.global.exception.BusinessException;
 import spring.work.global.exception.ExceptionCode;
-import spring.work.global.response.ResultCode;
+import spring.work.global.constant.ResultCode;
 import spring.work.user.mapper.UserMapper;
 import spring.work.user.request.SignupReqDto;
 import spring.work.user.service.UserService;

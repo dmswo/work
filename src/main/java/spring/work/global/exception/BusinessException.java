@@ -1,7 +1,6 @@
 package spring.work.global.exception;
 
 import lombok.Getter;
-import spring.work.global.response.ResultCode;
 
 @Getter
 public class BusinessException extends RuntimeException{

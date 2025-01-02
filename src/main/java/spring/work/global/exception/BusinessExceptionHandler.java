@@ -4,23 +4,40 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
+import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import spring.work.global.response.ApiResponse;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @RestControllerAdvice
 public class BusinessExceptionHandler {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ApiResponse> invalidRequestHandler(BindingResult bindingResult) {
-        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.failResponse(bindingResult));
+    public ApiResponse<?> invalidRequestHandler(BindingResult bindingResult) {
+        Map<String, String> errors = new HashMap<>();
+
+        List<ObjectError> allErrors = bindingResult.getAllErrors();
+        for (ObjectError error : allErrors) {
+            if (error instanceof FieldError) {
+                errors.put(((FieldError) error).getField(), error.getDefaultMessage());
+            } else {
+                errors.put(error.getObjectName(), error.getDefaultMessage());
+            }
+        }
+
+        return ApiResponse.failResponse(allErrors);
     }
 
     @ExceptionHandler(BusinessException.class)
-    protected ResponseEntity<ApiResponse> handleBusinessException(BusinessException e) {
+    public ApiResponse<?> handleBusinessException(BusinessException e) {
         log.error("handleBusinessException e.code : {}, e.message : {}", e.getExceptionCode().getCode(), e.getMessage());
-        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.errorResponse(e.getExceptionCode()));
+        return ApiResponse.errorResponse(e.getExceptionCode());
     }
 }
