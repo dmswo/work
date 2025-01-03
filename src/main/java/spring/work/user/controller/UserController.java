@@ -18,7 +18,7 @@ import spring.work.user.service.UserService;
 @Slf4j
 @RequiredArgsConstructor
 @RequestMapping("/user")
-@Tag(name="/User", description = "유저 관련 API")
+@Tag(name="/user", description = "유저 관련 API")
 public class UserController {
 
     private final UserService userService;
