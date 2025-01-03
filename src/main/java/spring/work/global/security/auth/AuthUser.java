@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import spring.work.user.constant.UserRole;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -18,14 +19,16 @@ public class AuthUser implements UserDetails {
 
     private final Map<String, Object> properties = new HashMap<>();
 
-    private String loginId;
+    private String userId;
     private String password;
     private String nickName;
+    private UserRole userRole;
 
     public void setDefaultInfo(AuthUser user) {
-        this.loginId = user.loginId;
+        this.userId = user.userId;
         this.password = user.password;
         this.nickName = user.nickName;
+        this.userRole = user.userRole;
     }
 
     @Override
@@ -35,12 +38,12 @@ public class AuthUser implements UserDetails {
 
     @Override
     public String getPassword() {
-        return "";
+        return this.password;
     }
 
     @Override
     public String getUsername() {
-        return "";
+        return this.userId;
     }
 
     @Override

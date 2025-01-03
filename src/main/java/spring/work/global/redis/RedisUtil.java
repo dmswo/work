@@ -10,7 +10,6 @@ import org.springframework.stereotype.Component;
 public class RedisUtil {
 
     private final RedisTemplate<String, Object> redisTemplate;
-    private final ValueOperations<String, Object> valueOperations;
 
     public void setValues(String key, String data) {
         ValueOperations<String, Object> values = redisTemplate.opsForValue();

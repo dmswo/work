@@ -15,12 +15,12 @@ import spring.work.global.constant.ExceptionCode;
 import spring.work.global.dto.TokenInfo;
 import spring.work.global.exception.BusinessException;
 import spring.work.global.security.auth.AuthUser;
+import spring.work.user.constant.UserRole;
 
 import java.security.Key;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Slf4j
 @Component
@@ -54,23 +54,24 @@ public class JwtTokenProvider {
         // 토큰 복호화
         Claims claims = parseClaims(accessToken);
 
-        String loginId = (String) claims.get("loginId");
+        String userId = (String) claims.get("userId");
         String nickName = (String) claims.get("nickName");
+        String userRole = (String) claims.get("userRole");
 
-        if (claims.get("11") == null) {
+        if (userRole == null) {
             throw new RuntimeException("권한 정보가 없는 토큰입니다.");
         }
 
         // 클레임에서 권한 정보 가져오기
-        Collection<? extends GrantedAuthority> authorities =
-                Arrays.stream(claims.get("11").toString().split(","))
-                        .map(SimpleGrantedAuthority::new)
-                        .collect(Collectors.toList());
+        List<String> list = new ArrayList<>();
+        list.add(userRole);
+        List<SimpleGrantedAuthority> authorities = list.stream().filter(Objects::nonNull).map(SimpleGrantedAuthority::new).toList();
 
         // UserDetails를 상속받은 AuthUser 객체를 만들어서 Authentication 리턴
         AuthUser authUser = AuthUser.builder()
-                .loginId(loginId)
+                .userId(userId)
                 .nickName(nickName)
+                .userRole((UserRole) claims.get("userRole"))
                 .build();
 
         return new UsernamePasswordAuthenticationToken(authUser, "", authorities);

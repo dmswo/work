@@ -17,7 +17,7 @@ public class AuthUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        AuthUser authUser = userMapper.selectAuthUserByLoginId(username).orElseThrow(() -> new BusinessException(ExceptionCode.USERNAME_NOT_FOUND));
+        AuthUser authUser = userMapper.selectAuthUserByUserId(username).orElseThrow(() -> new BusinessException(ExceptionCode.USERNAME_NOT_FOUND));
         authUser.setDefaultInfo(authUser);
 
         return authUser;

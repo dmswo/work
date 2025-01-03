@@ -11,5 +11,5 @@ public interface UserMapper {
 
     void signup(Signup dto);
 
-    Optional<AuthUser> selectAuthUserByLoginId(String loginId);
+    Optional<AuthUser> selectAuthUserByUserId(String userId);
 }
