@@ -1,10 +1,15 @@
 package spring.work.user.mapper;
 
 import org.apache.ibatis.annotations.Mapper;
-import spring.work.user.request.SignupReqDto;
+import spring.work.global.security.auth.AuthUser;
+import spring.work.user.dto.request.Signup;
+
+import java.util.Optional;
 
 @Mapper
 public interface UserMapper {
 
-    void signup(SignupReqDto dto);
+    void signup(Signup dto);
+
+    Optional<AuthUser> selectAuthUserByLoginId(String loginId);
 }

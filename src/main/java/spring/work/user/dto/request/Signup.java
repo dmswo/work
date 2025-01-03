@@ -1,10 +1,11 @@
-package spring.work.user.request;
+package spring.work.user.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
+import lombok.Getter;
 
-@Data
-public class SignupReqDto {
+@Getter
+public class Signup {
 
     @NotBlank(message = "로그인 아이디가 비어있습니다.")
     private String loginId;

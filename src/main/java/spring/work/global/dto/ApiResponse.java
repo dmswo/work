@@ -1,4 +1,4 @@
-package spring.work.global.response;
+package spring.work.global.dto;
 
 import lombok.AccessLevel;
 import lombok.Getter;

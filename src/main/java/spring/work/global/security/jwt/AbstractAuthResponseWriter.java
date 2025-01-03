@@ -3,13 +3,11 @@ package spring.work.global.security.jwt;
 import com.google.gson.Gson;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.NoSuchMessageException;
 import org.springframework.http.MediaType;
 import spring.work.global.constant.ExceptionCode;
 import spring.work.global.exception.BusinessException;
-import spring.work.global.response.ApiResponse;
+import spring.work.global.dto.ApiResponse;
 
-import java.io.IOException;
 import java.io.PrintWriter;
 
 @Slf4j

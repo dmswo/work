@@ -2,6 +2,8 @@ package spring.work.user.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -9,9 +11,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import spring.work.global.response.ApiResponse;
+import spring.work.global.dto.ApiResponse;
 import spring.work.global.constant.ResultCode;
-import spring.work.user.request.SignupReqDto;
+import spring.work.global.dto.TokenInfo;
+import spring.work.user.dto.request.Login;
+import spring.work.user.dto.request.Signup;
 import spring.work.user.service.UserService;
 
 @RestController
@@ -25,8 +29,13 @@ public class UserController {
 
     @Operation(summary = "회원가입 API", description = "회원가입 API")
     @PostMapping("/signup")
-    public ApiResponse<ResultCode> signup(@RequestBody @Valid SignupReqDto signupReqDto) {
-        return ApiResponse.successResponse(userService.signup(signupReqDto));
+    public ApiResponse<ResultCode> signup(@RequestBody @Valid Signup signup) {
+        return ApiResponse.successResponse(userService.signup(signup));
     }
 
+    @Operation(summary = "로그인 API", description = "로그인 API")
+    @PostMapping("/login")
+    public ApiResponse<TokenInfo> login(@RequestBody @Valid Login login) {
+        return ApiResponse.successResponse(userService.login(login));
+    }
 }
