@@ -5,6 +5,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -14,6 +15,7 @@ import spring.work.global.security.jwt.JwtAccessDeniedHandler;
 import spring.work.global.security.jwt.JwtAuthenticationEntryPoint;
 import spring.work.global.security.jwt.JwtTokenFilter;
 import spring.work.global.security.jwt.JwtTokenProvider;
+import spring.work.global.security.util.AuthenticationHelperService;
 
 @Configuration
 @EnableWebSecurity
@@ -21,6 +23,7 @@ import spring.work.global.security.jwt.JwtTokenProvider;
 public class SecurityConfig {
 
     private final JwtTokenProvider jwtTokenProvider;
+    private final AuthenticationHelperService authenticationHelperService;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -30,12 +33,13 @@ public class SecurityConfig {
                 .sessionManagement(httpSecuritySessionManagementConfigurer -> httpSecuritySessionManagementConfigurer.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorizeRequest ->
                         authorizeRequest
-                                .requestMatchers("/user").authenticated()
-                                .anyRequest().permitAll()
+                                .requestMatchers("/user/signup", "/user/login").permitAll()
+                                .requestMatchers("/swagger", "/swagger-ui.html", "/swagger-ui/**", "/api-docs", "/api-docs/**", "/v3/api-docs/**").permitAll()
+                                .anyRequest().authenticated()
                 )
                 .exceptionHandling(exceptionHandling -> exceptionHandling.authenticationEntryPoint(new JwtAuthenticationEntryPoint()))
                 .exceptionHandling(exceptionHandling -> exceptionHandling.accessDeniedHandler(new JwtAccessDeniedHandler()))
-                .addFilterBefore(new JwtTokenFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(new JwtTokenFilter(jwtTokenProvider, authenticationHelperService), UsernamePasswordAuthenticationFilter.class)
                 .headers(
                         headersConfigurer ->
                                 headersConfigurer

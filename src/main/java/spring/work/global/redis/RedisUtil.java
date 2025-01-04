@@ -5,6 +5,8 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Component;
 
+import java.util.concurrent.TimeUnit;
+
 @Component
 @RequiredArgsConstructor
 public class RedisUtil {
@@ -13,7 +15,7 @@ public class RedisUtil {
 
     public void setValues(String key, String data) {
         ValueOperations<String, Object> values = redisTemplate.opsForValue();
-        values.set(key, data);
+        values.set(key, data, 300, TimeUnit.SECONDS);
     }
 
     public String getValues(String key) {

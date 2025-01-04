@@ -30,7 +30,7 @@ public class BusinessExceptionHandler {
             }
         }
 
-        return ApiResponse.failResponse(allErrors);
+        return ApiResponse.failResponse(errors);
     }
 
     @ExceptionHandler(BusinessException.class)

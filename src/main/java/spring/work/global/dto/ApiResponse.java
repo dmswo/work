@@ -8,6 +8,7 @@ import spring.work.global.constant.ResultCode;
 import spring.work.global.constant.ExceptionCode;
 
 import java.util.List;
+import java.util.Map;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -25,7 +26,7 @@ public class ApiResponse <T> {
         return new ApiResponse<>(data, ResultCode.OK);
     }
 
-    public static ApiResponse<?> failResponse(List<ObjectError> list) {
+    public static ApiResponse<?> failResponse(Map<String, String> list) {
         return new ApiResponse<>(list, ResultCode.VALIDATION_FAILED);
     }
 

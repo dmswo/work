@@ -5,7 +5,7 @@
 
 <mapper namespace="spring.work.user.mapper.UserMapper">
     <insert id="signup">
-        insert into user (userId, password, nickname) values (#{userId}, #{password}, #{nickname})
+        insert into user (userId, password, nickname, userRole) values (#{userId}, #{password}, #{nickname}, #{userRole})
     </insert>
 
     <select id="selectAuthUserByUserId" parameterType="String">
