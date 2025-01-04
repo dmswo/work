@@ -25,14 +25,12 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public ResultCode signup(Signup dto) {
-        try {
-            dto.encodedPassword(passwordEncoder.encode(dto.getPassword()));
-            userMapper.signup(dto);
-            return ResultCode.OK;
-        } catch (Exception e) {
-            log.error("error signup : {}", e);
-            throw new BusinessException(ExceptionCode.FAIL);
+        if (userMapper.existsByUserId(dto.getUserId()) > 0) {
+            throw new BusinessException(ExceptionCode.USER_EXIST);
         }
+        dto.encodedPassword(passwordEncoder.encode(dto.getPassword()));
+        userMapper.signup(dto);
+        return ResultCode.OK;
     }
 
     @Override

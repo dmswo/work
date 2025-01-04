@@ -1,5 +1,6 @@
 package spring.work.user.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.ServletRequest;
@@ -34,7 +35,7 @@ public class UserController {
     }
 
     @Operation(summary = "로그인 API", description = "로그인 API")
-    @PostMapping("/login")
+    @PostMapping("/login1")
     public ApiResponse<TokenInfo> login(@RequestBody @Valid Login login) {
         return ApiResponse.successResponse(userService.login(login));
     }

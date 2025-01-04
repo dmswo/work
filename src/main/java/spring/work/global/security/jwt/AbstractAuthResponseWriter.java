@@ -21,6 +21,7 @@ public abstract class AbstractAuthResponseWriter {
 
     private void writeResponse(HttpServletResponse response, String content) {
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+        response.setCharacterEncoding("UTF-8");
         try (PrintWriter writer = response.getWriter()) {
             writer.write(content);
         } catch (Exception e) {

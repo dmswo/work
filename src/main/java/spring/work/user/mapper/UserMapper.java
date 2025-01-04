@@ -12,4 +12,6 @@ public interface UserMapper {
     void signup(Signup dto);
 
     Optional<AuthUser> selectAuthUserByUserId(String userId);
+
+    int existsByUserId(String userId);
 }

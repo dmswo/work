@@ -13,4 +13,10 @@
           from user
          where userId = #{userId}
     </select>
+
+    <select id="existsByUserId" parameterType="String">
+        select count(*)
+          from user
+         where userId = #{userId}
+    </select>
 </mapper>
