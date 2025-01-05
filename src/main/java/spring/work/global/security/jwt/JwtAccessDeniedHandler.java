@@ -13,6 +13,6 @@ import spring.work.global.constant.ExceptionCode;
 public class JwtAccessDeniedHandler extends AbstractAuthResponseWriter implements AccessDeniedHandler {
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response, AccessDeniedException accessDeniedException) {
-        writeAuthErrorResponse(response, ExceptionCode.FAIL);
+        writeAuthErrorResponse(response, ExceptionCode.FORBIDDEN);
     }
 }

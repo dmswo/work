@@ -35,7 +35,7 @@ public class UserController {
     }
 
     @Operation(summary = "로그인 API", description = "로그인 API")
-    @PostMapping("/login1")
+    @PostMapping("/login")
     public ApiResponse<TokenInfo> login(@RequestBody @Valid Login login) {
         return ApiResponse.successResponse(userService.login(login));
     }

@@ -16,6 +16,6 @@ import java.io.IOException;
 public class JwtAuthenticationEntryPoint extends AbstractAuthResponseWriter implements AuthenticationEntryPoint {
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException, ServletException {
-        writeAuthErrorResponse(response, ExceptionCode.FAIL);
+        writeAuthErrorResponse(response, ExceptionCode.UNAUTHORIZED);
     }
 }

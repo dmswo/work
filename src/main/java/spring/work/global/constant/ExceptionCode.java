@@ -5,6 +5,8 @@ import lombok.Getter;
 @Getter
 public enum ExceptionCode {
     FAIL("FAIL", "특정하지 않은 오류가 발생하였습니다."),
+    UNAUTHORIZED("UNAUTHORIZED", "인증 에러."),
+    FORBIDDEN("FORBIDDEN", "인가 에러."),
 
     USER_NOT_FOUND("USERNAME_NOT_FOUND", "유저 정보를 찾을 수 없습니다."),
     USER_EXIST("USER_EXIST", "이미 존재하는 유저ID입니다."),
