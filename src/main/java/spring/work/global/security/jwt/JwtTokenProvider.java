@@ -26,7 +26,7 @@ import java.util.stream.Stream;
 @Component
 public class JwtTokenProvider {
     private static final String BEARER_TYPE = "Bearer";
-
+    private static final long ACCESS_TOKEN_EXPIRE_TIME = 1000 * 60 * 30; // 30분
     private final Key key;
 
     public JwtTokenProvider(@Value("${jwt.secret}") String secretKey) {
@@ -38,11 +38,15 @@ public class JwtTokenProvider {
         AuthUser authUser = (AuthUser) authentication.getPrincipal();
         Map<String, Object> properties = authUser.getProperties();
 
+        long now = (new Date()).getTime();
+
         // Access Token 생성
+        Date accessTokenExpiresIn = new Date(now + ACCESS_TOKEN_EXPIRE_TIME);
         String accessToken = Jwts.builder()
                 .setSubject(authentication.getName())
                 .addClaims(properties)
                 .signWith(key, SignatureAlgorithm.HS512)
+                .setExpiration(accessTokenExpiresIn)
                 .compact();
 
         return TokenInfo.builder().grantType(BEARER_TYPE)
