@@ -79,7 +79,7 @@ private static final long ACCESS_TOKEN_EXPIRE_TIME = 1000 * 300; // 30분
         AuthUser authUser = AuthUser.builder()
                 .userId(userId)
                 .nickName(nickName)
-                .userRole((UserRole) claims.get("userRole"))
+                .userRole(UserRole.valueOf(userRole))
                 .build();
 
         return new UsernamePasswordAuthenticationToken(authUser, "", authorities);
