@@ -10,4 +10,6 @@ public interface UserService {
     ResultCode signup(Signup dto);
 
     TokenInfo login(Login login);
+
+    ResultCode logout();
 }

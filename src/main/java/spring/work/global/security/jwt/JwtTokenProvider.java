@@ -26,7 +26,8 @@ import java.util.stream.Stream;
 @Component
 public class JwtTokenProvider {
     private static final String BEARER_TYPE = "Bearer";
-    private static final long ACCESS_TOKEN_EXPIRE_TIME = 1000 * 60 * 30; // 30분
+//    private static final long ACCESS_TOKEN_EXPIRE_TIME = 1000 * 60 * 30; // 30분
+private static final long ACCESS_TOKEN_EXPIRE_TIME = 1000 * 300; // 30분
     private final Key key;
 
     public JwtTokenProvider(@Value("${jwt.secret}") String secretKey) {
@@ -37,6 +38,9 @@ public class JwtTokenProvider {
     public TokenInfo generateToken(Authentication authentication) {
         AuthUser authUser = (AuthUser) authentication.getPrincipal();
         Map<String, Object> properties = authUser.getProperties();
+        properties.put("userId", authUser.getUserId());
+        properties.put("nickName", authUser.getNickName());
+        properties.put("userRole", authUser.getUserRole().name());
 
         long now = (new Date()).getTime();
 

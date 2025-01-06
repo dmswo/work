@@ -41,4 +41,9 @@ public class UserServiceImpl implements UserService {
 
         return tokenInfo;
     }
+
+    @Override
+    public ResultCode logout() {
+        return ResultCode.OK;
+    }
 }

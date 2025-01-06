@@ -1,10 +1,7 @@
 package spring.work.user.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.servlet.ServletRequest;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -38,5 +35,11 @@ public class UserController {
     @PostMapping("/login")
     public ApiResponse<TokenInfo> login(@RequestBody @Valid Login login) {
         return ApiResponse.successResponse(userService.login(login));
+    }
+
+    @Operation(summary = "로그아웃 API", description = "로그아웃 API")
+    @PostMapping("/logout")
+    public ApiResponse<ResultCode> logout() {
+        return ApiResponse.successResponse(userService.logout());
     }
 }
