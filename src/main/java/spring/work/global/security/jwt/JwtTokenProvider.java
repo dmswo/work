@@ -38,9 +38,6 @@ private static final long ACCESS_TOKEN_EXPIRE_TIME = 1000 * 300; // 30분
     public TokenInfo generateToken(Authentication authentication) {
         AuthUser authUser = (AuthUser) authentication.getPrincipal();
         Map<String, Object> properties = authUser.getProperties();
-        properties.put("userId", authUser.getUserId());
-        properties.put("nickName", authUser.getNickName());
-        properties.put("userRole", authUser.getUserRole().name());
 
         long now = (new Date()).getTime();
 

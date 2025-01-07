@@ -22,10 +22,9 @@ public class AuthUser implements UserDetails {
     private UserRole userRole;
 
     public void setDefaultInfo(AuthUser user) {
-        this.userId = user.userId;
-        this.password = user.password;
-        this.nickName = user.nickName;
-        this.userRole = user.userRole;
+        properties.put("userId", user);
+        properties.put("nickName", nickName);
+        properties.put("userRole", userRole);
     }
 
     @Override
