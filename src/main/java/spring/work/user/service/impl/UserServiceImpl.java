@@ -1,5 +1,6 @@
 package spring.work.user.service.impl;
 
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -43,7 +44,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public ResultCode logout() {
+    public ResultCode logout(HttpServletRequest request) {
+        authenticationHelperService.logout(request);
         return ResultCode.OK;
     }
 }

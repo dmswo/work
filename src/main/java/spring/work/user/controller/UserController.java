@@ -2,6 +2,7 @@ package spring.work.user.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -39,7 +40,7 @@ public class UserController {
 
     @Operation(summary = "로그아웃 API", description = "로그아웃 API")
     @PostMapping("/logout")
-    public ApiResponse<ResultCode> logout() {
-        return ApiResponse.successResponse(userService.logout());
+    public ApiResponse<ResultCode> logout(HttpServletRequest request) {
+        return ApiResponse.successResponse(userService.logout(request));
     }
 }

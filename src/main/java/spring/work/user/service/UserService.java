@@ -1,5 +1,6 @@
 package spring.work.user.service;
 
+import jakarta.servlet.http.HttpServletRequest;
 import spring.work.global.constant.ResultCode;
 import spring.work.global.dto.TokenInfo;
 import spring.work.user.dto.request.Login;
@@ -11,5 +12,5 @@ public interface UserService {
 
     TokenInfo login(Login login);
 
-    ResultCode logout();
+    ResultCode logout(HttpServletRequest request);
 }

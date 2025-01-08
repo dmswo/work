@@ -3,6 +3,7 @@ package spring.work.global.security.jwt;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -11,6 +12,7 @@ import org.springframework.security.core.GrantedAuthority;
 
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 import spring.work.global.constant.ExceptionCode;
 import spring.work.global.dto.TokenInfo;
 import spring.work.global.exception.BusinessException;
@@ -26,6 +28,7 @@ import java.util.stream.Stream;
 @Component
 public class JwtTokenProvider {
     private static final String BEARER_TYPE = "Bearer";
+    private static final String AUTHORIZATION_HEADER = "Authorization";
 //    private static final long ACCESS_TOKEN_EXPIRE_TIME = 1000 * 60 * 30; // 30분
 private static final long ACCESS_TOKEN_EXPIRE_TIME = 1000 * 300; // 30분
     private final Key key;
@@ -33,6 +36,14 @@ private static final long ACCESS_TOKEN_EXPIRE_TIME = 1000 * 300; // 30분
     public JwtTokenProvider(@Value("${jwt.secret}") String secretKey) {
         byte[] keyBytes = Decoders.BASE64.decode(secretKey);
         this.key = Keys.hmacShaKeyFor(keyBytes);
+    }
+
+    public String resolveToken(HttpServletRequest request) {
+        String bearerToken = request.getHeader(AUTHORIZATION_HEADER);
+        if (StringUtils.hasText(bearerToken) && bearerToken.startsWith(BEARER_TYPE)) {
+            return bearerToken.split(" ")[1].trim();
+        }
+        return null;
     }
 
     public TokenInfo generateToken(Authentication authentication) {

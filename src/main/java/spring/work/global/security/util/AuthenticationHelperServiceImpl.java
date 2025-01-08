@@ -1,5 +1,6 @@
 package spring.work.global.security.util;
 
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -59,6 +60,14 @@ public class AuthenticationHelperServiceImpl implements AuthenticationHelperServ
 
         checkTokenStatus(redisKey, token);
         setAuthenticationToRedis(authentication, redisKey, token);
+    }
+
+    @Override
+    public void logout(HttpServletRequest request) {
+        String token = jwtTokenProvider.resolveToken(request);
+        Authentication authentication = jwtTokenProvider.getAuthentication(token);
+        AuthUser authUser = (AuthUser) authentication.getPrincipal();
+        redisUtil.deleteValues(authUser.getUserId());
     }
 
     private void checkTokenStatus(String redisKey, String token) {

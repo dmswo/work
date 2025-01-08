@@ -22,9 +22,9 @@ public class AuthUser implements UserDetails {
     private UserRole userRole;
 
     public void setDefaultInfo(AuthUser user) {
-        properties.put("userId", user);
-        properties.put("nickName", nickName);
-        properties.put("userRole", userRole);
+        properties.put("userId", user.getUserId());
+        properties.put("nickName", user.getNickName());
+        properties.put("userRole", user.getUserRole().name());
     }
 
     @Override
