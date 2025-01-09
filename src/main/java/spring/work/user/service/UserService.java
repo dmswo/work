@@ -13,4 +13,8 @@ public interface UserService {
     TokenInfo login(Login login);
 
     ResultCode logout(HttpServletRequest request);
+
+    TokenInfo reissue(HttpServletRequest request);
+
+    String test(HttpServletRequest request);
 }

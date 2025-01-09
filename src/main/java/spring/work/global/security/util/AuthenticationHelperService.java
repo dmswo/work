@@ -13,4 +13,6 @@ public interface AuthenticationHelperService {
     void saveAuthentication(Authentication authentication, String token);
 
     void logout(HttpServletRequest request);
+
+    TokenInfo reissue(HttpServletRequest request);
 }

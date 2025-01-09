@@ -3,7 +3,6 @@ package spring.work.global.security.util;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
@@ -48,7 +47,7 @@ public class AuthenticationHelperServiceImpl implements AuthenticationHelperServ
         TokenInfo tokenInfo = jwtTokenProvider.generateToken(authentication);
 
         // 인증 정보 저장(redis 및 SecurityContext)
-        setAuthenticationToRedis(authentication, login.getUserId(), tokenInfo.getAccessToken());
+        setAuthenticationToRedis(authentication, login.getUserId(), tokenInfo.getRefreshToken());
 
         return tokenInfo;
     }
@@ -58,8 +57,10 @@ public class AuthenticationHelperServiceImpl implements AuthenticationHelperServ
         AuthUser authUser = (AuthUser) authentication.getPrincipal();
         String redisKey = authUser.getUserId();
 
+        // 토큰 검증
         checkTokenStatus(redisKey, token);
-        setAuthenticationToRedis(authentication, redisKey, token);
+        // 인증정보 SecurityContext 저장
+        setAuthentication(authentication);
     }
 
     @Override
@@ -72,10 +73,28 @@ public class AuthenticationHelperServiceImpl implements AuthenticationHelperServ
         setBlackListTokenAndDeleteToken(token, authUser.getUserId());
     }
 
+    @Override
+    public TokenInfo reissue(HttpServletRequest request) {
+        String token = jwtTokenProvider.resolveToken(request);
+
+        // RefreshToken 검증
+        jwtTokenProvider.validateToken(token);
+
+        // 신규 Refresh 토큰 및 Access 토큰 발급
+        Authentication authentication = jwtTokenProvider.getAuthentication(token);
+        AuthUser authUser = (AuthUser) authentication.getPrincipal();
+        authUser.setDefaultInfo(authUser);
+        TokenInfo tokenInfo = jwtTokenProvider.generateToken(authentication);
+
+        // 인증정보 redis 및 securityContext에 저장
+        setAuthenticationToRedis(authentication, authentication.getName(), tokenInfo.getRefreshToken());
+        return tokenInfo;
+    }
+
     private void checkTokenStatus(String redisKey, String token) {
         checkEmpty(token);
         checkLoggedOut(token);
-        checkExpired(redisKey);
+        //checkExpired(redisKey);
     }
 
     private void checkEmpty(String token) {
@@ -94,15 +113,16 @@ public class AuthenticationHelperServiceImpl implements AuthenticationHelperServ
         String token = getToken(redisKey);
     }
 
-    /**
-     * 인증정보 redis 및 securityContext에 저장
-     */
+    private void setAuthentication(Authentication authentication) {
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+    }
+
     private void setAuthenticationToRedis(Authentication authentication, String redisKey, String token) {
         // 토큰 redis 저장
         setToken(redisKey, token);
 
         // 인증정보 SecurityContext 저장
-        SecurityContextHolder.getContext().setAuthentication(authentication);
+        setAuthentication(authentication);
     }
 
     private void setBlackListTokenAndDeleteToken(String token, String userId) {

@@ -48,4 +48,15 @@ public class UserServiceImpl implements UserService {
         authenticationHelperService.logout(request);
         return ResultCode.OK;
     }
+
+    @Override
+    public TokenInfo reissue(HttpServletRequest request) {
+        return authenticationHelperService.reissue(request);
+    }
+
+    @Override
+    public String test(HttpServletRequest request) {
+
+        return "OK";
+    }
 }
