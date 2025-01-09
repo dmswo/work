@@ -29,8 +29,7 @@ import java.util.stream.Stream;
 public class JwtTokenProvider {
     private static final String BEARER_TYPE = "Bearer";
     private static final String AUTHORIZATION_HEADER = "Authorization";
-//    private static final long ACCESS_TOKEN_EXPIRE_TIME = 1000 * 60 * 30; // 30분
-private static final long ACCESS_TOKEN_EXPIRE_TIME = 1000 * 300; // 30분
+    private static final long ACCESS_TOKEN_EXPIRE_TIME = 1000 * 60 * 10; // 30분
     private final Key key;
 
     public JwtTokenProvider(@Value("${jwt.secret}") String secretKey) {

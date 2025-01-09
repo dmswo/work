@@ -67,11 +67,14 @@ public class AuthenticationHelperServiceImpl implements AuthenticationHelperServ
         String token = jwtTokenProvider.resolveToken(request);
         Authentication authentication = jwtTokenProvider.getAuthentication(token);
         AuthUser authUser = (AuthUser) authentication.getPrincipal();
-        redisUtil.deleteValues(authUser.getUserId());
+
+        // 블랙리스트(로그아웃 된 토큰) 저장 및 레디스 토큰 삭제
+        setBlackListTokenAndDeleteToken(token, authUser.getUserId());
     }
 
     private void checkTokenStatus(String redisKey, String token) {
         checkEmpty(token);
+        checkLoggedOut(token);
         checkExpired(redisKey);
     }
 
@@ -79,6 +82,12 @@ public class AuthenticationHelperServiceImpl implements AuthenticationHelperServ
         if (token == null) {
             throw new BusinessException(ExceptionCode.TOKEN_EXPIRE);
         }
+    }
+
+    private void checkLoggedOut(String token) {
+        String values = redisUtil.getValues(token);
+        if ("logout".equals(values))
+            throw new BusinessException(ExceptionCode.TOKEN_LOGOUT);
     }
 
     private void checkExpired(String redisKey) {
@@ -94,5 +103,10 @@ public class AuthenticationHelperServiceImpl implements AuthenticationHelperServ
 
         // 인증정보 SecurityContext 저장
         SecurityContextHolder.getContext().setAuthentication(authentication);
+    }
+
+    private void setBlackListTokenAndDeleteToken(String token, String userId) {
+        setToken(token, "logout");
+        redisUtil.deleteValues(userId);
     }
 }
