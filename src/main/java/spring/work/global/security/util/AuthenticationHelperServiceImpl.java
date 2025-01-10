@@ -94,7 +94,7 @@ public class AuthenticationHelperServiceImpl implements AuthenticationHelperServ
     private void checkTokenStatus(String redisKey, String token) {
         checkEmpty(token);
         checkLoggedOut(token);
-        //checkExpired(redisKey);
+        checkExpired(redisKey);
     }
 
     private void checkEmpty(String token) {
@@ -111,6 +111,7 @@ public class AuthenticationHelperServiceImpl implements AuthenticationHelperServ
 
     private void checkExpired(String redisKey) {
         String token = getToken(redisKey);
+        checkEmpty(token);
     }
 
     private void setAuthentication(Authentication authentication) {
