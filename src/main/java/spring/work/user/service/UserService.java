@@ -10,7 +10,7 @@ public interface UserService {
 
     ResultCode signup(Signup dto);
 
-    TokenInfo login(Login login);
+    TokenInfo login(Login login, String ip);
 
     ResultCode logout(HttpServletRequest request);
 

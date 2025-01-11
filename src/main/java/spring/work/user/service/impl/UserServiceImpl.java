@@ -35,11 +35,9 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public TokenInfo login(Login login) {
+    public TokenInfo login(Login login, String ip) {
         TokenInfo tokenInfo = authenticationHelperService.processLoginAndReturnToken(login);
-
-        // 접속 기록 저장 로직 추가 예정
-
+        userMapper.saveLoginHistory(login.getUserId(), ip);
         return tokenInfo;
     }
 

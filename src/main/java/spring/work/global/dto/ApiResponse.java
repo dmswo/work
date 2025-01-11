@@ -3,11 +3,9 @@ package spring.work.global.dto;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.springframework.validation.ObjectError;
 import spring.work.global.constant.ResultCode;
 import spring.work.global.constant.ExceptionCode;
 
-import java.util.List;
 import java.util.Map;
 
 @Getter

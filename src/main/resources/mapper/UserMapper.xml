@@ -19,4 +19,8 @@
           from user
          where userId = #{userId}
     </select>
+
+    <insert id="saveLoginHistory">
+        insert into userLoginHistory (userId, ip) values (#{userId}, #{ip})
+    </insert>
 </mapper>

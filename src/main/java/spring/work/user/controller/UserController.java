@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import spring.work.global.dto.ApiResponse;
 import spring.work.global.constant.ResultCode;
 import spring.work.global.dto.TokenInfo;
+import spring.work.global.utils.UtilService;
 import spring.work.user.dto.request.Login;
 import spring.work.user.dto.request.Signup;
 import spring.work.user.service.UserService;
@@ -22,7 +23,7 @@ import spring.work.user.service.UserService;
 @RequiredArgsConstructor
 @RequestMapping("/user")
 @Tag(name="/user", description = "유저 관련 API")
-public class UserController {
+public class UserController extends UtilService {
 
     private final UserService userService;
 
@@ -34,8 +35,8 @@ public class UserController {
 
     @Operation(summary = "로그인 API", description = "로그인 API")
     @PostMapping("/login")
-    public ApiResponse<TokenInfo> login(@RequestBody @Valid Login login) {
-        return ApiResponse.successResponse(userService.login(login));
+    public ApiResponse<TokenInfo> login(@RequestBody @Valid Login login, HttpServletRequest request) {
+        return ApiResponse.successResponse(userService.login(login, getClientIp(request)));
     }
 
     @Operation(summary = "로그아웃 API", description = "로그아웃 API")

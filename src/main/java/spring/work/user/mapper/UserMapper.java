@@ -1,6 +1,7 @@
 package spring.work.user.mapper;
 
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 import spring.work.global.security.auth.AuthUser;
 import spring.work.user.dto.request.Signup;
 
@@ -14,4 +15,6 @@ public interface UserMapper {
     Optional<AuthUser> selectAuthUserByUserId(String userId);
 
     int existsByUserId(String userId);
+
+    void saveLoginHistory(@Param("userId") String userId, @Param("ip") String ip);
 }
