@@ -10,10 +10,7 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import spring.work.global.security.jwt.JwtAccessDeniedHandler;
-import spring.work.global.security.jwt.JwtAuthenticationEntryPoint;
-import spring.work.global.security.jwt.JwtTokenFilter;
-import spring.work.global.security.jwt.JwtTokenProvider;
+import spring.work.global.security.jwt.*;
 import spring.work.global.security.util.AuthenticationHelperService;
 
 @Configuration
@@ -23,6 +20,7 @@ public class SecurityConfig {
 
     private final JwtTokenProvider jwtTokenProvider;
     private final AuthenticationHelperService authenticationHelperService;
+    private final DefaultFilterResponseWriter defaultFilterResponseWriter;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -38,7 +36,8 @@ public class SecurityConfig {
                 )
                 .exceptionHandling(exceptionHandling -> exceptionHandling.authenticationEntryPoint(new JwtAuthenticationEntryPoint()))
                 .exceptionHandling(exceptionHandling -> exceptionHandling.accessDeniedHandler(new JwtAccessDeniedHandler()))
-                .addFilterBefore(new JwtTokenFilter(jwtTokenProvider, authenticationHelperService), UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(new CustomFilterExceptionHandler(defaultFilterResponseWriter), UsernamePasswordAuthenticationFilter.class)
+                .addFilterAfter(new JwtTokenFilter(jwtTokenProvider, authenticationHelperService), CustomFilterExceptionHandler.class)
                 .headers(
                         headersConfigurer ->
                                 headersConfigurer

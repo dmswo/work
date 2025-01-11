@@ -11,8 +11,9 @@ public enum ExceptionCode {
     USER_NOT_FOUND("USERNAME_NOT_FOUND", "유저 정보를 찾을 수 없습니다."),
     USER_EXIST("USER_EXIST", "이미 존재하는 유저ID입니다."),
 
-    TOKEN_ERROR("TOKEN_ERROR", "토큰 에러"),
+    TOKEN_ERROR("TOKEN_ERROR", "잘못된 토큰입니다."),
     TOKEN_EXPIRE("TOKEN_EXPIRE", "만료된 토큰입니다."),
+    TOKEN_UNSUPPORTED("TOKEN_UNSUPPORTED", "지원하지 않는 형식의 토큰입니다."),
     TOKEN_LOGOUT("TOKEN_LOGOUT", "이미 로그아웃 된 토큰입니다.");
 
     private final String code;

@@ -107,7 +107,7 @@ public class JwtTokenProvider {
         try {
             Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
             return true;
-        } catch (io.jsonwebtoken.security.SecurityException | MalformedJwtException e) {
+        } catch (io.jsonwebtoken.security.SecurityException | MalformedJwtException | IllegalArgumentException e) {
             log.error("Invalid JWT Token", e);
             throw e;
         } catch (ExpiredJwtException e) {
@@ -115,9 +115,6 @@ public class JwtTokenProvider {
             throw e;
         } catch (UnsupportedJwtException e) {
             log.error("Unsupported JWT Token", e);
-            throw e;
-        } catch (IllegalArgumentException e) {
-            log.error("JWT claims string is empty.", e);
             throw e;
         }
     }
