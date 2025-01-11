@@ -7,6 +7,7 @@ import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import spring.work.global.constant.ExceptionCode;
 import spring.work.global.dto.ApiResponse;
 
 import java.util.HashMap;
@@ -37,5 +38,11 @@ public class BusinessExceptionHandler {
     public ApiResponse<?> handleBusinessException(BusinessException e) {
         log.error("handleBusinessException e.code : {}, e.message : {}", e.getExceptionCode().getCode(), e.getMessage());
         return ApiResponse.errorResponse(e.getExceptionCode());
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ApiResponse<?> handleException(Exception e) {
+        log.error("handleException e.message : {}", e.getMessage());
+        return ApiResponse.errorResponse(ExceptionCode.FAIL);
     }
 }
