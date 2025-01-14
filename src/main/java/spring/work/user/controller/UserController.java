@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import spring.work.global.dto.ApiResponse;
 import spring.work.global.constant.ResultCode;
 import spring.work.global.dto.TokenInfo;
+import spring.work.global.rabbitmq.dto.MessageDto;
 import spring.work.global.utils.UtilService;
 import spring.work.user.dto.request.Login;
 import spring.work.user.dto.request.Signup;
@@ -51,9 +52,9 @@ public class UserController extends UtilService {
         return ApiResponse.successResponse(userService.reissue(request));
     }
 
-    @Operation(summary = "test API", description = "test API")
-    @PostMapping("/test")
-    public ApiResponse<String> test(HttpServletRequest request) {
-        return ApiResponse.successResponse(userService.test(request));
+    @Operation(summary = "rabbitMqTest API", description = "rabbitMqTest API")
+    @PostMapping("/rabbitMqTest")
+    public ApiResponse<String> test(MessageDto messageDto) {
+        return ApiResponse.successResponse(userService.rabbitMqTest(messageDto));
     }
 }

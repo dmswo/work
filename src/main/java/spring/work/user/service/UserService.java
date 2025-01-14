@@ -3,6 +3,7 @@ package spring.work.user.service;
 import jakarta.servlet.http.HttpServletRequest;
 import spring.work.global.constant.ResultCode;
 import spring.work.global.dto.TokenInfo;
+import spring.work.global.rabbitmq.dto.MessageDto;
 import spring.work.user.dto.request.Login;
 import spring.work.user.dto.request.Signup;
 
@@ -16,5 +17,5 @@ public interface UserService {
 
     TokenInfo reissue(HttpServletRequest request);
 
-    String test(HttpServletRequest request);
+    String rabbitMqTest(MessageDto messageDto);
 }

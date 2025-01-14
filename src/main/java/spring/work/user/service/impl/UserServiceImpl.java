@@ -9,6 +9,8 @@ import spring.work.global.dto.TokenInfo;
 import spring.work.global.exception.BusinessException;
 import spring.work.global.constant.ExceptionCode;
 import spring.work.global.constant.ResultCode;
+import spring.work.global.rabbitmq.RabbitMqService;
+import spring.work.global.rabbitmq.dto.MessageDto;
 import spring.work.global.security.util.AuthenticationHelperService;
 import spring.work.user.dto.request.Login;
 import spring.work.user.mapper.UserMapper;
@@ -23,6 +25,7 @@ public class UserServiceImpl implements UserService {
     private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationHelperService authenticationHelperService;
+    private final RabbitMqService rabbitMqService;
 
     @Override
     public ResultCode signup(Signup dto) {
@@ -53,8 +56,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public String test(HttpServletRequest request) {
-
+    public String rabbitMqTest(MessageDto messageDto) {
+        rabbitMqService.sendMessage(messageDto);
         return "OK";
     }
 }
