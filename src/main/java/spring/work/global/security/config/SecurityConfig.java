@@ -37,7 +37,6 @@ public class SecurityConfig {
                 .exceptionHandling(exceptionHandling -> exceptionHandling.authenticationEntryPoint(new JwtAuthenticationEntryPoint()))
                 .exceptionHandling(exceptionHandling -> exceptionHandling.accessDeniedHandler(new JwtAccessDeniedHandler()))
                 .addFilterBefore(new CustomFilterExceptionHandler(defaultFilterResponseWriter), UsernamePasswordAuthenticationFilter.class)
-//                .addFilterBefore(new JwtTokenFilter(jwtTokenProvider, authenticationHelperService), UsernamePasswordAuthenticationFilter.class)
                 .addFilterAfter(new JwtTokenFilter(jwtTokenProvider, authenticationHelperService), CustomFilterExceptionHandler.class)
                 .headers(
                         headersConfigurer ->
