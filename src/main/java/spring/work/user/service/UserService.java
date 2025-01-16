@@ -17,5 +17,9 @@ public interface UserService {
 
     TokenInfo reissue(HttpServletRequest request);
 
-    String rabbitMqTest(MessageDto messageDto);
+    String eventMq(MessageDto messageDto);
+
+    String productMq(MessageDto messageDto);
+
+    String ticketMq(MessageDto messageDto);
 }

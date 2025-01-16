@@ -56,8 +56,20 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public String rabbitMqTest(MessageDto messageDto) {
-        rabbitMqService.sendMessage(messageDto);
+    public String eventMq(MessageDto messageDto) {
+        rabbitMqService.eventSendMessage(messageDto);
+        return "OK";
+    }
+
+    @Override
+    public String productMq(MessageDto messageDto) {
+        rabbitMqService.productSendMessage(messageDto);
+        return "OK";
+    }
+
+    @Override
+    public String ticketMq(MessageDto messageDto) {
+        rabbitMqService.ticketSendMessage(messageDto);
         return "OK";
     }
 }

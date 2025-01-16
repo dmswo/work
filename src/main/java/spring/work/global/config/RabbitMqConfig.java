@@ -10,6 +10,7 @@ import org.springframework.amqp.support.converter.MessageConverter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import spring.work.global.rabbitmq.RabbitMqProperties;
 
 @RequiredArgsConstructor
@@ -17,8 +18,14 @@ import spring.work.global.rabbitmq.RabbitMqProperties;
 public class RabbitMqConfig {
     private final RabbitMqProperties rabbitMqProperties;
 
-    @Value("${rabbitmq.queue.name}")
-    private String queueName;
+    @Value("${rabbitmq.queue.event}")
+    private String eventQueue;
+
+    @Value("${rabbitmq.queue.product}")
+    private String productQueue;
+
+    @Value("${rabbitmq.queue.ticket}")
+    private String ticketQueue;
 
     @Value("${rabbitmq.exchange.name}")
     private String exchangeName;
@@ -26,10 +33,20 @@ public class RabbitMqConfig {
     @Value("${rabbitmq.routing.key}")
     private String routingKey;
 
-    // org.springframework.amqp.core.Queue
     @Bean
-    public Queue queue() {
-        return new Queue(queueName);
+    @Primary
+    public Queue eventQueue() {
+        return new Queue(eventQueue);
+    }
+
+    @Bean
+    public Queue productQueue() {
+        return new Queue(productQueue);
+    }
+
+    @Bean
+    public Queue ticketQueue() {
+        return new Queue(ticketQueue);
     }
 
     /**
@@ -45,7 +62,18 @@ public class RabbitMqConfig {
      * Exchange 에 Queue 을 등록한다고 이해하자
      **/
     @Bean
-    public Binding binding(Queue queue, DirectExchange exchange) {
+    @Primary
+    public Binding eventBinding() {
+        return BindingBuilder.bind(productQueue()).to(directExchange()).with(routingKey);
+    }
+
+    @Bean
+    public Binding productBinding(Queue queue, DirectExchange exchange) {
+        return BindingBuilder.bind(queue).to(exchange).with(routingKey);
+    }
+
+    @Bean
+    public Binding ticketBinding(Queue queue, DirectExchange exchange) {
         return BindingBuilder.bind(queue).to(exchange).with(routingKey);
     }
 

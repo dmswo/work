@@ -52,9 +52,21 @@ public class UserController extends UtilService {
         return ApiResponse.successResponse(userService.reissue(request));
     }
 
-    @Operation(summary = "rabbitMqTest API", description = "rabbitMqTest API")
-    @PostMapping("/rabbitMqTest")
-    public ApiResponse<String> test(MessageDto messageDto) {
-        return ApiResponse.successResponse(userService.rabbitMqTest(messageDto));
+    @Operation(summary = "eventMq API", description = "eventMq API")
+    @PostMapping("/eventMq")
+    public ApiResponse<String> eventMq(MessageDto messageDto) {
+        return ApiResponse.successResponse(userService.eventMq(messageDto));
+    }
+
+    @Operation(summary = "productMq API", description = "productMq API")
+    @PostMapping("/productMq")
+    public ApiResponse<String> productMq(MessageDto messageDto) {
+        return ApiResponse.successResponse(userService.productMq(messageDto));
+    }
+
+    @Operation(summary = "ticketMq API", description = "ticketMq API")
+    @PostMapping("/ticketMq")
+    public ApiResponse<String> ticketMq(MessageDto messageDto) {
+        return ApiResponse.successResponse(userService.ticketMq(messageDto));
     }
 }

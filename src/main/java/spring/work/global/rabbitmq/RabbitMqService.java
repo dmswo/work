@@ -13,14 +13,14 @@ import spring.work.global.rabbitmq.dto.MessageDto;
 @RequiredArgsConstructor
 public class RabbitMqService {
 
-    @Value("${rabbitmq.queue.name}")
-    private String queueName;
+    @Value("${rabbitmq.queue.event}")
+    private String eventQueue;
 
-    @Value("${rabbitmq.exchange.name}")
-    private String exchangeName;
+    @Value("${rabbitmq.queue.product}")
+    private String productQueue;
 
-    @Value("${rabbitmq.routing.key}")
-    private String routingKey;
+    @Value("${rabbitmq.queue.ticket}")
+    private String ticketQueue;
 
     private final RabbitTemplate rabbitTemplate;
 
@@ -28,16 +28,36 @@ public class RabbitMqService {
      * 1. Queue 로 메세지를 발행
      * 2. Producer 역할 -> Direct Exchange 전략
      **/
-    public void sendMessage(MessageDto messageDto) {
-        log.info("messagge send: {}",messageDto.toString());
-        this.rabbitTemplate.convertAndSend(exchangeName,routingKey,messageDto);
+    public void eventSendMessage(MessageDto messageDto) {
+        log.info("eventSendMessage : {}",messageDto.toString());
+        rabbitTemplate.convertAndSend(eventQueue, messageDto);
+    }
+
+    public void productSendMessage(MessageDto messageDto) {
+        log.info("productSendMessage : {}",messageDto.toString());
+        this.rabbitTemplate.convertAndSend(productQueue, messageDto);
+    }
+
+    public void ticketSendMessage(MessageDto messageDto) {
+        log.info("ticketSendMessage : {}",messageDto.toString());
+        this.rabbitTemplate.convertAndSend(ticketQueue, messageDto);
     }
 
     /**
      * 1. Queue 에서 메세지를 구독
      **/
-    @RabbitListener(queues = "${rabbitmq.queue.name}")
-    public void receiveMessage(MessageDto messageDto) {
-        log.info("Received Message : {}",messageDto.toString());
+    @RabbitListener(queues = "${rabbitmq.queue.event}")
+    public void receiveEventMessage(MessageDto messageDto) {
+        log.info("receiveEventMessage : {}",messageDto.toString());
+    }
+
+    @RabbitListener(queues = "${rabbitmq.queue.product}")
+    public void receiveProductMessage(MessageDto messageDto) {
+        log.info("receiveProductMessage : {}",messageDto.toString());
+    }
+
+    @RabbitListener(queues = "${rabbitmq.queue.ticket}")
+    public void receiveTicketMessage(MessageDto messageDto) {
+        log.info("receiveTicketMessage : {}",messageDto.toString());
     }
 }
