@@ -60,4 +60,14 @@ public class RabbitMqService {
     public void receiveTicketMessage(MessageDto messageDto) {
         log.info("receiveTicketMessage : {}",messageDto.toString());
     }
+
+    @RabbitListener(queues = "${rabbitmq.queue.ticket}")
+    public void receiveTicketMessage2(MessageDto messageDto) {
+        log.info("receiveTicketMessage2 : {}",messageDto.toString());
+    }
+
+    @RabbitListener(queues = "${rabbitmq.queue.ticket}")
+    public void receiveTicketMessage3(MessageDto messageDto) {
+        log.info("receiveTicketMessage3 : {}",messageDto.toString());
+    }
 }
