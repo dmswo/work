@@ -11,7 +11,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import spring.work.global.security.jwt.*;
-import spring.work.global.security.util.AuthenticationHelperService;
+import spring.work.global.security.utils.AuthenticationHelperService;
 
 @Configuration
 @EnableWebSecurity

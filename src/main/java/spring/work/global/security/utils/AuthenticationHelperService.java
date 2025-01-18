@@ -1,4 +1,4 @@
-package spring.work.global.security.util;
+package spring.work.global.security.utils;
 
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.security.core.Authentication;

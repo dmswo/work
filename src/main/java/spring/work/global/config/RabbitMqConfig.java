@@ -27,6 +27,9 @@ public class RabbitMqConfig {
     @Value("${rabbitmq.queue.ticket}")
     private String ticketQueue;
 
+    @Value("${rabbitmq.queue.mail}")
+    private String mailQueue;
+
     @Value("${rabbitmq.exchange.name}")
     private String exchangeName;
 
@@ -49,9 +52,11 @@ public class RabbitMqConfig {
         return new Queue(ticketQueue);
     }
 
-    /**
-     * 지정된 Exchange 이름으로 Direct Exchange Bean 을 생성
-     */
+    @Bean
+    public Queue mailQueue() {
+        return new Queue(mailQueue);
+    }
+
     @Bean
     public DirectExchange directExchange() {
         return new DirectExchange(exchangeName);
@@ -62,24 +67,10 @@ public class RabbitMqConfig {
      * Exchange 에 Queue 을 등록한다고 이해하자
      **/
     @Bean
-    @Primary
-    public Binding eventBinding() {
-        return BindingBuilder.bind(productQueue()).to(directExchange()).with(routingKey);
-    }
-
-    @Bean
-    public Binding productBinding(Queue queue, DirectExchange exchange) {
+    public Binding eventBinding(Queue queue, DirectExchange exchange) {
         return BindingBuilder.bind(queue).to(exchange).with(routingKey);
     }
 
-    @Bean
-    public Binding ticketBinding(Queue queue, DirectExchange exchange) {
-        return BindingBuilder.bind(queue).to(exchange).with(routingKey);
-    }
-
-    /**
-     * RabbitMQ 연동을 위한 ConnectionFactory 빈을 생성하여 반환
-     **/
     @Bean
     public CachingConnectionFactory connectionFactory() {
         CachingConnectionFactory connectionFactory = new CachingConnectionFactory();
@@ -90,10 +81,6 @@ public class RabbitMqConfig {
         return connectionFactory;
     }
 
-    /**
-     * RabbitTemplate
-     * ConnectionFactory 로 연결 후 실제 작업을 위한 Template
-     */
     @Bean
     public RabbitTemplate rabbitTemplate(ConnectionFactory connectionFactory) {
         RabbitTemplate rabbitTemplate = new RabbitTemplate(connectionFactory);
@@ -101,9 +88,6 @@ public class RabbitMqConfig {
         return rabbitTemplate;
     }
 
-    /**
-     * 직렬화(메세지를 JSON 으로 변환하는 Message Converter)
-     */
     @Bean
     public MessageConverter jackson2JsonMessageConverter() {
         return new Jackson2JsonMessageConverter();

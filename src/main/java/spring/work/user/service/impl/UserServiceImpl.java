@@ -9,9 +9,9 @@ import spring.work.global.dto.TokenInfo;
 import spring.work.global.exception.BusinessException;
 import spring.work.global.constant.ExceptionCode;
 import spring.work.global.constant.ResultCode;
-import spring.work.global.rabbitmq.RabbitMqService;
 import spring.work.global.rabbitmq.dto.MessageDto;
-import spring.work.global.security.util.AuthenticationHelperService;
+import spring.work.global.rabbitmq.utils.ProducerHelperService;
+import spring.work.global.security.utils.AuthenticationHelperService;
 import spring.work.user.dto.request.Login;
 import spring.work.user.mapper.UserMapper;
 import spring.work.user.dto.request.Signup;
@@ -25,7 +25,7 @@ public class UserServiceImpl implements UserService {
     private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationHelperService authenticationHelperService;
-    private final RabbitMqService rabbitMqService;
+    private final ProducerHelperService producerHelperService;
 
     @Override
     public ResultCode signup(Signup dto) {
@@ -34,6 +34,13 @@ public class UserServiceImpl implements UserService {
         }
         dto.encodedPassword(passwordEncoder.encode(dto.getPassword()));
         userMapper.signup(dto);
+
+        // 회원가입 알림 메일 발송
+        MessageDto messageDto = new MessageDto();
+        messageDto.setTitle("제목");
+        messageDto.setTitle("내용");
+        producerHelperService.sendMail(messageDto);
+
         return ResultCode.OK;
     }
 
@@ -57,19 +64,19 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public String eventMq(MessageDto messageDto) {
-        rabbitMqService.eventSendMessage(messageDto);
+        producerHelperService.eventSendMessage(messageDto);
         return "OK";
     }
 
     @Override
     public String productMq(MessageDto messageDto) {
-        rabbitMqService.productSendMessage(messageDto);
+        producerHelperService.productSendMessage(messageDto);
         return "OK";
     }
 
     @Override
     public String ticketMq(MessageDto messageDto) {
-        rabbitMqService.ticketSendMessage(messageDto);
+        producerHelperService.ticketSendMessage(messageDto);
         return "OK";
     }
 }

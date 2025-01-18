@@ -9,7 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
-import spring.work.global.security.util.AuthenticationHelperService;
+import spring.work.global.security.utils.AuthenticationHelperService;
 
 import java.io.IOException;
 
