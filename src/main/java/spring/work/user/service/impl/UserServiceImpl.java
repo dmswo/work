@@ -37,8 +37,9 @@ public class UserServiceImpl implements UserService {
 
         // 회원가입 알림 메일 발송
         MessageDto messageDto = new MessageDto();
-        messageDto.setTitle("제목");
-        messageDto.setTitle("내용");
+        messageDto.setSubject("제목");
+        messageDto.setContent("내용");
+        messageDto.setToEmail("dmswo106@naver.com");
         producerHelperService.sendMail(messageDto);
 
         return ResultCode.OK;
