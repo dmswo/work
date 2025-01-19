@@ -9,7 +9,7 @@ import spring.work.global.dto.TokenInfo;
 import spring.work.global.exception.BusinessException;
 import spring.work.global.constant.ExceptionCode;
 import spring.work.global.constant.ResultCode;
-import spring.work.global.rabbitmq.dto.MessageDto;
+import spring.work.global.rabbitmq.dto.MailDto;
 import spring.work.global.rabbitmq.utils.ProducerHelperService;
 import spring.work.global.security.utils.AuthenticationHelperService;
 import spring.work.user.dto.request.Login;
@@ -36,11 +36,11 @@ public class UserServiceImpl implements UserService {
         userMapper.signup(dto);
 
         // 회원가입 알림 메일 발송
-        MessageDto messageDto = new MessageDto();
-        messageDto.setSubject("제목");
-        messageDto.setContent("내용");
-        messageDto.setToEmail("dmswo106@naver.com");
-        producerHelperService.sendMail(messageDto);
+        MailDto mail = MailDto.builder()
+                .subject("Work 회원가입을 축하합니다.")
+                .content("Work 내용")
+                .toEmail("dmswo106@naver.com").build();
+        producerHelperService.sendMail(mail);
 
         return ResultCode.OK;
     }
@@ -61,23 +61,5 @@ public class UserServiceImpl implements UserService {
     @Override
     public TokenInfo reissue(HttpServletRequest request) {
         return authenticationHelperService.reissue(request);
-    }
-
-    @Override
-    public String eventMq(MessageDto messageDto) {
-        producerHelperService.eventSendMessage(messageDto);
-        return "OK";
-    }
-
-    @Override
-    public String productMq(MessageDto messageDto) {
-        producerHelperService.productSendMessage(messageDto);
-        return "OK";
-    }
-
-    @Override
-    public String ticketMq(MessageDto messageDto) {
-        producerHelperService.ticketSendMessage(messageDto);
-        return "OK";
     }
 }

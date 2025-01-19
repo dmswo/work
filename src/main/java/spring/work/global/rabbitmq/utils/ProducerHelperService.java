@@ -1,10 +1,7 @@
 package spring.work.global.rabbitmq.utils;
 
-import spring.work.global.rabbitmq.dto.MessageDto;
+import spring.work.global.rabbitmq.dto.MailDto;
 
 public interface ProducerHelperService {
-    void eventSendMessage(MessageDto messageDto);
-    void productSendMessage(MessageDto messageDto);
-    void ticketSendMessage(MessageDto messageDto);
-    void sendMail(MessageDto messageDto);
+    void sendMail(MailDto messageDto);
 }

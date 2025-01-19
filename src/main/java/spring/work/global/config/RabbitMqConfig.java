@@ -10,22 +10,12 @@ import org.springframework.amqp.support.converter.MessageConverter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Primary;
 import spring.work.global.rabbitmq.RabbitMqProperties;
 
 @RequiredArgsConstructor
 @Configuration
 public class RabbitMqConfig {
     private final RabbitMqProperties rabbitMqProperties;
-
-    @Value("${rabbitmq.queue.event}")
-    private String eventQueue;
-
-    @Value("${rabbitmq.queue.product}")
-    private String productQueue;
-
-    @Value("${rabbitmq.queue.ticket}")
-    private String ticketQueue;
 
     @Value("${rabbitmq.queue.mail}")
     private String mailQueue;
@@ -35,22 +25,6 @@ public class RabbitMqConfig {
 
     @Value("${rabbitmq.routing.key}")
     private String routingKey;
-
-    @Bean
-    @Primary
-    public Queue eventQueue() {
-        return new Queue(eventQueue);
-    }
-
-    @Bean
-    public Queue productQueue() {
-        return new Queue(productQueue);
-    }
-
-    @Bean
-    public Queue ticketQueue() {
-        return new Queue(ticketQueue);
-    }
 
     @Bean
     public Queue mailQueue() {
@@ -67,7 +41,7 @@ public class RabbitMqConfig {
      * Exchange 에 Queue 을 등록한다고 이해하자
      **/
     @Bean
-    public Binding eventBinding(Queue queue, DirectExchange exchange) {
+    public Binding binding(Queue queue, DirectExchange exchange) {
         return BindingBuilder.bind(queue).to(exchange).with(routingKey);
     }
 
