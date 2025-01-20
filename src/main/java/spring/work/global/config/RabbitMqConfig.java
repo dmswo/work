@@ -10,6 +10,7 @@ import org.springframework.amqp.support.converter.MessageConverter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import spring.work.global.rabbitmq.RabbitMqProperties;
 
 @RequiredArgsConstructor
@@ -20,6 +21,9 @@ public class RabbitMqConfig {
     @Value("${rabbitmq.queue.mail}")
     private String mailQueue;
 
+    @Value("${rabbitmq.queue.error.mail}")
+    private String mailErrorQueue;
+
     @Value("${rabbitmq.exchange.name}")
     private String exchangeName;
 
@@ -27,8 +31,14 @@ public class RabbitMqConfig {
     private String routingKey;
 
     @Bean
+    @Primary
     public Queue mailQueue() {
         return new Queue(mailQueue);
+    }
+
+    @Bean
+    public Queue mailErrorQueue() {
+        return new Queue(mailErrorQueue);
     }
 
     @Bean
@@ -36,10 +46,6 @@ public class RabbitMqConfig {
         return new DirectExchange(exchangeName);
     }
 
-    /**
-     * 주어진 Queue 와 Exchange 을 Binding 하고 Routing Key 을 이용하여 Binding Bean 생성
-     * Exchange 에 Queue 을 등록한다고 이해하자
-     **/
     @Bean
     public Binding binding(Queue queue, DirectExchange exchange) {
         return BindingBuilder.bind(queue).to(exchange).with(routingKey);

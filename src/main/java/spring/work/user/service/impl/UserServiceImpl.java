@@ -36,11 +36,8 @@ public class UserServiceImpl implements UserService {
         userMapper.signup(dto);
 
         // 회원가입 알림 메일 발송
-        MailDto mail = MailDto.builder()
-                .subject("Work 회원가입을 축하합니다.")
-                .content("Work 내용")
-                .toEmail("dmswo106@naver.com").build();
-        producerHelperService.sendMail(mail);
+        MailDto signupMail = MailDto.signupMailOf();
+        producerHelperService.sendMail(signupMail);
 
         return ResultCode.OK;
     }
