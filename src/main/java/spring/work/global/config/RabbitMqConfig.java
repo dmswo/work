@@ -21,11 +21,14 @@ public class RabbitMqConfig {
     @Value("${rabbitmq.queue.mail}")
     private String mailQueue;
 
-    @Value("${rabbitmq.queue.error.mail}")
-    private String mailErrorQueue;
+    @Value("${rabbitmq.queue.dlq.mail}")
+    private String dlqMailQueue;
 
-    @Value("${rabbitmq.exchange.name}")
-    private String exchangeName;
+    @Value("${rabbitmq.exchange.mail}")
+    private String mailExchange;
+
+    @Value("${rabbitmq.exchange.dlx.mail}")
+    private String dlxMailExchange;
 
     @Value("${rabbitmq.routing.key}")
     private String routingKey;
@@ -33,17 +36,20 @@ public class RabbitMqConfig {
     @Bean
     @Primary
     public Queue mailQueue() {
-        return new Queue(mailQueue);
+        return QueueBuilder.durable(mailQueue)
+                .deadLetterExchange(dlxMailExchange)
+                .deadLetterRoutingKey(routingKey)
+                .build();
     }
 
     @Bean
-    public Queue mailErrorQueue() {
-        return new Queue(mailErrorQueue);
+    public Queue dlqMailQueue() {
+        return new Queue(dlqMailQueue);
     }
 
     @Bean
     public DirectExchange directExchange() {
-        return new DirectExchange(exchangeName);
+        return new DirectExchange(mailExchange);
     }
 
     @Bean

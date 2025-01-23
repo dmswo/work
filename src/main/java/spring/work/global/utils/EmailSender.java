@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
+import spring.work.global.exception.BusinessException;
 import spring.work.global.rabbitmq.dto.MailDto;
 
 @Service
@@ -17,8 +18,8 @@ public class EmailSender {
     private final JavaMailSender emailSender;
     private final RabbitTemplate rabbitTemplate;
 
-    @Value("${rabbitmq.queue.error.mail}")
-    private final String errorMailQueue;
+    @Value("${rabbitmq.queue.dlq.mail}")
+    private String errorMailQueue;
 
     public void sendEmail(MailDto messageDto) {
         MimeMessage mailMessage = emailSender.createMimeMessage();

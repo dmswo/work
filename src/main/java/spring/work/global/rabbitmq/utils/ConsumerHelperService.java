@@ -19,7 +19,7 @@ public class ConsumerHelperService {
         emailSender.sendEmail(messageDto);
     }
 
-    @RabbitListener(queues = "${rabbitmq.queue.error.mail}")
+    @RabbitListener(queues = "${rabbitmq.queue.dlq.mail}")
     public void signUpMailErrorMessage(MailDto messageDto) {
         System.out.println(messageDto);
     }
