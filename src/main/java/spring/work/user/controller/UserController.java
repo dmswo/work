@@ -23,9 +23,10 @@ import spring.work.user.service.UserService;
 @RequiredArgsConstructor
 @RequestMapping("/user")
 @Tag(name="/user", description = "유저 관련 API")
-public class UserController extends UtilService {
+public class UserController {
 
     private final UserService userService;
+    private final UtilService utilService;
 
     @Operation(summary = "회원가입 API", description = "회원가입 API")
     @PostMapping("/signup")
@@ -36,7 +37,7 @@ public class UserController extends UtilService {
     @Operation(summary = "로그인 API", description = "로그인 API")
     @PostMapping("/login")
     public ApiResponse<TokenInfo> login(@RequestBody @Valid Login login, HttpServletRequest request) {
-        return ApiResponse.successResponse(userService.login(login, getClientIp(request)));
+        return ApiResponse.successResponse(userService.login(login, utilService.getClientIp((request))));
     }
 
     @Operation(summary = "로그아웃 API", description = "로그아웃 API")

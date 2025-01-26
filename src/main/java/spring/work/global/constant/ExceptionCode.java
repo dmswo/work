@@ -5,6 +5,8 @@ import lombok.Getter;
 @Getter
 public enum ExceptionCode {
     FAIL("FAIL", "특정하지 않은 오류가 발생하였습니다."),
+    ENCRYPT("ENCRYPT", "암호화 에러."),
+    DECRYPT("DECRYPT", "복호화 에러."),
     UNAUTHORIZED("UNAUTHORIZED", "인증 에러."),
     FORBIDDEN("FORBIDDEN", "인가 에러."),
 

@@ -12,6 +12,7 @@ import spring.work.global.constant.ResultCode;
 import spring.work.global.rabbitmq.dto.MailDto;
 import spring.work.global.rabbitmq.utils.ProducerHelperService;
 import spring.work.global.security.utils.AuthenticationHelperService;
+import spring.work.global.utils.UtilService;
 import spring.work.user.dto.request.Login;
 import spring.work.user.mapper.UserMapper;
 import spring.work.user.dto.request.Signup;
@@ -26,13 +27,20 @@ public class UserServiceImpl implements UserService {
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationHelperService authenticationHelperService;
     private final ProducerHelperService producerHelperService;
+    private final UtilService utilService;
 
     @Override
     public ResultCode signup(Signup dto) {
         if (userMapper.existsByUserId(dto.getUserId()) > 0) {
             throw new BusinessException(ExceptionCode.USER_EXIST);
         }
+
         dto.encodedPassword(passwordEncoder.encode(dto.getPassword()));
+        dto.encryptData(
+                utilService.encrypt(dto.getEmail()),
+                utilService.encrypt(dto.getPhone()),
+                utilService.encrypt(dto.getAddress()));
+
         userMapper.signup(dto);
 
         // 회원가입 알림 메일 발송
