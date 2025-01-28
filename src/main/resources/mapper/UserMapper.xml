@@ -24,4 +24,8 @@
     <insert id="saveLoginHistory">
         insert into userLoginHistory (userId, ip) values (#{userId}, #{ip})
     </insert>
+
+    <insert id="sendMailFailHistory">
+        insert into sendMailFailHistory (userId) values (#{userId})
+    </insert>
 </mapper>

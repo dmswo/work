@@ -44,7 +44,10 @@ public class UserServiceImpl implements UserService {
         userMapper.signup(dto);
 
         // 회원가입 알림 메일 발송
-        MailDto signupMail = MailDto.signupMailOf();
+        dto.decryptEmail(utilService.decrypt(dto.getEmail()));
+        dto.changeUserId(dto.getUserId());
+        MailDto signupMail = MailDto.signupMailOf(dto);
+
         producerHelperService.sendMail(signupMail);
 
         return ResultCode.OK;
@@ -66,5 +69,10 @@ public class UserServiceImpl implements UserService {
     @Override
     public TokenInfo reissue(HttpServletRequest request) {
         return authenticationHelperService.reissue(request);
+    }
+
+    @Override
+    public void sendMailFailHistory(MailDto mailDto) {
+        userMapper.sendMailFailHistory(mailDto);
     }
 }

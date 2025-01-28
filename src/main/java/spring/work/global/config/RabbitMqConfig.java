@@ -38,24 +38,36 @@ public class RabbitMqConfig {
     @Primary
     public Queue mailQueue() {
         return QueueBuilder.durable(mailQueue)
-                .deadLetterExchange(dlxMailExchange)
-                .deadLetterRoutingKey(routingKey)
+                .withArgument("x-dead-letter-exchange", dlxMailExchange)
+                .withArgument("x-dead-letter-routing-key", dlqMailQueue)
                 .build();
     }
 
     @Bean
     public Queue dlqMailQueue() {
-        return new Queue(dlqMailQueue);
+        return QueueBuilder.durable(dlqMailQueue).build();
     }
 
     @Bean
-    public DirectExchange directExchange() {
+    @Primary
+    public DirectExchange mailExchange() {
         return new DirectExchange(mailExchange);
     }
 
     @Bean
-    public Binding binding(Queue queue, DirectExchange exchange) {
-        return BindingBuilder.bind(queue).to(exchange).with(routingKey);
+    public DirectExchange dlxMailExchange() {
+        return new DirectExchange(dlxMailExchange);
+    }
+
+    @Bean
+    @Primary
+    public Binding binding() {
+        return BindingBuilder.bind(mailQueue()).to(mailExchange()).with(routingKey);
+    }
+
+    @Bean
+    public Binding dlqBinding() {
+        return BindingBuilder.bind(dlqMailQueue()).to(dlxMailExchange()).with(dlqMailQueue);
     }
 
     @Bean

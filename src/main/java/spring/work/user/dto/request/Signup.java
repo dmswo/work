@@ -6,6 +6,7 @@ import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.Getter;
+import lombok.Setter;
 import spring.work.user.constant.UserRole;
 
 @Getter
@@ -26,7 +27,7 @@ public class Signup {
     @NotBlank(message = "닉네임이 비어있습니다.")
     private String nickname;
 
-    @Schema(defaultValue = "test@naver.com")
+    @Schema(defaultValue = "dmswo106@naver.com")
     @NotBlank(message = "이메일이 비어있습니다.")
     private String email;
 
@@ -49,5 +50,13 @@ public class Signup {
         this.email = email;
         this.phone = phone;
         this.address = address;
+    }
+
+    public void decryptEmail(String email) {
+        this.email = email;
+    }
+
+    public void changeUserId(String userId) {
+        this.userId = userId;
     }
 }
