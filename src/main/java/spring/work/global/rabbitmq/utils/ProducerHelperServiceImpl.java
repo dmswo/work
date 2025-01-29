@@ -12,13 +12,16 @@ import spring.work.global.rabbitmq.dto.MailDto;
 @RequiredArgsConstructor
 public class ProducerHelperServiceImpl implements ProducerHelperService {
 
-    @Value("${rabbitmq.queue.mail}")
-    private String mailQueue;
+    @Value("${rabbitmq.exchange.mail}")
+    private String mailExchange;
+
+    @Value("${rabbitmq.routing.mail}")
+    private String routingKey;
 
     private final RabbitTemplate rabbitTemplate;
 
     @Override
     public void sendMail(MailDto mailDto) {
-        rabbitTemplate.convertAndSend(mailQueue, mailDto);
+        rabbitTemplate.convertAndSend(mailExchange, routingKey, mailDto);
     }
 }

@@ -31,7 +31,7 @@ public class RabbitMqConfig {
     @Value("${rabbitmq.exchange.dlx.mail}")
     private String dlxMailExchange;
 
-    @Value("${rabbitmq.routing.key}")
+    @Value("${rabbitmq.routing.mail}")
     private String routingKey;
 
     @Bean
