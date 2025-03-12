@@ -6,15 +6,14 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import spring.work.global.dto.ApiResponse;
 import spring.work.global.constant.ResultCode;
 import spring.work.global.dto.TokenInfo;
+import spring.work.global.externalApi.workPoint.dto.UserPointInfoApiResponse;
 import spring.work.global.utils.UtilService;
 import spring.work.user.dto.request.Login;
+import spring.work.user.dto.request.PointAdd;
 import spring.work.user.dto.request.Signup;
 import spring.work.user.service.UserService;
 
@@ -50,5 +49,11 @@ public class UserController {
     @PostMapping("/reissue")
     public ApiResponse<TokenInfo> reissue(HttpServletRequest request) {
         return ApiResponse.successResponse(userService.reissue(request));
+    }
+
+    @Operation(summary = "외부 API", description = "외부 API")
+    @GetMapping("/externalApi")
+    public ApiResponse<UserPointInfoApiResponse> externalApi(@RequestParam String userId) {
+        return ApiResponse.successResponse(userService.externalApi(userId));
     }
 }
