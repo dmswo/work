@@ -4,8 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.core.ParameterizedTypeReference;
-
-import java.net.http.HttpHeaders;
+import org.springframework.http.HttpHeaders;
 
 
 @Data

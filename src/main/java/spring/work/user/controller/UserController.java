@@ -12,10 +12,9 @@ import spring.work.global.constant.ResultCode;
 import spring.work.global.dto.TokenInfo;
 import spring.work.global.externalApi.workPoint.dto.UserPointInfoApiResponse;
 import spring.work.global.utils.UtilService;
-import spring.work.user.dto.request.Login;
-import spring.work.user.dto.request.PointAdd;
-import spring.work.user.dto.request.Signup;
+import spring.work.user.dto.request.*;
 import spring.work.user.service.UserService;
+
 
 @RestController
 @Slf4j
