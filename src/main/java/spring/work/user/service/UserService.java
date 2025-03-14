@@ -19,6 +19,4 @@ public interface UserService {
     TokenInfo reissue(HttpServletRequest request);
 
     void sendMailFailHistory(MailDto mailDto);
-
-    UserPointInfoApiResponse externalApi(String userId);
 }

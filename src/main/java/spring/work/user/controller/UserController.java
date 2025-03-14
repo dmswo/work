@@ -10,11 +10,9 @@ import org.springframework.web.bind.annotation.*;
 import spring.work.global.dto.ApiResponse;
 import spring.work.global.constant.ResultCode;
 import spring.work.global.dto.TokenInfo;
-import spring.work.global.externalApi.workPoint.dto.UserPointInfoApiResponse;
 import spring.work.global.utils.UtilService;
 import spring.work.user.dto.request.*;
 import spring.work.user.service.UserService;
-
 
 @RestController
 @Slf4j
@@ -48,11 +46,5 @@ public class UserController {
     @PostMapping("/reissue")
     public ApiResponse<TokenInfo> reissue(HttpServletRequest request) {
         return ApiResponse.successResponse(userService.reissue(request));
-    }
-
-    @Operation(summary = "외부 API", description = "외부 API")
-    @GetMapping("/externalApi")
-    public ApiResponse<UserPointInfoApiResponse> externalApi(@RequestParam String userId) {
-        return ApiResponse.successResponse(userService.externalApi(userId));
     }
 }

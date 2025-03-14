@@ -9,15 +9,12 @@ import spring.work.global.dto.TokenInfo;
 import spring.work.global.exception.BusinessException;
 import spring.work.global.constant.ExceptionCode;
 import spring.work.global.constant.ResultCode;
-import spring.work.global.externalApi.workPoint.WorkPointRequester;
-import spring.work.global.externalApi.workPoint.dto.UserPointInfoApiResponse;
+import spring.work.global.externalApi.workPoint.PointRequester;
 import spring.work.global.rabbitmq.dto.MailDto;
 import spring.work.global.rabbitmq.utils.ProducerHelperService;
-import spring.work.global.security.auth.AuthUser;
 import spring.work.global.security.utils.AuthenticationHelperService;
 import spring.work.global.utils.UtilService;
 import spring.work.user.dto.request.Login;
-import spring.work.user.dto.request.PointAdd;
 import spring.work.user.mapper.UserMapper;
 import spring.work.user.dto.request.Signup;
 import spring.work.user.service.UserService;
@@ -32,7 +29,7 @@ public class UserServiceImpl implements UserService {
     private final AuthenticationHelperService authenticationHelperService;
     private final ProducerHelperService producerHelperService;
     private final UtilService utilService;
-    private final WorkPointRequester workPointRequester;
+    private final PointRequester pointRequester;
 
     @Override
     public ResultCode signup(Signup dto) {
@@ -79,10 +76,5 @@ public class UserServiceImpl implements UserService {
     @Override
     public void sendMailFailHistory(MailDto mailDto) {
         userMapper.sendMailFailHistory(mailDto);
-    }
-
-    @Override
-    public UserPointInfoApiResponse externalApi(String userId) {
-        return workPointRequester.getUserPoint(userId);
     }
 }
