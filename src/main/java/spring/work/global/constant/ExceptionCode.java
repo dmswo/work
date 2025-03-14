@@ -16,7 +16,9 @@ public enum ExceptionCode {
     TOKEN_ERROR("TOKEN_ERROR", "잘못된 토큰입니다."),
     TOKEN_EXPIRE("TOKEN_EXPIRE", "만료된 토큰입니다."),
     TOKEN_UNSUPPORTED("TOKEN_UNSUPPORTED", "지원하지 않는 형식의 토큰입니다."),
-    TOKEN_LOGOUT("TOKEN_LOGOUT", "이미 로그아웃 된 토큰입니다.");
+    TOKEN_LOGOUT("TOKEN_LOGOUT", "이미 로그아웃 된 토큰입니다."),
+
+    EXTERNAL_API_ERROR("EXTERNAL_API_ERROR", "외부 API 호출 에러입니다.");
 
     private final String code;
     private final String message;

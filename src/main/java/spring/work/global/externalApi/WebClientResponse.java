@@ -10,4 +10,8 @@ public class WebClientResponse<RESPONSE> {
     private HttpStatus status;
     private HttpHeaders headers;
     private RESPONSE body;
+
+    public WebClientResponse(RESPONSE body) {
+        this.body = body;
+    }
 }
