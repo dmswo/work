@@ -47,4 +47,10 @@ public class UserController {
     public ApiResponse<TokenInfo> reissue(HttpServletRequest request) {
         return ApiResponse.successResponse(userService.reissue(request));
     }
+
+    @Operation(summary = "토큰 재발행 API", description = "토큰 재발행 API")
+    @PostMapping("/test")
+    public ApiResponse<TokenInfo> test(HttpServletRequest request) {
+        return ApiResponse.successResponse(userService.reissue(request));
+    }
 }

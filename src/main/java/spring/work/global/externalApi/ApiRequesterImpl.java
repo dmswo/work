@@ -2,14 +2,10 @@ package spring.work.global.externalApi;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
-import spring.work.global.exception.BusinessException;
-
-import static spring.work.global.constant.ExceptionCode.EXTERNAL_API_ERROR;
 
 @Slf4j
 @Service
@@ -34,13 +30,24 @@ public class ApiRequesterImpl implements ApiRequester {
     }
 
     private <REQUEST, RESPONSE> WebClientResponse<RESPONSE> requestCommand(HttpMethod httpMethod, ApiRequest<REQUEST, RESPONSE> request) {
-        WebClient.RequestBodySpec requestBodySpec = webClient.mutate()
+        WebClient result = WebClient.builder()
                 .baseUrl(request.getHostUrl())
-                .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE).build();
+
+        WebClient.RequestBodySpec requestBodySpec = result.mutate()
                 .build()
                 .method(httpMethod)
                 .uri(request.getEndPoint())
                 .headers(header -> header.addAll(request.getHeaders()));
+
+
+//        WebClient.RequestBodySpec requestBodySpec = webClient.mutate()
+//                .baseUrl(request.getHostUrl())
+//                .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+//                .build()
+//                .method(httpMethod)
+//                .uri(request.getEndPoint())
+//                .headers(header -> header.addAll(request.getHeaders()));
 
         // 1. retreive 방식 이해하기
         RESPONSE response = requestBodySpec

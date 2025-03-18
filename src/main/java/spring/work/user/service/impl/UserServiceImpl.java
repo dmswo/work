@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import spring.work.global.dto.TokenInfo;
 import spring.work.global.exception.BusinessException;
 import spring.work.global.constant.ExceptionCode;
@@ -32,27 +33,31 @@ public class UserServiceImpl implements UserService {
     private final PointRequester pointRequester;
 
     @Override
+    @Transactional
     public ResultCode signup(Signup dto) {
         if (userMapper.existsByUserId(dto.getUserId()) > 0) {
             throw new BusinessException(ExceptionCode.USER_EXIST);
         }
 
-        dto.encodedPassword(passwordEncoder.encode(dto.getPassword()));
-        dto.encryptData(
-                utilService.encrypt(dto.getEmail()),
-                utilService.encrypt(dto.getPhone()),
-                utilService.encrypt(dto.getAddress()));
-
-        userMapper.signup(dto);
-
-        // 회원가입 알림 메일 발송
-        dto.decryptEmail(utilService.decrypt(dto.getEmail()));
-        dto.changeUserId(dto.getUserId());
-        MailDto signupMail = MailDto.signupMailOf(dto);
-
-        producerHelperService.sendMail(signupMail);
-
+        // 외부 api 테스트
+        pointRequester.getUserPoint(dto.getUserId());
         return ResultCode.OK;
+//        dto.encodedPassword(passwordEncoder.encode(dto.getPassword()));
+//        dto.encryptData(
+//                utilService.encrypt(dto.getEmail()),
+//                utilService.encrypt(dto.getPhone()),
+//                utilService.encrypt(dto.getAddress()));
+//
+//        userMapper.signup(dto);
+//
+//        // 회원가입 알림 메일 발송
+//        dto.decryptEmail(utilService.decrypt(dto.getEmail()));
+//        dto.changeUserId(dto.getUserId());
+//        MailDto signupMail = MailDto.signupMailOf(dto);
+//
+//        producerHelperService.sendMail(signupMail);
+//
+//        return ResultCode.OK;
     }
 
     @Override
