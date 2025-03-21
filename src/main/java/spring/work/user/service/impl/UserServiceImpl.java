@@ -15,6 +15,7 @@ import spring.work.global.rabbitmq.dto.MailDto;
 import spring.work.global.rabbitmq.utils.ProducerHelperService;
 import spring.work.global.security.utils.AuthenticationHelperService;
 import spring.work.global.utils.UtilService;
+import spring.work.user.dto.request.CreatePoint;
 import spring.work.user.dto.request.Login;
 import spring.work.user.mapper.UserMapper;
 import spring.work.user.dto.request.Signup;
@@ -40,24 +41,28 @@ public class UserServiceImpl implements UserService {
         }
 
         // 외부 api 테스트
-        pointRequester.getUserPoint(dto.getUserId());
-        return ResultCode.OK;
-//        dto.encodedPassword(passwordEncoder.encode(dto.getPassword()));
-//        dto.encryptData(
-//                utilService.encrypt(dto.getEmail()),
-//                utilService.encrypt(dto.getPhone()),
-//                utilService.encrypt(dto.getAddress()));
-//
-//        userMapper.signup(dto);
-//
-//        // 회원가입 알림 메일 발송
-//        dto.decryptEmail(utilService.decrypt(dto.getEmail()));
-//        dto.changeUserId(dto.getUserId());
-//        MailDto signupMail = MailDto.signupMailOf(dto);
-//
-//        producerHelperService.sendMail(signupMail);
-//
+//        pointRequester.getUserPoint(dto.getUserId());
 //        return ResultCode.OK;
+        dto.encodedPassword(passwordEncoder.encode(dto.getPassword()));
+        dto.encryptData(
+                utilService.encrypt(dto.getEmail()),
+                utilService.encrypt(dto.getPhone()),
+                utilService.encrypt(dto.getAddress()));
+
+        userMapper.signup(dto);
+
+        // 포인트 데이터 생성
+        CreatePoint.builder().userId(dto.getUserId()).build()
+        pointRequester.createUserPoint(CreatePoint.builder().userId(dto.getUserId()).build());
+
+        // 회원가입 알림 메일 발송
+        dto.decryptEmail(utilService.decrypt(dto.getEmail()));
+        dto.changeUserId(dto.getUserId());
+        MailDto signupMail = MailDto.signupMailOf(dto);
+
+        producerHelperService.sendMail(signupMail);
+
+        return ResultCode.OK;
     }
 
     @Override

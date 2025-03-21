@@ -10,6 +10,7 @@ import spring.work.global.externalApi.ApiRequester;
 import spring.work.global.externalApi.WebClientResponse;
 import spring.work.global.externalApi.workPoint.dto.PointCommonResponse;
 import spring.work.global.externalApi.workPoint.dto.UserPointInfoApiResponse;
+import spring.work.user.dto.request.CreatePoint;
 
 
 @Slf4j
@@ -30,6 +31,15 @@ public class PointRequesterImpl implements PointRequester {
         HttpHeaders headers = makeHttpHeaders();
         WebClientResponse<PointCommonResponse<UserPointInfoApiResponse>> response = apiRequester.requestGet(
                 ApiRequest.of(pointProperty.getHostUrl(), pointProperty.getGetUserPointUri(userId), headers, null, responseType));
+        return response.getBody().getData();
+    }
+
+    @Override
+    public UserPointInfoApiResponse createUserPoint(CreatePoint createPoint) {
+        ParameterizedTypeReference<PointCommonResponse<UserPointInfoApiResponse>> responseType = new ParameterizedTypeReference<>() {};
+        HttpHeaders headers = makeHttpHeaders();
+        WebClientResponse<PointCommonResponse<UserPointInfoApiResponse>> response = apiRequester.requestPost(
+                ApiRequest.of(pointProperty.getHostUrl(), pointProperty.getCreateUserPointUri(), headers, createPoint, responseType));
         return response.getBody().getData();
     }
 }

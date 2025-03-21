@@ -14,7 +14,12 @@ public class PointProperty {
     private String hostUrl;
 
     @Value("${external.work-point.endpoint.get-user-point}")
+    @Getter
     private String getUserPointUri;
+
+    @Value("${external.work-point.endpoint.create-user-point}")
+    @Getter
+    private String createUserPointUri;
 
     public String getGetUserPointUri(String userId) {
         return getUserPointUri.replace(USERID, userId);

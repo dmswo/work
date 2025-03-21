@@ -2,7 +2,10 @@ package spring.work.global.externalApi;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.*;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
@@ -40,27 +43,20 @@ public class ApiRequesterImpl implements ApiRequester {
                 .uri(request.getEndPoint())
                 .headers(header -> header.addAll(request.getHeaders()));
 
-
-//        WebClient.RequestBodySpec requestBodySpec = webClient.mutate()
-//                .baseUrl(request.getHostUrl())
-//                .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-//                .build()
-//                .method(httpMethod)
-//                .uri(request.getEndPoint())
-//                .headers(header -> header.addAll(request.getHeaders()));
-
-        // 1. retreive 방식 이해하기
-        RESPONSE response = requestBodySpec
-                .retrieve()
-                .onStatus(HttpStatusCode::isError, clientResponse ->
-                        clientResponse.bodyToMono(String.class)
-                                .flatMap(errorBody -> Mono.error(new RuntimeException("API Error: " + errorBody)))
-                )
-                .bodyToMono(request.getResponse()) // 응답 타입 변환
-                .block();// 동기 처리
-
         // 2. exchangeToMono 방식 이해하기
+//        WebClientResponse<?> block = requestBodySpec.exchangeToMono(response -> {
+//            HttpHeaders responseHeaders = response.headers().asHttpHeaders();
+//            HttpStatus status = (HttpStatus) response.statusCode();
+//
+//            if (status.is2xxSuccessful()) {
+//                return response.bodyToMono(request.getResponse())
+//                        .map(body -> new WebClientResponse<>(status, responseHeaders, body));
+//            } else {
+//                return response.createException()
+//                        .flatMap(error -> Mono.just(new WebClientResponse<>(status, responseHeaders, error)));
+//            }
+//        }).block();
 
-        return new WebClientResponse<>(response);
+        return null;
     }
 }

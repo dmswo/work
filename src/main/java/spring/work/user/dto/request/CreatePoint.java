@@ -5,7 +5,6 @@ import lombok.Data;
 
 @Data
 @Builder
-public class PointAdd {
+public class CreatePoint {
     private String userId;
-    private int point;
 }
