@@ -1,14 +1,22 @@
 package spring.work.global.externalApi;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.type.TypeFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
+import spring.work.global.constant.ExceptionCode;
+import spring.work.global.exception.BusinessException;
 
 @Slf4j
 @Service
@@ -16,6 +24,7 @@ import reactor.core.publisher.Mono;
 public class ApiRequesterImpl implements ApiRequester {
 
     private final WebClient webClient;
+    private final ObjectMapper objectMapper;
 
     @Override
     public <REQUEST, RESPONSE> WebClientResponse<RESPONSE> requestGet(ApiRequest<REQUEST, RESPONSE> request) {
@@ -32,31 +41,49 @@ public class ApiRequesterImpl implements ApiRequester {
         return requestCommand(HttpMethod.PATCH, request);
     }
 
-    private <REQUEST, RESPONSE> WebClientResponse<RESPONSE> requestCommand(HttpMethod httpMethod, ApiRequest<REQUEST, RESPONSE> request) {
+    private <REQUEST, RESPONSE> WebClientResponse<RESPONSE> requestCommand(HttpMethod httpMethod, ApiRequest<REQUEST, RESPONSE> apiRequest) {
+        REQUEST request = apiRequest.getRequest();
         WebClient result = WebClient.builder()
-                .baseUrl(request.getHostUrl())
+                .baseUrl(apiRequest.getHostUrl())
                 .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE).build();
 
         WebClient.RequestBodySpec requestBodySpec = result.mutate()
                 .build()
                 .method(httpMethod)
-                .uri(request.getEndPoint())
-                .headers(header -> header.addAll(request.getHeaders()));
+                .uri(apiRequest.getEndPoint())
+                .headers(header -> header.addAll(apiRequest.getHeaders()));
 
-        // 2. exchangeToMono 방식 이해하기
-//        WebClientResponse<?> block = requestBodySpec.exchangeToMono(response -> {
-//            HttpHeaders responseHeaders = response.headers().asHttpHeaders();
-//            HttpStatus status = (HttpStatus) response.statusCode();
-//
-//            if (status.is2xxSuccessful()) {
-//                return response.bodyToMono(request.getResponse())
-//                        .map(body -> new WebClientResponse<>(status, responseHeaders, body));
-//            } else {
-//                return response.createException()
-//                        .flatMap(error -> Mono.just(new WebClientResponse<>(status, responseHeaders, error)));
-//            }
-//        }).block();
+        if (request != null) {
+            requestBodySpec.bodyValue(request);
+        }
 
-        return null;
+        WebClientResponse<RESPONSE> response = requestBodySpec
+                .exchangeToMono(clientResponse -> processResponse(clientResponse, apiRequest.getResponse()))
+                .onErrorMap(ex -> new BusinessException(ExceptionCode.FAIL))
+                .block();
+
+        return response;
+    }
+
+
+    private <RESPONSE> Mono<WebClientResponse<RESPONSE>> processResponse(ClientResponse clientResponse, ParameterizedTypeReference<RESPONSE> responseType) {
+        return clientResponse.bodyToMono(String.class)
+                .flatMap(body -> {
+                    log.info("Raw Response Body: {}", body);
+
+                    try {
+                        TypeFactory typeFactory = objectMapper.getTypeFactory();
+                        JavaType javaType = typeFactory.constructType(responseType.getType());
+                        RESPONSE parsedBody = objectMapper.readValue(body, javaType);
+                        return Mono.just(new WebClientResponse<>((HttpStatus) clientResponse.statusCode(), clientResponse.headers().asHttpHeaders(), parsedBody));
+                    } catch (JsonProcessingException e) {
+                        log.error("Error parsing response body: {}", body, e);
+                        return Mono.error(new BusinessException(ExceptionCode.FAIL));
+                    }
+                })
+                .switchIfEmpty(Mono.defer(() -> {
+                    log.info("Empty response body with status code: {}", clientResponse.statusCode());
+                    return Mono.just(new WebClientResponse<>((HttpStatus) clientResponse.statusCode(), clientResponse.headers().asHttpHeaders(), null));
+                }));
     }
 }

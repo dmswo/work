@@ -40,9 +40,6 @@ public class UserServiceImpl implements UserService {
             throw new BusinessException(ExceptionCode.USER_EXIST);
         }
 
-        // 외부 api 테스트
-//        pointRequester.getUserPoint(dto.getUserId());
-//        return ResultCode.OK;
         dto.encodedPassword(passwordEncoder.encode(dto.getPassword()));
         dto.encryptData(
                 utilService.encrypt(dto.getEmail()),
@@ -52,7 +49,6 @@ public class UserServiceImpl implements UserService {
         userMapper.signup(dto);
 
         // 포인트 데이터 생성
-        CreatePoint.builder().userId(dto.getUserId()).build()
         pointRequester.createUserPoint(CreatePoint.builder().userId(dto.getUserId()).build());
 
         // 회원가입 알림 메일 발송
