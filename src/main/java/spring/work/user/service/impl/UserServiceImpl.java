@@ -46,17 +46,17 @@ public class UserServiceImpl implements UserService {
                 utilService.encrypt(dto.getPhone()),
                 utilService.encrypt(dto.getAddress()));
 
-        userMapper.signup(dto);
+//        userMapper.signup(dto);
 
         // 포인트 데이터 생성
         pointRequester.createUserPoint(CreatePoint.builder().userId(dto.getUserId()).build());
 
         // 회원가입 알림 메일 발송
-        dto.decryptEmail(utilService.decrypt(dto.getEmail()));
-        dto.changeUserId(dto.getUserId());
-        MailDto signupMail = MailDto.signupMailOf(dto);
-
-        producerHelperService.sendMail(signupMail);
+//        dto.decryptEmail(utilService.decrypt(dto.getEmail()));
+//        dto.changeUserId(dto.getUserId());
+//        MailDto signupMail = MailDto.signupMailOf(dto);
+//
+//        producerHelperService.sendMail(signupMail);
 
         return ResultCode.OK;
     }

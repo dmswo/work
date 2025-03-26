@@ -22,14 +22,16 @@ public class PointRequesterImpl implements PointRequester {
     private final PointProperty pointProperty;
     private final ApiRequester apiRequester;
 
-    private HttpHeaders makeHttpHeaders() {
-        return new HttpHeaders();
+    private HttpHeaders makeHttpHeaders(String userId) {
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.add("X-USER-ID", userId);
+        return httpHeaders;
     }
 
     @Override
     public UserPointInfoApiResponse getUserPoint(String userId) {
         ParameterizedTypeReference<PointCommonResponse<UserPointInfoApiResponse>> responseType = new ParameterizedTypeReference<>() {};
-        HttpHeaders headers = makeHttpHeaders();
+        HttpHeaders headers = makeHttpHeaders(null);
         WebClientResponse<PointCommonResponse<UserPointInfoApiResponse>> response = apiRequester.requestGet(
                 ApiRequest.of(pointProperty.getHostUrl(), pointProperty.getGetUserPointUri(userId), headers, null, responseType));
         return response.getBody().getData();
@@ -38,7 +40,7 @@ public class PointRequesterImpl implements PointRequester {
     @Override
     public CreatePointResponse createUserPoint(CreatePoint createPoint) {
         ParameterizedTypeReference<PointCommonResponse<CreatePointResponse>> responseType = new ParameterizedTypeReference<>() {};
-        HttpHeaders headers = makeHttpHeaders();
+        HttpHeaders headers = makeHttpHeaders(createPoint.getUserId());
         WebClientResponse<PointCommonResponse<CreatePointResponse>> response = apiRequester.requestPost(
                 ApiRequest.of(pointProperty.getHostUrl(), pointProperty.getCreateUserPointUri(), headers, createPoint, responseType));
         return response.getBody().getData();
