@@ -23,13 +23,6 @@ public class WebClientConfig {
     private String apiKey;
 
     @Bean
-    public DefaultUriBuilderFactory builderFactory(){
-        DefaultUriBuilderFactory factory = new DefaultUriBuilderFactory();
-        factory.setEncodingMode(DefaultUriBuilderFactory.EncodingMode.VALUES_ONLY);
-        return factory;
-    }
-
-    @Bean
     public WebClient webClient(){
         return WebClient.builder()
                 .filter(addCommonHeadersForSpecificUrlFilter())
@@ -39,16 +32,9 @@ public class WebClientConfig {
     private ExchangeFilterFunction addCommonHeadersForSpecificUrlFilter() {
         return (request, next) -> {
             if (request.url().toString().contains(hostUrl)) {
-
-                Mono<ClientResponse> exchange = next.exchange(ClientRequest.from(request)
+                return next.exchange(ClientRequest.from(request)
                         .header(apiHeader, apiKey)
                         .build());
-
-                System.out.println("=== Request Headers ===");
-                request.headers().forEach((name, values) ->
-                        values.forEach(value -> System.out.println(name + " : " + value))
-                );
-                return exchange;
             }
             return next.exchange(request);
         };
