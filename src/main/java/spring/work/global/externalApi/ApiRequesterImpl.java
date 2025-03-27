@@ -64,12 +64,10 @@ public class ApiRequesterImpl implements ApiRequester {
         return response;
     }
 
-
     private <RESPONSE> Mono<WebClientResponse<RESPONSE>> processResponse(ClientResponse clientResponse, ParameterizedTypeReference<RESPONSE> responseType) {
         return clientResponse.bodyToMono(String.class)
                 .flatMap(body -> {
                     log.info("Raw Response Body: {}", body);
-
                     try {
                         TypeFactory typeFactory = objectMapper.getTypeFactory();
                         JavaType javaType = typeFactory.constructType(responseType.getType());
