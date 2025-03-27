@@ -24,6 +24,7 @@ public class PointRequesterImpl implements PointRequester {
 
     private HttpHeaders makeHttpHeaders(String userId) {
         HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.add(pointProperty.getApiKeyHeader(), pointProperty.getApiKeyValue());
         httpHeaders.add("X-USER-ID", userId);
         return httpHeaders;
     }

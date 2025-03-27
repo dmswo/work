@@ -43,7 +43,7 @@ public class ApiRequesterImpl implements ApiRequester {
 
     private <REQUEST, RESPONSE> WebClientResponse<RESPONSE> requestCommand(HttpMethod httpMethod, ApiRequest<REQUEST, RESPONSE> apiRequest) {
         REQUEST request = apiRequest.getRequest();
-
+        log.info("httpUrl : {} {}, requestHeader : {}, requestBody : {}", httpMethod, apiRequest.getEndPoint(), apiRequest.getHeaders(), request);
         WebClient.RequestBodySpec requestBodySpec = webClient.mutate()
                 .baseUrl(apiRequest.getHostUrl())
                 .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)

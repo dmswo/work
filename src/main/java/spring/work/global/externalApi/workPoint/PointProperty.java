@@ -13,6 +13,14 @@ public class PointProperty {
     @Getter
     private String hostUrl;
 
+    @Value("${Authorization.work-point.x-api-key-header}")
+    @Getter
+    private String apiKeyHeader;
+
+    @Value("${Authorization.work-point.x-api-key-value}")
+    @Getter
+    private String apiKeyValue;
+
     @Value("${external.work-point.endpoint.get-user-point}")
     @Getter
     private String getUserPointUri;
