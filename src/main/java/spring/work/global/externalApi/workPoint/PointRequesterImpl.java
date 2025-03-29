@@ -13,7 +13,6 @@ import spring.work.global.externalApi.workPoint.dto.UserPointInfoApiResponse;
 import spring.work.user.dto.request.CreatePoint;
 import spring.work.user.dto.response.CreatePointResponse;
 
-
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -44,6 +43,8 @@ public class PointRequesterImpl implements PointRequester {
         HttpHeaders headers = makeHttpHeaders(createPoint.getUserId());
         WebClientResponse<PointCommonResponse<CreatePointResponse>> response = apiRequester.requestPost(
                 ApiRequest.of(pointProperty.getHostUrl(), pointProperty.getCreateUserPointUri(), headers, createPoint, responseType));
+
+        response.getBody().ValidateResponse();
         return response.getBody().getData();
     }
 }

@@ -32,6 +32,10 @@ public class ApiResponse <T> {
         return new ApiResponse<>(exceptionCode);
     }
 
+    public static ApiResponse<?> errorResponse(ExceptionCode exceptionCode, String detailMessage) {
+        return new ApiResponse<>(exceptionCode, detailMessage);
+    }
+
     private ApiResponse(ResultCode resultCode) {
         this.data = null;
         this.code = resultCode.getCode();
@@ -48,5 +52,11 @@ public class ApiResponse <T> {
         this.data = null;
         this.code = exceptionCode.getCode();
         this.message = exceptionCode.getMessage();
+    }
+
+    private ApiResponse(ExceptionCode exceptionCode, String detailMessage) {
+        this.data = null;
+        this.code = exceptionCode.getCode();
+        this.message = detailMessage;
     }
 }
