@@ -4,7 +4,7 @@ import lombok.Getter;
 import spring.work.global.constant.ExceptionCode;
 
 @Getter
-public class BusinessException extends RuntimeException{
+public class BusinessException extends RuntimeException {
     private final ExceptionCode exceptionCode;
 
     public BusinessException(ExceptionCode exceptionCode) {

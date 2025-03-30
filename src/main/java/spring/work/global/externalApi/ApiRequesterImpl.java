@@ -12,6 +12,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
@@ -27,8 +28,26 @@ public class ApiRequesterImpl implements ApiRequester {
     private final ObjectMapper objectMapper;
 
     @Override
-    public <REQUEST, RESPONSE> WebClientResponse<RESPONSE> requestGet(ApiRequest<REQUEST, RESPONSE> request) {
-        return requestCommand(HttpMethod.GET, request);
+    public <REQUEST, RESPONSE> WebClientResponse<RESPONSE> requestGet(ApiRequest<MultiValueMap<String, String>, RESPONSE> apiRequest) {
+        MultiValueMap<String, String> request = apiRequest.getRequest();
+        log.info("httpUrl : {} {}, requestHeader : {}, requestBody : {}", HttpMethod.GET, apiRequest.getEndPoint(), apiRequest.getHeaders(), request);
+        WebClient.RequestBodySpec requestBodySpec = webClient.mutate()
+                .baseUrl(apiRequest.getHostUrl())
+                .build()
+                .method(HttpMethod.GET)
+                .uri(apiRequest.getEndPoint())
+                .headers(header -> header.addAll(apiRequest.getHeaders()));
+
+        if (request != null) {
+            requestBodySpec.bodyValue(request);
+        }
+
+        WebClientResponse<RESPONSE> response = requestBodySpec
+                .exchangeToMono(clientResponse -> processResponse(clientResponse, apiRequest.getResponse()))
+                .onErrorMap(ex -> new BusinessException(ExceptionCode.FAIL))
+                .block();
+
+        return response;
     }
 
     @Override

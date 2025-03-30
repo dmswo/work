@@ -19,7 +19,7 @@ import spring.work.user.service.UserService;
 @RequiredArgsConstructor
 @RequestMapping("/user")
 @Tag(name="/user", description = "유저 관련 API")
-public class UserController {
+public class UserAuthController {
 
     private final UserService userService;
     private final UtilService utilService;

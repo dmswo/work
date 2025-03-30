@@ -5,5 +5,5 @@ import lombok.Data;
 @Data
 public class UserPointInfoApiResponse {
     private String userId;
-    private int point;
+    private Long point;
 }

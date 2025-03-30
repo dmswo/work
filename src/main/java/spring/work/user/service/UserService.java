@@ -6,6 +6,7 @@ import spring.work.global.dto.TokenInfo;
 import spring.work.global.rabbitmq.dto.MailDto;
 import spring.work.user.dto.request.Login;
 import spring.work.user.dto.request.Signup;
+import spring.work.user.dto.response.GetUserPointResponse;
 
 public interface UserService {
 
@@ -18,4 +19,6 @@ public interface UserService {
     TokenInfo reissue(HttpServletRequest request);
 
     void sendMailFailHistory(MailDto mailDto);
+
+    GetUserPointResponse getUserPoint(String userId);
 }

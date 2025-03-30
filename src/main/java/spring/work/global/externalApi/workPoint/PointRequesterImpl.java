@@ -5,6 +5,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import spring.work.global.externalApi.ApiRequest;
 import spring.work.global.externalApi.ApiRequester;
 import spring.work.global.externalApi.WebClientResponse;
@@ -34,6 +36,8 @@ public class PointRequesterImpl implements PointRequester {
         HttpHeaders headers = makeHttpHeaders(null);
         WebClientResponse<PointCommonResponse<UserPointInfoApiResponse>> response = apiRequester.requestGet(
                 ApiRequest.of(pointProperty.getHostUrl(), pointProperty.getGetUserPointUri(userId), headers, null, responseType));
+
+        response.getBody().ValidateResponse();
         return response.getBody().getData();
     }
 

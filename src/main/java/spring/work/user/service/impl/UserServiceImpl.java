@@ -11,12 +11,14 @@ import spring.work.global.exception.BusinessException;
 import spring.work.global.constant.ExceptionCode;
 import spring.work.global.constant.ResultCode;
 import spring.work.global.externalApi.workPoint.PointRequester;
+import spring.work.global.externalApi.workPoint.dto.UserPointInfoApiResponse;
 import spring.work.global.rabbitmq.dto.MailDto;
 import spring.work.global.rabbitmq.utils.ProducerHelperService;
 import spring.work.global.security.utils.AuthenticationHelperService;
 import spring.work.global.utils.UtilService;
 import spring.work.user.dto.request.CreatePoint;
 import spring.work.user.dto.request.Login;
+import spring.work.user.dto.response.GetUserPointResponse;
 import spring.work.user.mapper.UserMapper;
 import spring.work.user.dto.request.Signup;
 import spring.work.user.service.UserService;
@@ -46,17 +48,17 @@ public class UserServiceImpl implements UserService {
                 utilService.encrypt(dto.getPhone()),
                 utilService.encrypt(dto.getAddress()));
 
-//        userMapper.signup(dto);
+        userMapper.signup(dto);
 
         // 포인트 데이터 생성
         pointRequester.createUserPoint(CreatePoint.builder().userId(dto.getUserId()).build());
 
         // 회원가입 알림 메일 발송
-//        dto.decryptEmail(utilService.decrypt(dto.getEmail()));
-//        dto.changeUserId(dto.getUserId());
-//        MailDto signupMail = MailDto.signupMailOf(dto);
-//
-//        producerHelperService.sendMail(signupMail);
+        dto.decryptEmail(utilService.decrypt(dto.getEmail()));
+        dto.changeUserId(dto.getUserId());
+        MailDto signupMail = MailDto.signupMailOf(dto);
+
+        producerHelperService.sendMail(signupMail);
 
         return ResultCode.OK;
     }
@@ -82,5 +84,14 @@ public class UserServiceImpl implements UserService {
     @Override
     public void sendMailFailHistory(MailDto mailDto) {
         userMapper.sendMailFailHistory(mailDto);
+    }
+
+    @Override
+    public GetUserPointResponse getUserPoint(String userId) {
+        UserPointInfoApiResponse userPoint = pointRequester.getUserPoint(userId);
+        return GetUserPointResponse.builder()
+                .userId(userPoint.getUserId())
+                .pointBal(userPoint.getPoint())
+                .build();
     }
 }
