@@ -91,7 +91,7 @@ public class UserServiceImpl implements UserService {
         UserPointInfoApiResponse userPoint = pointRequester.getUserPoint(userId);
         return GetUserPointResponse.builder()
                 .userId(userPoint.getUserId())
-                .pointBal(userPoint.getPoint())
+                .pointBal(userPoint.getPointBal())
                 .build();
     }
 }
