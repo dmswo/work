@@ -36,16 +36,16 @@ public class BusinessExceptionHandler {
 
     @ExceptionHandler(BusinessException.class)
     public ApiResponse<?> handleBusinessException(BusinessException e) {
-        log.error("handleBusinessException e.code : {}, e.message : {}", e.getExceptionCode().getCode(), e.getMessage());
+        log.error("handleBusinessException e.code : {}, e.message : {}", e.getExceptionCode().getCode(), e.getMessage(), e);
         if (!e.getExceptionCode().getMessage().equals(e.getMessage())) {
-            return ApiResponse.errorResponse(e.getExceptionCode(), e.getMessage());
+            return ApiResponse.errorResponse(e.getExceptionCode(), String.format("%s(%s)", e.getExceptionCode().getMessage(), e.getMessage()));
         }
         return ApiResponse.errorResponse(e.getExceptionCode());
     }
 
     @ExceptionHandler(Exception.class)
     public ApiResponse<?> handleException(Exception e) {
-        log.error("handleException e.message : {}", e.getMessage());
+        log.error("handleException e.message : {}", e.getMessage(), e);
         return ApiResponse.errorResponse(ExceptionCode.FAIL);
     }
 }
