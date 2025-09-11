@@ -6,7 +6,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import spring.work.global.dto.ApiResponse;
-import spring.work.user.dto.response.GetUserPointResponse;
+import spring.work.user.dto.response.UserPointResponse;
 import spring.work.user.service.UserService;
 
 @RestController
@@ -19,7 +19,7 @@ public class UserPointController {
 
     @Operation(summary = "회원 포인트 조회 API", description = "회원 포인트 조회 API")
     @GetMapping("/{userId}")
-    public ApiResponse<GetUserPointResponse> getUserPoint(@PathVariable("userId") String userId) {
+    public ApiResponse<UserPointResponse> getUserPoint(@PathVariable("userId") String userId) {
         return ApiResponse.successResponse(userService.getUserPoint(userId));
     }
 }

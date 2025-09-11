@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class GetUserPointResponse {
+public class UserPointResponse {
     private String userId;
     private Long pointBal;
 }
