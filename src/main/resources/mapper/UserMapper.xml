@@ -5,19 +5,19 @@
 
 <mapper namespace="spring.work.user.mapper.UserMapper">
     <insert id="signup">
-        insert into user (userId, password, nickname, userRole, email, phone, address)
+        insert into users (userId, password, nickname, userRole, email, phone, address)
         values (#{userId}, #{password}, #{nickname}, #{userRole}, #{email}, #{phone}, #{address})
     </insert>
 
     <select id="selectAuthUserByUserId" parameterType="String">
         select userId, password, nickname, userRole
-          from user
+          from users
          where userId = #{userId}
     </select>
 
     <select id="existsByUserId" parameterType="String">
         select count(*)
-          from user
+          from users
          where userId = #{userId}
     </select>
 
