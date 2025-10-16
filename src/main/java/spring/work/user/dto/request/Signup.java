@@ -9,7 +9,7 @@ import lombok.Getter;
 import lombok.Setter;
 import spring.work.user.constant.UserRole;
 
-@Getter
+@Data
 public class Signup {
     @Schema(defaultValue = "dmswo106")
     @NotBlank(message = "로그인 아이디가 비어있습니다.")
