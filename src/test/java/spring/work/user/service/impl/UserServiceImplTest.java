@@ -17,6 +17,7 @@ import spring.work.global.security.utils.AuthenticationHelperService;
 import spring.work.global.utils.UtilService;
 import spring.work.user.dto.request.CreatePoint;
 import spring.work.user.dto.request.Signup;
+import spring.work.user.dto.response.CreatePointResponse;
 import spring.work.user.mapper.UserMapper;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -71,6 +72,7 @@ class UserServiceImplTest {
         given(passwordEncoder.encode(anyString())).willReturn("encodedPassword");
         given(utilService.encrypt(anyString())).willReturn("encryptedData");
         given(utilService.decrypt(anyString())).willReturn("encryptedData");
+        stubExternalDependencies();
 
         // When
         userService.signup(signup);
@@ -90,6 +92,7 @@ class UserServiceImplTest {
     void make_point() {
         // Given
         given(userMapper.existsByUserId(anyString())).willReturn(0);
+        stubExternalDependencies();
 
         // When
         userService.signup(signup);
@@ -103,11 +106,19 @@ class UserServiceImplTest {
     void send_mail() {
         // Given
         given(userMapper.existsByUserId(anyString())).willReturn(0);
+        stubExternalDependencies();
 
         // When
         userService.signup(signup);
 
         // Then
         then(producerHelperService).should(times(1)).sendMail(any(MailDto.class));
+    }
+
+    private void stubExternalDependencies() {
+        // 외부 의존성 stub
+        given(pointRequester.createUserPoint(any(CreatePoint.class)))
+                .willReturn(new CreatePointResponse());
+        willDoNothing().given(producerHelperService).sendMail(any(MailDto.class));
     }
 }
