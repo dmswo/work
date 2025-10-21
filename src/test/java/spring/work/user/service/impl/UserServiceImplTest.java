@@ -11,17 +11,17 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import spring.work.global.constant.ExceptionCode;
 import spring.work.global.exception.BusinessException;
 import spring.work.global.externalApi.workPoint.PointRequester;
+import spring.work.global.rabbitmq.dto.MailDto;
 import spring.work.global.rabbitmq.utils.ProducerHelperService;
 import spring.work.global.security.utils.AuthenticationHelperService;
 import spring.work.global.utils.UtilService;
+import spring.work.user.dto.request.CreatePoint;
 import spring.work.user.dto.request.Signup;
 import spring.work.user.mapper.UserMapper;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.BDDMockito.then;
-import static org.mockito.Mockito.*;
+import static org.mockito.BDDMockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class UserServiceImplTest {
@@ -44,6 +44,8 @@ class UserServiceImplTest {
         signup.setUserId("testId");
         signup.setEmail("testEmail");
         signup.setPassword("testPassword");
+        signup.setPhone("01012345678");
+        signup.setAddress("서울시");
     }
 
     @Test
@@ -66,12 +68,46 @@ class UserServiceImplTest {
     void password_personal_data_encrypted() {
         // Given
         given(userMapper.existsByUserId(anyString())).willReturn(0);
+        given(passwordEncoder.encode(anyString())).willReturn("encodedPassword");
+        given(utilService.encrypt(anyString())).willReturn("encryptedData");
+        given(utilService.decrypt(anyString())).willReturn("encryptedData");
 
         // When
         userService.signup(signup);
 
         // Then
-        then(passwordEncoder).should(times(1)).encode(anyString());
-        then(utilService).should(atLeastOnce()).encrypt(anyString());
+        then(passwordEncoder).should(times(1)).encode("testPassword");
+        then(utilService).should(times(3)).encrypt(anyString());
+        then(userMapper).should(times(1)).signup(argThat(dto ->
+                dto.getEmail().equals("encryptedData") &&
+                        dto.getPhone().equals("encryptedData") &&
+                        dto.getAddress().equals("encryptedData")
+        ));
+    }
+
+    @Test
+    @DisplayName("포인트 데이터가 생성된다.")
+    void make_point() {
+        // Given
+        given(userMapper.existsByUserId(anyString())).willReturn(0);
+
+        // When
+        userService.signup(signup);
+
+        // Then
+        then(pointRequester).should(times(1)).createUserPoint(any(CreatePoint.class));
+    }
+
+    @Test
+    @DisplayName("메일이 정상적으로 발송된다.")
+    void send_mail() {
+        // Given
+        given(userMapper.existsByUserId(anyString())).willReturn(0);
+
+        // When
+        userService.signup(signup);
+
+        // Then
+        then(producerHelperService).should(times(1)).sendMail(any(MailDto.class));
     }
 }
