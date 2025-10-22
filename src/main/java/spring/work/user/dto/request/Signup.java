@@ -4,12 +4,14 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
+import lombok.Builder;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 import spring.work.user.constant.UserRole;
 
-@Data
+@Getter
+@Builder
 public class Signup {
     @Schema(defaultValue = "dmswo106")
     @NotBlank(message = "로그인 아이디가 비어있습니다.")

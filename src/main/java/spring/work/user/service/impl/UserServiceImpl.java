@@ -18,7 +18,6 @@ import spring.work.global.security.utils.AuthenticationHelperService;
 import spring.work.global.utils.UtilService;
 import spring.work.user.dto.request.CreatePoint;
 import spring.work.user.dto.request.Login;
-import spring.work.user.dto.response.CreatePointResponse;
 import spring.work.user.dto.response.UserPointResponse;
 import spring.work.user.mapper.UserMapper;
 import spring.work.user.dto.request.Signup;

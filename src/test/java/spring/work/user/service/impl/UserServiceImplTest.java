@@ -1,5 +1,6 @@
 package spring.work.user.service.impl;
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -9,6 +10,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import spring.work.global.constant.ExceptionCode;
+import spring.work.global.dto.TokenInfo;
 import spring.work.global.exception.BusinessException;
 import spring.work.global.externalApi.workPoint.PointRequester;
 import spring.work.global.rabbitmq.dto.MailDto;
@@ -16,10 +18,12 @@ import spring.work.global.rabbitmq.utils.ProducerHelperService;
 import spring.work.global.security.utils.AuthenticationHelperService;
 import spring.work.global.utils.UtilService;
 import spring.work.user.dto.request.CreatePoint;
+import spring.work.user.dto.request.Login;
 import spring.work.user.dto.request.Signup;
 import spring.work.user.dto.response.CreatePointResponse;
 import spring.work.user.mapper.UserMapper;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.*;
@@ -41,12 +45,13 @@ class UserServiceImplTest {
 
     @BeforeEach
     void setUp() {
-        signup = new Signup();
-        signup.setUserId("testId");
-        signup.setEmail("testEmail");
-        signup.setPassword("testPassword");
-        signup.setPhone("01012345678");
-        signup.setAddress("서울시");
+        signup = Signup.builder()
+                .userId("testId")
+                .email("testEmail")
+                .password("testPassword")
+                .phone("01012345678")
+                .address("서울시")
+                .build();
     }
 
     @Test
@@ -120,5 +125,52 @@ class UserServiceImplTest {
         given(pointRequester.createUserPoint(any(CreatePoint.class)))
                 .willReturn(new CreatePointResponse());
         willDoNothing().given(producerHelperService).sendMail(any(MailDto.class));
+    }
+
+    @Test
+    @DisplayName("로그인 성공")
+    void login_success() {
+        // Given
+        Login login = Login.builder()
+                .userId("dmswo")
+                .password("1234")
+                .build();
+        String ip = "127.0.0.1";
+        TokenInfo tokenInfo = new TokenInfo("Bearer", "token", "refresh");
+        given(authenticationHelperService.processLoginAndReturnToken(any(Login.class))).willReturn(tokenInfo);
+
+        // When
+        TokenInfo result = userService.login(login, ip);
+
+        // Then
+        then(authenticationHelperService).should(times(1)).processLoginAndReturnToken(any(Login.class));
+        then(userMapper).should(times(1)).saveLoginHistory(login.getUserId(), ip);
+        assertThat(result).isEqualTo(tokenInfo);
+    }
+
+    @Test
+    @DisplayName("로그아웃 성공")
+    void logout_success() {
+        // Given
+        HttpServletRequest request = mock(HttpServletRequest.class); // Mock 객체 생성
+
+        // When
+        userService.logout(request);
+
+        // Then
+        then(authenticationHelperService).should(times(1)).logout(any(HttpServletRequest.class));
+    }
+
+    @Test
+    @DisplayName("토큰재발행 성공")
+    void reissue_success() {
+        // Given
+        HttpServletRequest request = mock(HttpServletRequest.class); // Mock 객체 생성
+
+        // When
+        userService.reissue(request);
+
+        // Then
+        then(authenticationHelperService).should(times(1)).reissue(any(HttpServletRequest.class));
     }
 }
