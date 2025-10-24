@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import spring.work.global.externalApi.workPoint.PointRequester;
 import spring.work.global.externalApi.workPoint.dto.UserPointInfoApiResponse;
+import spring.work.user.dto.request.CreatePoint;
 import spring.work.user.dto.response.UserPointResponse;
 import spring.work.user.service.UserPointService;
 

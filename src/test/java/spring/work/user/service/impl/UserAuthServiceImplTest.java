@@ -39,7 +39,7 @@ class UserAuthServiceImplTest {
     @Mock private PointRequester pointRequester;
 
     @InjectMocks
-    private UserAuthServiceImpl userService;
+    private UserAuthServiceImpl userAuthService;
 
     private Signup signup;
 
@@ -61,7 +61,7 @@ class UserAuthServiceImplTest {
         given(userAuthMapper.existsByUserId("testId")).willReturn(1);
 
         // When
-        assertThatThrownBy(() -> userService.signup(signup))
+        assertThatThrownBy(() -> userAuthService.signup(signup))
                 .isInstanceOf(BusinessException.class)
                 .hasMessageContaining(ExceptionCode.USER_EXIST.getMessage());
 
@@ -80,7 +80,7 @@ class UserAuthServiceImplTest {
         stubExternalDependencies();
 
         // When
-        userService.signup(signup);
+        userAuthService.signup(signup);
 
         // Then
         then(passwordEncoder).should(times(1)).encode("testPassword");
@@ -100,7 +100,7 @@ class UserAuthServiceImplTest {
         stubExternalDependencies();
 
         // When
-        userService.signup(signup);
+        userAuthService.signup(signup);
 
         // Then
         then(pointRequester).should(times(1)).createUserPoint(any(CreatePoint.class));
@@ -114,7 +114,7 @@ class UserAuthServiceImplTest {
         stubExternalDependencies();
 
         // When
-        userService.signup(signup);
+        userAuthService.signup(signup);
 
         // Then
         then(producerHelperService).should(times(1)).sendMail(any(MailDto.class));
@@ -140,7 +140,7 @@ class UserAuthServiceImplTest {
         given(authenticationHelperService.processLoginAndReturnToken(any(Login.class))).willReturn(tokenInfo);
 
         // When
-        TokenInfo result = userService.login(login, ip);
+        TokenInfo result = userAuthService.login(login, ip);
 
         // Then
         then(authenticationHelperService).should(times(1)).processLoginAndReturnToken(any(Login.class));
@@ -155,7 +155,7 @@ class UserAuthServiceImplTest {
         HttpServletRequest request = mock(HttpServletRequest.class); // Mock 객체 생성
 
         // When
-        userService.logout(request);
+        userAuthService.logout(request);
 
         // Then
         then(authenticationHelperService).should(times(1)).logout(any(HttpServletRequest.class));
@@ -168,7 +168,7 @@ class UserAuthServiceImplTest {
         HttpServletRequest request = mock(HttpServletRequest.class); // Mock 객체 생성
 
         // When
-        userService.reissue(request);
+        userAuthService.reissue(request);
 
         // Then
         then(authenticationHelperService).should(times(1)).reissue(any(HttpServletRequest.class));
@@ -181,7 +181,7 @@ class UserAuthServiceImplTest {
         MailDto mail = MailDto.signupMailOf(signup);
 
         // When
-        userService.sendMailFailHistory(mail);
+        userAuthService.sendMailFailHistory(mail);
 
         // Then
         then(userAuthMapper).should(times(1)).sendMailFailHistory(any(MailDto.class));
