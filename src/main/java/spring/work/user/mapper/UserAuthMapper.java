@@ -9,7 +9,7 @@ import spring.work.user.dto.request.Signup;
 import java.util.Optional;
 
 @Mapper
-public interface UserMapper {
+public interface UserAuthMapper {
 
     void signup(Signup dto);
 

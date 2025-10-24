@@ -6,7 +6,7 @@ import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Service;
 import spring.work.global.rabbitmq.dto.MailDto;
 import spring.work.global.utils.EmailSender;
-import spring.work.user.service.UserService;
+import spring.work.user.service.UserAuthService;
 
 @Service
 @Slf4j
@@ -14,7 +14,7 @@ import spring.work.user.service.UserService;
 public class ConsumerHelperService {
 
     private final EmailSender emailSender;
-    private final UserService userService;
+    private final UserAuthService userAuthService;
 
     @RabbitListener(queues = "${rabbitmq.queue.mail}")
     public void signUpMailMessage(MailDto mailDto) {
@@ -23,6 +23,6 @@ public class ConsumerHelperService {
 
     @RabbitListener(queues = "${rabbitmq.queue.dlq.mail}")
     public void signUpMailErrorMessage(MailDto mailDto) {
-        userService.sendMailFailHistory(mailDto);
+        userAuthService.sendMailFailHistory(mailDto);
     }
 }

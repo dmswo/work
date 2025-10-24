@@ -4,13 +4,12 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
-import lombok.Builder;
-import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import spring.work.user.constant.UserRole;
 
 @Getter
+@NoArgsConstructor
+@AllArgsConstructor
 @Builder
 public class Signup {
     @Schema(defaultValue = "dmswo106")

@@ -21,7 +21,7 @@ import spring.work.user.dto.request.CreatePoint;
 import spring.work.user.dto.request.Login;
 import spring.work.user.dto.request.Signup;
 import spring.work.user.dto.response.CreatePointResponse;
-import spring.work.user.mapper.UserMapper;
+import spring.work.user.mapper.UserAuthMapper;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -29,9 +29,9 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class UserServiceImplTest {
+class UserAuthServiceImplTest {
 
-    @Mock private UserMapper userMapper;
+    @Mock private UserAuthMapper userAuthMapper;
     @Mock private PasswordEncoder passwordEncoder;
     @Mock private AuthenticationHelperService authenticationHelperService;
     @Mock private ProducerHelperService producerHelperService;
@@ -39,7 +39,7 @@ class UserServiceImplTest {
     @Mock private PointRequester pointRequester;
 
     @InjectMocks
-    private UserServiceImpl userService;
+    private UserAuthServiceImpl userService;
 
     private Signup signup;
 
@@ -58,7 +58,7 @@ class UserServiceImplTest {
     @DisplayName("이미 존재하는 userID로 회원가입시 에러발생")
     void throw_exception_already_exist_userID() {
         // Given
-        given(userMapper.existsByUserId("testId")).willReturn(1);
+        given(userAuthMapper.existsByUserId("testId")).willReturn(1);
 
         // When
         assertThatThrownBy(() -> userService.signup(signup))
@@ -66,14 +66,14 @@ class UserServiceImplTest {
                 .hasMessageContaining(ExceptionCode.USER_EXIST.getMessage());
 
         // Then
-        then(userMapper).should(times(1)).existsByUserId("testId");
+        then(userAuthMapper).should(times(1)).existsByUserId("testId");
     }
 
     @Test
     @DisplayName("비밀번호와 개인정보가 암호화 된다.")
     void password_personal_data_encrypted() {
         // Given
-        given(userMapper.existsByUserId(anyString())).willReturn(0);
+        given(userAuthMapper.existsByUserId(anyString())).willReturn(0);
         given(passwordEncoder.encode(anyString())).willReturn("encodedPassword");
         given(utilService.encrypt(anyString())).willReturn("encryptedData");
         given(utilService.decrypt(anyString())).willReturn("encryptedData");
@@ -85,7 +85,7 @@ class UserServiceImplTest {
         // Then
         then(passwordEncoder).should(times(1)).encode("testPassword");
         then(utilService).should(times(3)).encrypt(anyString());
-        then(userMapper).should(times(1)).signup(argThat(dto ->
+        then(userAuthMapper).should(times(1)).signup(argThat(dto ->
                 dto.getEmail().equals("encryptedData") &&
                         dto.getPhone().equals("encryptedData") &&
                         dto.getAddress().equals("encryptedData")
@@ -96,7 +96,7 @@ class UserServiceImplTest {
     @DisplayName("포인트 데이터가 생성된다.")
     void make_point() {
         // Given
-        given(userMapper.existsByUserId(anyString())).willReturn(0);
+        given(userAuthMapper.existsByUserId(anyString())).willReturn(0);
         stubExternalDependencies();
 
         // When
@@ -110,7 +110,7 @@ class UserServiceImplTest {
     @DisplayName("메일이 정상적으로 발송된다.")
     void send_mail() {
         // Given
-        given(userMapper.existsByUserId(anyString())).willReturn(0);
+        given(userAuthMapper.existsByUserId(anyString())).willReturn(0);
         stubExternalDependencies();
 
         // When
@@ -144,7 +144,7 @@ class UserServiceImplTest {
 
         // Then
         then(authenticationHelperService).should(times(1)).processLoginAndReturnToken(any(Login.class));
-        then(userMapper).should(times(1)).saveLoginHistory(login.getUserId(), ip);
+        then(userAuthMapper).should(times(1)).saveLoginHistory(login.getUserId(), ip);
         assertThat(result).isEqualTo(tokenInfo);
     }
 
@@ -172,5 +172,18 @@ class UserServiceImplTest {
 
         // Then
         then(authenticationHelperService).should(times(1)).reissue(any(HttpServletRequest.class));
+    }
+
+    @Test
+    @DisplayName("메일발송 실패 히스토리 저장성공")
+    void send_mail_fail_history_success() {
+        // Given
+        MailDto mail = MailDto.signupMailOf(signup);
+
+        // When
+        userService.sendMailFailHistory(mail);
+
+        // Then
+        then(userAuthMapper).should(times(1)).sendMailFailHistory(any(MailDto.class));
     }
 }

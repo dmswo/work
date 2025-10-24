@@ -11,24 +11,22 @@ import spring.work.global.exception.BusinessException;
 import spring.work.global.constant.ExceptionCode;
 import spring.work.global.constant.ResultCode;
 import spring.work.global.externalApi.workPoint.PointRequester;
-import spring.work.global.externalApi.workPoint.dto.UserPointInfoApiResponse;
 import spring.work.global.rabbitmq.dto.MailDto;
 import spring.work.global.rabbitmq.utils.ProducerHelperService;
 import spring.work.global.security.utils.AuthenticationHelperService;
 import spring.work.global.utils.UtilService;
 import spring.work.user.dto.request.CreatePoint;
 import spring.work.user.dto.request.Login;
-import spring.work.user.dto.response.UserPointResponse;
-import spring.work.user.mapper.UserMapper;
+import spring.work.user.mapper.UserAuthMapper;
 import spring.work.user.dto.request.Signup;
-import spring.work.user.service.UserService;
+import spring.work.user.service.UserAuthService;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class UserServiceImpl implements UserService {
+public class UserAuthServiceImpl implements UserAuthService {
 
-    private final UserMapper userMapper;
+    private final UserAuthMapper userAuthMapper;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationHelperService authenticationHelperService;
     private final ProducerHelperService producerHelperService;
@@ -38,7 +36,7 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public ResultCode signup(Signup dto) {
-        if (userMapper.existsByUserId(dto.getUserId()) > 0) {
+        if (userAuthMapper.existsByUserId(dto.getUserId()) > 0) {
             throw new BusinessException(ExceptionCode.USER_EXIST);
         }
 
@@ -48,7 +46,7 @@ public class UserServiceImpl implements UserService {
                 utilService.encrypt(dto.getPhone()),
                 utilService.encrypt(dto.getAddress()));
 
-        userMapper.signup(dto);
+        userAuthMapper.signup(dto);
 
         // 포인트 데이터 생성
         pointRequester.createUserPoint(CreatePoint.builder().userId(dto.getUserId()).build());
@@ -66,7 +64,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public TokenInfo login(Login login, String ip) {
         TokenInfo tokenInfo = authenticationHelperService.processLoginAndReturnToken(login);
-        userMapper.saveLoginHistory(login.getUserId(), ip);
+        userAuthMapper.saveLoginHistory(login.getUserId(), ip);
         return tokenInfo;
     }
 
@@ -83,15 +81,6 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void sendMailFailHistory(MailDto mailDto) {
-        userMapper.sendMailFailHistory(mailDto);
-    }
-
-    @Override
-    public UserPointResponse getUserPoint(String userId) {
-        UserPointInfoApiResponse userPoint = pointRequester.getUserPoint(userId);
-        return UserPointResponse.builder()
-                .userId(userPoint.getUserId())
-                .pointBal(userPoint.getPointBal())
-                .build();
+        userAuthMapper.sendMailFailHistory(mailDto);
     }
 }

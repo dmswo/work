@@ -12,7 +12,7 @@ import spring.work.global.constant.ResultCode;
 import spring.work.global.dto.TokenInfo;
 import spring.work.global.utils.UtilService;
 import spring.work.user.dto.request.*;
-import spring.work.user.service.UserService;
+import spring.work.user.service.UserAuthService;
 
 @RestController
 @Slf4j
@@ -21,36 +21,36 @@ import spring.work.user.service.UserService;
 @Tag(name="/user", description = "유저 관련 API")
 public class UserAuthController {
 
-    private final UserService userService;
+    private final UserAuthService userAuthService;
     private final UtilService utilService;
 
     @Operation(summary = "회원가입 API", description = "회원가입 API")
     @PostMapping("/signup")
     public ApiResponse<ResultCode> signup(@RequestBody @Valid Signup signup) {
-        return ApiResponse.successResponse(userService.signup(signup));
+        return ApiResponse.successResponse(userAuthService.signup(signup));
     }
 
     @Operation(summary = "로그인 API", description = "로그인 API")
     @PostMapping("/login")
     public ApiResponse<TokenInfo> login(@RequestBody @Valid Login login, HttpServletRequest request) {
-        return ApiResponse.successResponse(userService.login(login, utilService.getClientIp((request))));
+        return ApiResponse.successResponse(userAuthService.login(login, utilService.getClientIp((request))));
     }
 
     @Operation(summary = "로그아웃 API", description = "로그아웃 API")
     @PostMapping("/logout")
     public ApiResponse<ResultCode> logout(HttpServletRequest request) {
-        return ApiResponse.successResponse(userService.logout(request));
+        return ApiResponse.successResponse(userAuthService.logout(request));
     }
 
     @Operation(summary = "토큰 재발행 API", description = "토큰 재발행 API")
     @PostMapping("/reissue")
     public ApiResponse<TokenInfo> reissue(HttpServletRequest request) {
-        return ApiResponse.successResponse(userService.reissue(request));
+        return ApiResponse.successResponse(userAuthService.reissue(request));
     }
 
     @Operation(summary = "토큰 재발행 API", description = "토큰 재발행 API")
     @PostMapping("/test")
     public ApiResponse<TokenInfo> test(HttpServletRequest request) {
-        return ApiResponse.successResponse(userService.reissue(request));
+        return ApiResponse.successResponse(userAuthService.reissue(request));
     }
 }
