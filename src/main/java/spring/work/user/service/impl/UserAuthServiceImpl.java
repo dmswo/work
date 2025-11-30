@@ -12,6 +12,7 @@ import spring.work.global.constant.ExceptionCode;
 import spring.work.global.constant.ResultCode;
 import spring.work.global.externalApi.workPoint.PointRequester;
 import spring.work.global.kafka.dto.MailDto;
+import spring.work.global.kafka.service.ProducerHelperService;
 import spring.work.global.security.utils.AuthenticationHelperService;
 import spring.work.global.utils.UtilService;
 import spring.work.user.dto.request.CreatePoint;
@@ -30,6 +31,7 @@ public class UserAuthServiceImpl implements UserAuthService {
     private final AuthenticationHelperService authenticationHelperService;
     private final UtilService utilService;
     private final PointRequester pointRequester;
+    private final ProducerHelperService producerHelperService;
 
     @Override
     @Transactional
@@ -54,7 +56,7 @@ public class UserAuthServiceImpl implements UserAuthService {
         dto.changeUserId(dto.getUserId());
         MailDto signupMail = MailDto.signupMailOf(dto);
 
-        //producerHelperService.sendMail(signupMail);
+        producerHelperService.sendMail(signupMail);
 
         return ResultCode.OK;
     }
