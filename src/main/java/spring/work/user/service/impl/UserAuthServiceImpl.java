@@ -11,8 +11,7 @@ import spring.work.global.exception.BusinessException;
 import spring.work.global.constant.ExceptionCode;
 import spring.work.global.constant.ResultCode;
 import spring.work.global.externalApi.workPoint.PointRequester;
-import spring.work.global.rabbitmq.dto.MailDto;
-import spring.work.global.rabbitmq.utils.ProducerHelperService;
+import spring.work.global.kafka.dto.MailDto;
 import spring.work.global.security.utils.AuthenticationHelperService;
 import spring.work.global.utils.UtilService;
 import spring.work.user.dto.request.CreatePoint;
@@ -29,7 +28,6 @@ public class UserAuthServiceImpl implements UserAuthService {
     private final UserAuthMapper userAuthMapper;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationHelperService authenticationHelperService;
-    private final ProducerHelperService producerHelperService;
     private final UtilService utilService;
     private final PointRequester pointRequester;
 
@@ -56,7 +54,7 @@ public class UserAuthServiceImpl implements UserAuthService {
         dto.changeUserId(dto.getUserId());
         MailDto signupMail = MailDto.signupMailOf(dto);
 
-        producerHelperService.sendMail(signupMail);
+        //producerHelperService.sendMail(signupMail);
 
         return ResultCode.OK;
     }

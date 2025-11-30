@@ -1,4 +1,4 @@
-package spring.work.global.rabbitmq.dto;
+package spring.work.global.kafka.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

@@ -2,7 +2,7 @@ package spring.work.user.mapper;
 
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
-import spring.work.global.rabbitmq.dto.MailDto;
+import spring.work.global.kafka.dto.MailDto;
 import spring.work.global.security.auth.AuthUser;
 import spring.work.user.dto.request.Signup;
 
