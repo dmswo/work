@@ -4,4 +4,5 @@ import spring.work.global.kafka.dto.MailDto;
 
 public interface ConsumerHelperService {
     void sendMail(MailDto messageDto);
+    void failSendMail(MailDto messageDto);
 }
