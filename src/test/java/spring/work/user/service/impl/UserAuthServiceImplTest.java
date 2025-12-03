@@ -14,6 +14,7 @@ import spring.work.global.dto.TokenInfo;
 import spring.work.global.exception.BusinessException;
 import spring.work.global.externalApi.workPoint.PointRequester;
 import spring.work.global.kafka.dto.MailDto;
+import spring.work.global.kafka.service.ProducerHelperService;
 import spring.work.global.security.utils.AuthenticationHelperService;
 import spring.work.global.utils.UtilService;
 import spring.work.user.dto.request.CreatePoint;
@@ -33,7 +34,7 @@ class UserAuthServiceImplTest {
     @Mock private UserAuthMapper userAuthMapper;
     @Mock private PasswordEncoder passwordEncoder;
     @Mock private AuthenticationHelperService authenticationHelperService;
-//    @Mock private ProducerHelperService producerHelperService;
+    @Mock private ProducerHelperService producerHelperService;
     @Mock private UtilService utilService;
     @Mock private PointRequester pointRequester;
 
@@ -116,14 +117,14 @@ class UserAuthServiceImplTest {
         userAuthService.signup(signup);
 
         // Then
-//        then(producerHelperService).should(times(1)).sendMail(any(MailDto.class));
+        then(producerHelperService).should(times(1)).sendMail(any(MailDto.class));
     }
 
     private void stubExternalDependencies() {
         // 외부 의존성 stub
         given(pointRequester.createUserPoint(any(CreatePoint.class)))
                 .willReturn(new CreatePointResponse());
-//        willDoNothing().given(producerHelperService).sendMail(any(MailDto.class));
+        willDoNothing().given(producerHelperService).sendMail(any(MailDto.class));
     }
 
     @Test
