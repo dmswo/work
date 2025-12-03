@@ -5,7 +5,7 @@
 
 <mapper namespace="spring.work.user.mapper.UserPostMapper">
     <insert id="saveUserPost">
-        insert into post (userId, title, content, view_cnt, create_user, updated_user)
+        insert into post (userId, title, content, view_cnt, created_user, updated_user)
         values (#{userId}, #{title}, #{content}, 0, #{userId}, #{userId})
     </insert>
 </mapper>
