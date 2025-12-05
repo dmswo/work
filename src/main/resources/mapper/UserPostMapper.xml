@@ -10,4 +10,13 @@
         insert into post (userId, title, content, view_cnt, created_user, updated_user)
         values (#{userId}, #{title}, #{content}, 0, #{userId}, #{userId})
     </insert>
+
+    <update id="updateUserPost">
+        update post
+           set title = #{post.title}
+             , content = #{post.content}
+             , updated_at = now()
+         where seq = #{postId}
+           and userId = #{post.userId}
+    </update>
 </mapper>

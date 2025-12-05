@@ -12,8 +12,8 @@ import spring.work.user.service.UserPointService;
 @RestController
 @Slf4j
 @RequiredArgsConstructor
-@RequestMapping("/user/point")
-@Tag(name="/user/point", description = "유저 포인트 관련 API")
+@RequestMapping("/point")
+@Tag(name="/point", description = "유저 포인트 관련 API")
 public class UserPointController {
     private final UserPointService userPointService;
 
