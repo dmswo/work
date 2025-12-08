@@ -1,0 +1,75 @@
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/work?serverTimezone=UTC&characterEncoding=utf8
+    username: root
+    password: root
+
+  security:
+    user:
+      name: user
+      password: 1234
+
+  kafka:
+    bootstrap-servers: localhost:9092
+
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      acks: all
+      retries: 3
+
+    consumer:
+      group-id: mail-consumer-group
+      auto-offset-reset: earliest
+      enable-auto-commit: true
+      key-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
+      properties:
+        spring.deserializer.key.delegate.class: org.apache.kafka.common.serialization.StringDeserializer
+        spring.deserializer.value.delegate.class: org.springframework.kafka.support.serializer.JsonDeserializer
+        spring.json.trusted.packages: spring.work.global.kafka.dto
+
+    listener:
+      ack-mode: record
+
+  redis:
+    host: 127.0.0.1
+    port: 6379
+
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: kimeun106@gmail.com
+    password: shnjzbbafvguhazz
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+  elasticsearch:
+    uris: http://localhost:9200
+
+jwt:
+  secret: dfda343jhadjkfu3hjhdjkauf3jhdjfhuak3jdhfudj32k2jkjk3j2k2jk32j3k2j3kj2k3jk2dfdasdfsdkfjdkfjielsakdjfkdlasijdkfld
+
+aes:
+  key: dkfjaielkrjdidkjksladifjkld
+
+mybatis:
+  config-location: classpath:mybatis-config.xml
+  mapper-locations: classpath:mapper/*.xml
+  type-aliases-package: com.study.board
+
+Authorization:
+  work-point:
+    x-api-key-header: X-API-KEY
+    x-api-key-value: dasdlkdjfkdlsjailskdjfkdl
+
+external:
+  work-point:
+    host-url: http://localhost:8082
+    endpoint:
+      get-user-point: /api/v1/point/user/{userId}
+      create-user-point: /api/v1/point/user
