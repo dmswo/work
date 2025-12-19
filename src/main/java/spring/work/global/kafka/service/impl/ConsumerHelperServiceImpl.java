@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 import spring.work.global.kafka.dto.MailDto;
@@ -23,6 +24,7 @@ public class ConsumerHelperServiceImpl implements ConsumerHelperService {
     private final EmailSender emailSender;
     private final UserAuthService userAuthService;
     private final ElasticSearchRepository elasticSearchRepository;
+    private final ObjectMapper objectMapper;
 
     @Override
     @KafkaListener(topics = "mail-topic")
@@ -43,17 +45,24 @@ public class ConsumerHelperServiceImpl implements ConsumerHelperService {
             groupId = "cdc-post-group",
             containerFactory = "cdcKafkaListenerContainerFactory"
     )
-    public void cdcPostUpdate(String message) {
+    public void cdcPostUpdate(ConsumerRecord<String, String> record) {
+        String message = record.value();
         log.info("Received Debezium Message: {}", message);
-
-        ObjectMapper mapper = new ObjectMapper();
+        if (message == null) {
+            log.info("CDC tombstone message ignored");
+            return;
+        }
 
         try {
             DebeziumCdcMessage<PostCdcDto> cdcMessage =
-                    mapper.readValue(message, new TypeReference<DebeziumCdcMessage<PostCdcDto>>() {});
+                    objectMapper.readValue(message, new TypeReference<DebeziumCdcMessage<PostCdcDto>>() {});
+
+            String op = cdcMessage.getPayload().getOp();
+            if (!"u".equals(op)) {
+                return;
+            }
 
             PostCdcDto after = cdcMessage.getPayload().getAfter();
-
             if (after != null) {
                 log.info("Post Updated => {}", after);
             }

@@ -5,8 +5,8 @@
 
 <mapper namespace="spring.work.user.mapper.UserAuthMapper">
     <insert id="signup">
-        insert into users (userId, password, nickname, userRole, email, phone, address)
-        values (#{userId}, #{password}, #{nickname}, #{userRole}, #{email}, #{phone}, #{address})
+        insert into users (userId, password, nickname, userRole, email, phone, address, created_user, updated_user)
+        values (#{userId}, #{password}, #{nickname}, #{userRole}, #{email}, #{phone}, #{address}, #{userId}, #{userId})
     </insert>
 
     <select id="selectAuthUserByUserId" parameterType="String">
@@ -22,7 +22,7 @@
     </select>
 
     <insert id="saveLoginHistory">
-        insert into userLoginHistory (userId, ip) values (#{userId}, #{ip})
+        insert into userLoginHistory (userId, ip, created_user) values (#{userId}, #{ip}, #{userId})
     </insert>
 
     <insert id="sendMailFailHistory">
