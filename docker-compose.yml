@@ -23,6 +23,25 @@ services:
     networks:
       - cdc_network
 
+  mysql-backup:
+    image: fradelg/mysql-cron-backup
+    container_name: work-mysql-backup
+    restart: always
+    depends_on:
+      - mysql
+    environment:
+      MYSQL_HOST: mysql
+      MYSQL_USER: backup
+      MYSQL_PASS: backup
+      MYSQL_DB: work
+      CRON_TIME: "10 15 * * *"
+      MAX_BACKUPS: 7
+      TZ: Asia/Seoul
+    volumes:
+      - ./backup:/backup
+    networks:
+      - cdc_network
+
   redis:
     image: redis:7
     container_name: work-redis
@@ -121,6 +140,14 @@ services:
       - elasticsearch
     networks:
       - es_network
+
+  python:
+    image: python:3.11
+    container_name: csv-generator
+    working_dir: /app
+    volumes:
+      - ./python:/app
+    command: python generate_post_csv.py
 
 networks:
   es_network:
