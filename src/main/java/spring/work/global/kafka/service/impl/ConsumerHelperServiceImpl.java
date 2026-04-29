@@ -58,23 +58,21 @@ public class ConsumerHelperServiceImpl implements ConsumerHelperService {
                     objectMapper.readValue(message, new TypeReference<DebeziumCdcMessage<PostCdcDto>>() {});
 
             String op = cdcMessage.getPayload().getOp();
-            if (!"u".equals(op)) {
-                return;
-            }
+            if ("u".equals(op) || "c".equals(op)) {
+                PostCdcDto after = cdcMessage.getPayload().getAfter();
+                if (after != null) {
+                    log.info("Post Updated => {}", after);
+                }
 
-            PostCdcDto after = cdcMessage.getPayload().getAfter();
-            if (after != null) {
-                log.info("Post Updated => {}", after);
+                // CDC를 통해 elasticsearch 저장
+                PostDocument doc = PostDocument.builder()
+                        .seq(after.getSeq())
+                        .title(after.getTitle())
+                        .content(after.getContent())
+                        .viewCnt(after.getViewCnt())
+                        .build();
+                elasticSearchRepository.save(doc);
             }
-
-            // CDC를 통해 elasticsearch 저장
-            PostDocument doc = PostDocument.builder()
-                    .seq(after.getSeq())
-                    .title(after.getTitle())
-                    .content(after.getContent())
-                    .viewCnt(after.getViewCnt())
-                    .build();
-            elasticSearchRepository.save(doc);
         } catch (Exception e) {
             // 1) 에러 로그
             log.error("CDC 메시지 처리 실패. message={}", message, e);
