@@ -11,13 +11,7 @@ import java.util.Optional;
 @Mapper
 public interface UserAuthMapper {
 
-    void signup(Signup dto);
-
-    Optional<AuthUser> selectAuthUserByUserId(String userId);
-
     int existsByUserId(String userId);
-
-    void saveLoginHistory(@Param("userId") String userId, @Param("ip") String ip);
 
     void sendMailFailHistory(MailDto mailDto);
 }

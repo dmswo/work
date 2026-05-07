@@ -4,26 +4,12 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="spring.work.user.mapper.UserAuthMapper">
-    <insert id="signup">
-        insert into users (userId, password, nickname, userRole, email, phone, address, created_user, updated_user)
-        values (#{userId}, #{password}, #{nickname}, #{userRole}, #{email}, #{phone}, #{address}, #{userId}, #{userId})
-    </insert>
-
-    <select id="selectAuthUserByUserId" parameterType="String">
-        select userId, password, nickname, userRole
-          from users
-         where userId = #{userId}
-    </select>
 
     <select id="existsByUserId" parameterType="String">
         select count(*)
           from users
          where userId = #{userId}
     </select>
-
-    <insert id="saveLoginHistory">
-        insert into userLoginHistory (userId, ip, created_user) values (#{userId}, #{ip}, #{userId})
-    </insert>
 
     <insert id="sendMailFailHistory">
         insert into sendMailFailHistory (userId) values (#{userId})

@@ -8,20 +8,27 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import spring.work.global.constant.ExceptionCode;
 import spring.work.global.exception.BusinessException;
+import spring.work.user.entity.Users;
 import spring.work.user.mapper.UserAuthMapper;
+import spring.work.user.repository.UserRepository;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class AuthUserDetailsService implements UserDetailsService {
 
-    private final UserAuthMapper userAuthMapper;
+    private final UserRepository userRepository;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        AuthUser authUser = userAuthMapper.selectAuthUserByUserId(username).orElseThrow(() -> new BusinessException(ExceptionCode.USER_NOT_FOUND));
+        Users users = userRepository.findByUserId(username).orElseThrow(() -> new BusinessException(ExceptionCode.USER_NOT_FOUND));
+        AuthUser authUser = AuthUser.builder()
+                .userId(users.getUserId())
+                .password(users.getPassword())
+                .nickName(users.getNickname())
+                .userRole(users.getUserRole())
+                .build();
         authUser.setDefaultInfo(authUser);
-
         return authUser;
     }
 }

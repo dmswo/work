@@ -29,7 +29,7 @@ public class BaseEntity {
     @LastModifiedDate
     private LocalDateTime updatedAt;
 
-    public void setSignUser(String createdUser, LocalDateTime createdAt, String updatedUser, LocalDateTime updatedAt) {
+    public void setBaseInfo(String createdUser, LocalDateTime createdAt, String updatedUser, LocalDateTime updatedAt) {
         this.createdUser = createdUser;
         this.createdAt = createdAt;
         this.updatedUser = updatedUser;
