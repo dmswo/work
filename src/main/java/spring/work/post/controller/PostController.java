@@ -1,4 +1,4 @@
-package spring.work.user.controller;
+package spring.work.post.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -8,10 +8,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import spring.work.global.constant.ResultCode;
 import spring.work.global.dto.ApiResponse;
-import spring.work.user.dto.request.post.CreatePost;
-import spring.work.user.dto.request.post.UpdatePost;
-import spring.work.user.dto.response.post.PostResponse;
-import spring.work.user.service.UserPostService;
+import spring.work.post.dto.request.CreatePost;
+import spring.work.post.dto.request.UpdatePost;
+import spring.work.post.dto.response.PostResponse;
+import spring.work.post.service.PostService;
 
 import java.util.List;
 
@@ -20,27 +20,27 @@ import java.util.List;
 @RequiredArgsConstructor
 @RequestMapping("/posts")
 @Tag(name="/posts", description = "유저 게시글 관련 API")
-public class UserPostController {
+public class PostController {
 
-    private final UserPostService userPostService;
+    private final PostService postService;
 
     @Operation(summary = "회원 게시글 저장 API", description = "회원 게시글 저장 API")
     @PostMapping
     public ApiResponse<ResultCode> saveUserPost(@RequestBody @Valid CreatePost post) {
-        userPostService.saveUserPost(post);
+        postService.saveUserPost(post);
         return ApiResponse.successResponse(ResultCode.OK);
     }
 
     @Operation(summary = "회원 게시글 수정 API", description = "회원 게시글 수정 API")
     @PatchMapping("/{postId}")
     public ApiResponse<ResultCode> updatePost(@PathVariable("postId") Long postId, @RequestBody @Valid UpdatePost post) {
-        userPostService.updateUserPost(postId, post);
+        postService.updateUserPost(postId, post);
         return ApiResponse.successResponse(ResultCode.OK);
     }
 
     @Operation(summary = "회원 게시글 조회 API", description = "회원 게시글 조회 API")
     @GetMapping
     public ApiResponse<List<PostResponse>> getPosts() {
-        return ApiResponse.successResponse(userPostService.getPosts());
+        return ApiResponse.successResponse(postService.getPosts());
     }
 }

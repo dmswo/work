@@ -2,8 +2,8 @@ package spring.work.user.mapper;
 
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
-import spring.work.user.dto.request.post.CreatePost;
-import spring.work.user.dto.request.post.UpdatePost;
+import spring.work.post.dto.request.CreatePost;
+import spring.work.post.dto.request.UpdatePost;
 
 @Mapper
 public interface UserPostMapper {

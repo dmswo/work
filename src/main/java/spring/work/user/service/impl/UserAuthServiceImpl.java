@@ -26,6 +26,7 @@ import spring.work.user.repository.UserRepository;
 import spring.work.user.service.UserAuthService;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -78,7 +79,10 @@ public class UserAuthServiceImpl implements UserAuthService {
     public TokenInfo login(Login login, String ip) {
         TokenInfo tokenInfo = authenticationHelperService.processLoginAndReturnToken(login);
 
-        UserLoginHistory history = UserLoginHistory.create(login.getUserId(), ip);
+        Users user = userRepository.findByUserId(login.getUserId())
+                .orElseThrow(() -> new BusinessException(ExceptionCode.USER_NOT_FOUND));
+
+        UserLoginHistory history = UserLoginHistory.create(user, ip);
         history.setBaseInfo(login.getUserId(), LocalDateTime.now(), login.getUserId(), LocalDateTime.now());
         userLoginHistoryRepository.save(history);
 

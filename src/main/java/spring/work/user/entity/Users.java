@@ -10,6 +10,7 @@ import spring.work.global.entity.BaseEntity;
 import spring.work.user.constant.UserRole;
 import spring.work.user.dto.request.Signup;
 
+
 @Entity
 @Getter
 @Builder

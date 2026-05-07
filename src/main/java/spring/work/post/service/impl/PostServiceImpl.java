@@ -1,4 +1,4 @@
-package spring.work.user.service.impl;
+package spring.work.post.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -6,14 +6,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import spring.work.global.constant.ExceptionCode;
 import spring.work.global.exception.BusinessException;
-import spring.work.user.document.PostDocument;
-import spring.work.user.dto.request.post.CreatePost;
-import spring.work.user.dto.request.post.UpdatePost;
-import spring.work.user.dto.response.post.PostResponse;
+import spring.work.post.document.PostDocument;
+import spring.work.post.dto.request.CreatePost;
+import spring.work.post.dto.request.UpdatePost;
+import spring.work.post.dto.response.PostResponse;
 import spring.work.user.mapper.UserAuthMapper;
 import spring.work.user.mapper.UserPostMapper;
 import spring.work.user.repository.ElasticSearchRepository;
-import spring.work.user.service.UserPostService;
+import spring.work.post.service.PostService;
 
 import java.util.List;
 import java.util.stream.StreamSupport;
@@ -21,7 +21,7 @@ import java.util.stream.StreamSupport;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class UserPostServiceImpl implements UserPostService {
+public class PostServiceImpl implements PostService {
 
     private final UserPostMapper userPostMapper;
     private final UserAuthMapper userAuthMapper;

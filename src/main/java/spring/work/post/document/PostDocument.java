@@ -1,4 +1,4 @@
-package spring.work.user.document;
+package spring.work.post.document;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

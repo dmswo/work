@@ -1,10 +1,10 @@
-package spring.work.user.dto.response.post;
+package spring.work.post.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import spring.work.user.document.PostDocument;
+import spring.work.post.document.PostDocument;
 
 @Data
 @Builder

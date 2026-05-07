@@ -12,7 +12,7 @@ import spring.work.global.kafka.dto.cdc.DebeziumCdcMessage;
 import spring.work.global.kafka.dto.cdc.PostCdcDto;
 import spring.work.global.kafka.service.ConsumerHelperService;
 import spring.work.global.utils.EmailSender;
-import spring.work.user.document.PostDocument;
+import spring.work.post.document.PostDocument;
 import spring.work.user.repository.ElasticSearchRepository;
 import spring.work.user.service.UserAuthService;
 

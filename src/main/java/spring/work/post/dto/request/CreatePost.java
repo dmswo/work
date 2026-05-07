@@ -1,4 +1,4 @@
-package spring.work.user.dto.request.post;
+package spring.work.post.dto.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
