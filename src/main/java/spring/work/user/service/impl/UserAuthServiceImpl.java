@@ -17,16 +17,17 @@ import spring.work.global.security.utils.AuthenticationHelperService;
 import spring.work.global.utils.UtilService;
 import spring.work.user.dto.request.CreatePoint;
 import spring.work.user.dto.request.Login;
+import spring.work.user.entity.SendMailFailHistory;
 import spring.work.user.entity.UserLoginHistory;
 import spring.work.user.entity.Users;
 import spring.work.user.mapper.UserAuthMapper;
 import spring.work.user.dto.request.Signup;
+import spring.work.user.repository.SendMailFailHistoryRepository;
 import spring.work.user.repository.UserLoginHistoryRepository;
 import spring.work.user.repository.UserRepository;
 import spring.work.user.service.UserAuthService;
 
 import java.time.LocalDateTime;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -36,6 +37,7 @@ public class UserAuthServiceImpl implements UserAuthService {
     // jpa 전화 repository
     private final UserRepository userRepository;
     private final UserLoginHistoryRepository userLoginHistoryRepository;
+    private final SendMailFailHistoryRepository sendMailFailHistoryRepository;
 
     // mybatis 전환 mapper
     private final UserAuthMapper userAuthMapper;
@@ -102,6 +104,11 @@ public class UserAuthServiceImpl implements UserAuthService {
 
     @Override
     public void sendMailFailHistory(MailDto mailDto) {
-        userAuthMapper.sendMailFailHistory(mailDto);
+        Users user = userRepository.findByUserId(mailDto.getUserId())
+                .orElseThrow(() -> new BusinessException(ExceptionCode.USER_NOT_FOUND));
+
+        SendMailFailHistory history = SendMailFailHistory.create(user);
+        history.setBaseInfo(user.getUserId(), LocalDateTime.now(), user.getUserId(), LocalDateTime.now());
+        sendMailFailHistoryRepository.save(history);
     }
 }
