@@ -6,6 +6,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import spring.work.global.entity.BaseEntity;
+import spring.work.post.dto.request.CreatePost;
+import spring.work.user.constant.UserRole;
 import spring.work.user.entity.Users;
 
 import static jakarta.persistence.FetchType.LAZY;
@@ -31,4 +33,13 @@ public class Post extends BaseEntity {
     @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "user_seq")
     private Users user;
+
+    public static Post create(CreatePost post, Users user) {
+        return Post.builder()
+                .title(post.getTitle())
+                .content(post.getContent())
+                .viewCnt(0L)
+                .user(user)
+                .build();
+    }
 }

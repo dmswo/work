@@ -10,10 +10,14 @@ import spring.work.post.document.PostDocument;
 import spring.work.post.dto.request.CreatePost;
 import spring.work.post.dto.request.UpdatePost;
 import spring.work.post.dto.response.PostResponse;
+import spring.work.post.entity.Post;
+import spring.work.post.repository.PostRepository;
+import spring.work.user.entity.Users;
 import spring.work.user.mapper.UserAuthMapper;
 import spring.work.user.mapper.UserPostMapper;
 import spring.work.user.repository.ElasticSearchRepository;
 import spring.work.post.service.PostService;
+import spring.work.user.repository.UserRepository;
 
 import java.util.List;
 import java.util.stream.StreamSupport;
@@ -23,26 +27,30 @@ import java.util.stream.StreamSupport;
 @Slf4j
 public class PostServiceImpl implements PostService {
 
+    private final PostRepository postRepository;
+    private final UserRepository userRepository;
+
     private final UserPostMapper userPostMapper;
     private final UserAuthMapper userAuthMapper;
     private final ElasticSearchRepository elasticSearchRepository;
 
     @Transactional
     @Override
-    public void saveUserPost(CreatePost post) {
-        if (userAuthMapper.existsByUserId(post.getUserId()) == 0) {
-            throw new BusinessException(ExceptionCode.USER_NOT_FOUND);
-        }
-        userPostMapper.saveUserPost(post);
+    public void savePost(CreatePost request) {
+        Users user = userRepository.findByUserId(request.getUserId())
+                .orElseThrow(() -> new BusinessException(ExceptionCode.USER_NOT_FOUND));
 
-        // elasticsearch 저장 로직 추가
-        PostDocument doc = PostDocument.builder()
-                .seq(post.getSeq())
-                .title(post.getTitle())
-                .content(post.getContent())
-                .viewCnt(0)
-                .build();
-        elasticSearchRepository.save(doc);
+        Post post = Post.create(request, user);
+        postRepository.save(post);
+
+//        // elasticsearch 저장 로직 추가
+//        PostDocument doc = PostDocument.builder()
+//                .seq(post.getSeq())
+//                .title(post.getTitle())
+//                .content(post.getContent())
+//                .viewCnt(0)
+//                .build();
+//        elasticSearchRepository.save(doc);
     }
 
     @Transactional

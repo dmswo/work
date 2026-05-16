@@ -16,6 +16,8 @@ import spring.work.global.security.auth.AuthUser;
 import spring.work.global.security.jwt.JwtTokenProvider;
 import spring.work.user.dto.request.Login;
 
+import java.util.Collections;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -89,6 +91,25 @@ public class AuthenticationHelperServiceImpl implements AuthenticationHelperServ
         // 인증정보 redis 및 securityContext에 저장
         setAuthenticationToRedis(authentication, authentication.getName(), tokenInfo.getRefreshToken());
         return tokenInfo;
+    }
+
+    @Override
+    public void setTemporaryAuthentication(String userId) {
+
+        Authentication authentication =
+                new UsernamePasswordAuthenticationToken(
+                        userId,
+                        null,
+                        Collections.emptyList()
+                );
+
+        SecurityContextHolder.getContext()
+                .setAuthentication(authentication);
+    }
+
+    @Override
+    public void clearAuthentication() {
+        SecurityContextHolder.clearContext();
     }
 
     private void checkTokenStatus(String redisKey, String token) {

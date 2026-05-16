@@ -20,7 +20,6 @@ import spring.work.user.dto.request.Login;
 import spring.work.user.entity.SendMailFailHistory;
 import spring.work.user.entity.UserLoginHistory;
 import spring.work.user.entity.Users;
-import spring.work.user.mapper.UserAuthMapper;
 import spring.work.user.dto.request.Signup;
 import spring.work.user.repository.SendMailFailHistoryRepository;
 import spring.work.user.repository.UserLoginHistoryRepository;
@@ -40,7 +39,6 @@ public class UserAuthServiceImpl implements UserAuthService {
     private final SendMailFailHistoryRepository sendMailFailHistoryRepository;
 
     // mybatis 전환 mapper
-    private final UserAuthMapper userAuthMapper;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationHelperService authenticationHelperService;
     private final UtilService utilService;
@@ -60,9 +58,16 @@ public class UserAuthServiceImpl implements UserAuthService {
                 utilService.encrypt(dto.getPhone()),
                 utilService.encrypt(dto.getAddress()));
 
-        Users users = Users.create(dto);
-        users.setBaseInfo(dto.getUserId(), LocalDateTime.now(), dto.getUserId(), LocalDateTime.now());
-        userRepository.save(users);
+        try {
+            // 회원가입 시에는 로그인 정보가 없으므로 auditing용 authentication 임시 세팅
+            authenticationHelperService
+                    .setTemporaryAuthentication(dto.getUserId());
+
+            Users users = Users.create(dto);
+            userRepository.save(users);
+        } finally {
+            authenticationHelperService.clearAuthentication();
+        }
 
         // 포인트 데이터 생성
         //pointRequester.createUserPoint(CreatePoint.builder().userId(dto.getUserId()).build());

@@ -26,8 +26,8 @@ public class PostController {
 
     @Operation(summary = "회원 게시글 저장 API", description = "회원 게시글 저장 API")
     @PostMapping
-    public ApiResponse<ResultCode> saveUserPost(@RequestBody @Valid CreatePost post) {
-        postService.saveUserPost(post);
+    public ApiResponse<ResultCode> savePost(@RequestBody @Valid CreatePost request) {
+        postService.savePost(request);
         return ApiResponse.successResponse(ResultCode.OK);
     }
 

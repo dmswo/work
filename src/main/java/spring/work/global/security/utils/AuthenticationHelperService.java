@@ -15,4 +15,7 @@ public interface AuthenticationHelperService {
     void logout(HttpServletRequest request);
 
     TokenInfo reissue(HttpServletRequest request);
+
+    void setTemporaryAuthentication(String userId);
+    void clearAuthentication();
 }
