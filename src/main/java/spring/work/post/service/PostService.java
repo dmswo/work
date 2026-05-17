@@ -1,14 +1,14 @@
 package spring.work.post.service;
 
+import org.springframework.data.domain.Pageable;
+import spring.work.global.dto.PageResponse;
 import spring.work.post.dto.request.CreatePost;
 import spring.work.post.dto.request.UpdatePost;
-import spring.work.post.dto.response.PostResponse;
-
-import java.util.List;
+import spring.work.post.dto.response.PostListResponse;
 
 public interface PostService {
     void savePost(CreatePost request);
     void updatePost(Long postId, UpdatePost request);
     void deletePost(Long postId);
-    List<PostResponse> getPosts();
+    PageResponse<PostListResponse> getPosts(Pageable pageable);
 }

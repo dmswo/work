@@ -2,23 +2,22 @@ package spring.work.post.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import spring.work.global.constant.ExceptionCode;
+import spring.work.global.dto.PageResponse;
 import spring.work.global.exception.BusinessException;
-import spring.work.post.document.PostDocument;
 import spring.work.post.dto.request.CreatePost;
 import spring.work.post.dto.request.UpdatePost;
-import spring.work.post.dto.response.PostResponse;
+import spring.work.post.dto.response.PostListResponse;
 import spring.work.post.entity.Post;
 import spring.work.post.repository.PostRepository;
 import spring.work.user.entity.Users;
 import spring.work.user.repository.ElasticSearchRepository;
 import spring.work.post.service.PostService;
 import spring.work.user.repository.UserRepository;
-
-import java.util.List;
-import java.util.stream.StreamSupport;
 
 @Service
 @RequiredArgsConstructor
@@ -57,12 +56,13 @@ public class PostServiceImpl implements PostService {
         postRepository.delete(post);
     }
 
+    @Transactional(readOnly = true)
     @Override
-    public List<PostResponse> getPosts() {
-        Iterable<PostDocument> documents = elasticSearchRepository.findAll();
+    public PageResponse<PostListResponse> getPosts(Pageable pageable) {
+        Page<Post> posts = postRepository.findAll(pageable);
 
-        return StreamSupport.stream(documents.spliterator(), false)
-                .map(PostResponse::from)
-                .toList();
+        Page<PostListResponse> mapped = posts.map(PostListResponse::from);
+
+        return PageResponse.from(mapped);
     }
 }

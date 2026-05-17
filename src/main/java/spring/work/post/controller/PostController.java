@@ -5,15 +5,19 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springdoc.core.annotations.ParameterObject;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.*;
 import spring.work.global.constant.ResultCode;
 import spring.work.global.dto.ApiResponse;
+import spring.work.global.dto.PageResponse;
 import spring.work.post.dto.request.CreatePost;
 import spring.work.post.dto.request.UpdatePost;
-import spring.work.post.dto.response.PostResponse;
+import spring.work.post.dto.response.PostListResponse;
 import spring.work.post.service.PostService;
-
-import java.util.List;
 
 @RestController
 @Slf4j
@@ -45,9 +49,13 @@ public class PostController {
         return ApiResponse.successResponse(ResultCode.OK);
     }
 
-    @Operation(summary = "게시글 조회 API", description = "게시글 조회 API")
+    @Operation(summary = "게시글 리스트 조회 API", description = "게시글 리스트 조회 API")
     @GetMapping
-    public ApiResponse<List<PostResponse>> getPosts() {
-        return ApiResponse.successResponse(postService.getPosts());
+    public ApiResponse<PageResponse<PostListResponse>> getPosts(
+            @ParameterObject
+            @PageableDefault(size = 10,
+                    sort = "seq",
+                    direction = Sort.Direction.DESC) Pageable pageable) {
+        return ApiResponse.successResponse(postService.getPosts(pageable));
     }
 }
