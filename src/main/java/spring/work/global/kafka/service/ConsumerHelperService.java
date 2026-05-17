@@ -7,5 +7,5 @@ public interface ConsumerHelperService {
     void sendMail(MailDto messageDto);
     void failSendMail(MailDto messageDto);
 
-    void cdcPostUpdate(ConsumerRecord<String, String> record);
+    void handlePostCdc(ConsumerRecord<String, String> record);
 }

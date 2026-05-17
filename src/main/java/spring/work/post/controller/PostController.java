@@ -19,26 +19,33 @@ import java.util.List;
 @Slf4j
 @RequiredArgsConstructor
 @RequestMapping("/posts")
-@Tag(name="/posts", description = "유저 게시글 관련 API")
+@Tag(name="/posts", description = "게시글 관련 API")
 public class PostController {
 
     private final PostService postService;
 
-    @Operation(summary = "회원 게시글 저장 API", description = "회원 게시글 저장 API")
+    @Operation(summary = "게시글 저장 API", description = "게시글 저장 API")
     @PostMapping
     public ApiResponse<ResultCode> savePost(@RequestBody @Valid CreatePost request) {
         postService.savePost(request);
         return ApiResponse.successResponse(ResultCode.OK);
     }
 
-    @Operation(summary = "회원 게시글 수정 API", description = "회원 게시글 수정 API")
+    @Operation(summary = "게시글 수정 API", description = "게시글 수정 API")
     @PatchMapping("/{postId}")
-    public ApiResponse<ResultCode> updatePost(@PathVariable("postId") Long postId, @RequestBody @Valid UpdatePost post) {
-        postService.updateUserPost(postId, post);
+    public ApiResponse<ResultCode> updatePost(@PathVariable("postId") Long postId, @RequestBody @Valid UpdatePost request) {
+        postService.updatePost(postId, request);
         return ApiResponse.successResponse(ResultCode.OK);
     }
 
-    @Operation(summary = "회원 게시글 조회 API", description = "회원 게시글 조회 API")
+    @Operation(summary = "게시글 삭제 API", description = "게시글 삭제 API")
+    @DeleteMapping("/{postId}")
+    public ApiResponse<ResultCode> deletePost(@PathVariable("postId") Long postId) {
+        postService.deletePost(postId);
+        return ApiResponse.successResponse(ResultCode.OK);
+    }
+
+    @Operation(summary = "게시글 조회 API", description = "게시글 조회 API")
     @GetMapping
     public ApiResponse<List<PostResponse>> getPosts() {
         return ApiResponse.successResponse(postService.getPosts());

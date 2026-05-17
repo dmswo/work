@@ -13,8 +13,6 @@ import spring.work.post.dto.response.PostResponse;
 import spring.work.post.entity.Post;
 import spring.work.post.repository.PostRepository;
 import spring.work.user.entity.Users;
-import spring.work.user.mapper.UserAuthMapper;
-import spring.work.user.mapper.UserPostMapper;
 import spring.work.user.repository.ElasticSearchRepository;
 import spring.work.post.service.PostService;
 import spring.work.user.repository.UserRepository;
@@ -29,9 +27,6 @@ public class PostServiceImpl implements PostService {
 
     private final PostRepository postRepository;
     private final UserRepository userRepository;
-
-    private final UserPostMapper userPostMapper;
-    private final UserAuthMapper userAuthMapper;
     private final ElasticSearchRepository elasticSearchRepository;
 
     @Transactional
@@ -42,21 +37,24 @@ public class PostServiceImpl implements PostService {
 
         Post post = Post.create(request, user);
         postRepository.save(post);
-
-//        // elasticsearch 저장 로직 추가
-//        PostDocument doc = PostDocument.builder()
-//                .seq(post.getSeq())
-//                .title(post.getTitle())
-//                .content(post.getContent())
-//                .viewCnt(0)
-//                .build();
-//        elasticSearchRepository.save(doc);
     }
 
     @Transactional
     @Override
-    public void updateUserPost(Long postId, UpdatePost post) {
-        userPostMapper.updateUserPost(postId, post);
+    public void updatePost(Long postId, UpdatePost request) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new BusinessException(ExceptionCode.POST_NOT_FOUND));
+
+        post.modify(request);
+    }
+
+    @Transactional
+    @Override
+    public void deletePost(Long postId) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new BusinessException(ExceptionCode.POST_NOT_FOUND));
+
+        postRepository.delete(post);
     }
 
     @Override

@@ -7,7 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import spring.work.global.entity.BaseEntity;
 import spring.work.post.dto.request.CreatePost;
-import spring.work.user.constant.UserRole;
+import spring.work.post.dto.request.UpdatePost;
 import spring.work.user.entity.Users;
 
 import static jakarta.persistence.FetchType.LAZY;
@@ -41,5 +41,10 @@ public class Post extends BaseEntity {
                 .viewCnt(0L)
                 .user(user)
                 .build();
+    }
+
+    public void modify(UpdatePost request) {
+        this.title = request.getTitle();
+        this.content = request.getContent();
     }
 }

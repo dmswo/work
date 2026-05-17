@@ -8,6 +8,7 @@ import java.util.List;
 
 public interface PostService {
     void savePost(CreatePost request);
-    void updateUserPost(Long postId, UpdatePost post);
+    void updatePost(Long postId, UpdatePost request);
+    void deletePost(Long postId);
     List<PostResponse> getPosts();
 }

@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 import spring.work.global.constant.ExceptionCode;
 import spring.work.global.exception.BusinessException;
 import spring.work.user.entity.Users;
-import spring.work.user.mapper.UserAuthMapper;
 import spring.work.user.repository.UserRepository;
 
 @Slf4j

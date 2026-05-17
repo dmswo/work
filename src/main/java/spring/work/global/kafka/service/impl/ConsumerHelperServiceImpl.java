@@ -45,7 +45,7 @@ public class ConsumerHelperServiceImpl implements ConsumerHelperService {
             groupId = "cdc-post-group",
             containerFactory = "cdcKafkaListenerContainerFactory"
     )
-    public void cdcPostUpdate(ConsumerRecord<String, String> record) {
+    public void handlePostCdc(ConsumerRecord<String, String> record) {
         String message = record.value();
         log.info("Received Debezium Message: {}", message);
         if (message == null) {
@@ -60,18 +60,30 @@ public class ConsumerHelperServiceImpl implements ConsumerHelperService {
             String op = cdcMessage.getPayload().getOp();
             if ("u".equals(op) || "c".equals(op)) {
                 PostCdcDto after = cdcMessage.getPayload().getAfter();
-                if (after != null) {
-                    log.info("Post Updated => {}", after);
+                if (after == null) {
+                    log.warn("CDC after payload is null");
+                    return;
                 }
 
-                // CDC를 통해 elasticsearch 저장
                 PostDocument doc = PostDocument.builder()
                         .seq(after.getSeq())
                         .title(after.getTitle())
                         .content(after.getContent())
                         .viewCnt(after.getViewCnt())
                         .build();
+
                 elasticSearchRepository.save(doc);
+
+                log.info("ES sync completed. postId={}", after.getSeq());
+            } else if ("d".equals(op)) {
+                PostCdcDto before = cdcMessage.getPayload().getBefore();
+                if (before == null) {
+                    return;
+                }
+
+                elasticSearchRepository.deleteById(before.getSeq());
+
+                log.info("ES delete completed. postId={}", before.getSeq());
             }
         } catch (Exception e) {
             // 1) 에러 로그
