@@ -7,7 +7,7 @@ import spring.work.post.dto.request.UpdatePost;
 import spring.work.post.dto.response.PostListResponse;
 
 public interface PostService {
-    void savePost(CreatePost request);
+    void savePost(CreatePost request, String userId);
     void updatePost(Long postId, UpdatePost request);
     void deletePost(Long postId);
     PageResponse<PostListResponse> getPosts(Pageable pageable);
