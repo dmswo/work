@@ -18,7 +18,7 @@ public class PostDocument {
     @Id
     private Long seq;  // DB post PK
 
-    @Field(type = FieldType.Text, analyzer = "nori")
+    @Field(type = FieldType.Text)
     private String title;
 
     @Field(type = FieldType.Text, index = false)

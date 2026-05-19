@@ -70,7 +70,7 @@ public class UserAuthServiceImpl implements UserAuthService {
         }
 
         // 포인트 데이터 생성
-        //pointRequester.createUserPoint(CreatePoint.builder().userId(dto.getUserId()).build());
+        pointRequester.createUserPoint(CreatePoint.builder().userId(dto.getUserId()).build());
 
         // 회원가입 알림 메일 발송
         dto.decryptEmail(utilService.decrypt(dto.getEmail()));
