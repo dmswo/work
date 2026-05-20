@@ -16,6 +16,7 @@ import spring.work.global.dto.ApiResponse;
 import spring.work.global.dto.PageResponse;
 import spring.work.global.security.auth.AuthUser;
 import spring.work.post.dto.request.CreatePost;
+import spring.work.post.dto.request.PostSearchCondition;
 import spring.work.post.dto.request.UpdatePost;
 import spring.work.post.dto.response.PostListResponse;
 import spring.work.post.service.PostService;
@@ -54,9 +55,11 @@ public class PostController {
     @GetMapping
     public ApiResponse<PageResponse<PostListResponse>> getPosts(
             @ParameterObject
+            PostSearchCondition condition,
+            @ParameterObject
             @PageableDefault(size = 10,
                     sort = "seq",
                     direction = Sort.Direction.DESC) Pageable pageable) {
-        return ApiResponse.successResponse(postService.getPosts(pageable));
+        return ApiResponse.successResponse(postService.getPosts(condition, pageable));
     }
 }

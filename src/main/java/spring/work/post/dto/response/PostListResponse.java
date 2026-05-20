@@ -1,10 +1,12 @@
 package spring.work.post.dto.response;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import spring.work.post.entity.Post;
+
+import java.time.LocalDateTime;
 
 @Data
 @Builder
@@ -15,16 +17,8 @@ public class PostListResponse {
     private String title;
     private String content;
     private Long viewCnt;
-
     private String nickname;
-
-    public static PostListResponse from(Post post) {
-        return PostListResponse.builder()
-                .seq(post.getSeq())
-                .title(post.getTitle())
-                .content(post.getContent())
-                .viewCnt(post.getViewCnt())
-                .nickname(post.getUser().getNickname())
-                .build();
-    }
+    private String createdUser;
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private LocalDateTime createdAt;
 }

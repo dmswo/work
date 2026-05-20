@@ -10,6 +10,7 @@ import spring.work.global.constant.ExceptionCode;
 import spring.work.global.dto.PageResponse;
 import spring.work.global.exception.BusinessException;
 import spring.work.post.dto.request.CreatePost;
+import spring.work.post.dto.request.PostSearchCondition;
 import spring.work.post.dto.request.UpdatePost;
 import spring.work.post.dto.response.PostListResponse;
 import spring.work.post.entity.Post;
@@ -56,11 +57,8 @@ public class PostServiceImpl implements PostService {
 
     @Transactional(readOnly = true)
     @Override
-    public PageResponse<PostListResponse> getPosts(Pageable pageable) {
-        Page<Post> posts = postRepository.findAll(pageable);
-
-        Page<PostListResponse> mapped = posts.map(PostListResponse::from);
-
-        return PageResponse.from(mapped);
+    public PageResponse<PostListResponse> getPosts(PostSearchCondition condition, Pageable pageable) {
+        Page<PostListResponse> posts = postRepository.postList(condition, pageable);
+        return PageResponse.from(posts);
     }
 }
