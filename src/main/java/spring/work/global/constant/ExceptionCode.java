@@ -13,7 +13,9 @@ public enum ExceptionCode {
     USER_NOT_FOUND("USERNAME_NOT_FOUND", "유저 정보를 찾을 수 없습니다."),
     USER_EXIST("USER_EXIST", "이미 존재하는 유저ID입니다."),
 
-    POST_NOT_FOUND("USERNAME_NOT_FOUND", "게시물 정보를 찾을 수 없습니다."),
+    POST_NOT_FOUND("POST_NOT_FOUND", "게시물 정보를 찾을 수 없습니다."),
+
+    COMMENT_NOT_FOUND("COMMENT_NOT_FOUND", "댓글 정보를 찾을 수 없습니다."),
 
     TOKEN_ERROR("TOKEN_ERROR", "잘못된 토큰입니다."),
     TOKEN_EXPIRE("TOKEN_EXPIRE", "만료된 토큰입니다."),

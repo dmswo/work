@@ -24,8 +24,8 @@ import spring.work.post.service.PostService;
 @RestController
 @Slf4j
 @RequiredArgsConstructor
-@RequestMapping("/posts")
-@Tag(name="/posts", description = "게시글 관련 API")
+@RequestMapping("/post")
+@Tag(name="/post", description = "게시글 관련 API")
 public class PostController {
 
     private final PostService postService;

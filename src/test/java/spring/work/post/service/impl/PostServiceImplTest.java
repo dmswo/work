@@ -25,7 +25,6 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.times;
@@ -65,7 +64,7 @@ class PostServiceImplTest {
 
         assertThat(savedPost.getTitle()).isEqualTo("title");
         assertThat(savedPost.getContent()).isEqualTo("content");
-        assertThat(savedPost.getUser()).isEqualTo(users);
+        assertThat(savedPost.getUser().getUserId()).isEqualTo("dmswo");
     }
 
     @Test
