@@ -5,10 +5,14 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import spring.work.comment.entity.Comment;
 import spring.work.global.entity.BaseEntity;
 import spring.work.post.dto.request.CreatePost;
 import spring.work.post.dto.request.UpdatePost;
 import spring.work.user.entity.Users;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static jakarta.persistence.FetchType.LAZY;
 
@@ -33,6 +37,9 @@ public class Post extends BaseEntity {
     @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "user_seq")
     private Users user;
+
+    @OneToMany(mappedBy = "post", fetch = FetchType.LAZY)
+    private List<Comment> comments = new ArrayList<>();
 
     public static Post create(CreatePost post, Users user) {
         return Post.builder()

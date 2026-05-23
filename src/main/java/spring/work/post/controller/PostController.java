@@ -19,6 +19,7 @@ import spring.work.post.dto.request.CreatePost;
 import spring.work.post.dto.request.PostSearchCondition;
 import spring.work.post.dto.request.UpdatePost;
 import spring.work.post.dto.response.PostListResponse;
+import spring.work.post.dto.response.PostResponse;
 import spring.work.post.service.PostService;
 
 @RestController
@@ -61,5 +62,11 @@ public class PostController {
                     sort = "seq",
                     direction = Sort.Direction.DESC) Pageable pageable) {
         return ApiResponse.successResponse(postService.getPosts(condition, pageable));
+    }
+
+    @Operation(summary = "게시글 단건 조회 API", description = "게시글 단건 조회 API")
+    @GetMapping("/{postId}")
+    public ApiResponse<PostResponse> getPost(@PathVariable("postId") Long postId) {
+        return ApiResponse.successResponse(postService.getPost(postId));
     }
 }

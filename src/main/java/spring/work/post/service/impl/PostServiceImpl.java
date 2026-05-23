@@ -13,6 +13,7 @@ import spring.work.post.dto.request.CreatePost;
 import spring.work.post.dto.request.PostSearchCondition;
 import spring.work.post.dto.request.UpdatePost;
 import spring.work.post.dto.response.PostListResponse;
+import spring.work.post.dto.response.PostResponse;
 import spring.work.post.entity.Post;
 import spring.work.post.repository.PostRepository;
 import spring.work.user.entity.Users;
@@ -60,5 +61,18 @@ public class PostServiceImpl implements PostService {
     public PageResponse<PostListResponse> getPosts(PostSearchCondition condition, Pageable pageable) {
         Page<PostListResponse> posts = postRepository.postList(condition, pageable);
         return PageResponse.from(posts);
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public PostResponse getPost(Long postId) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new BusinessException(ExceptionCode.POST_NOT_FOUND));
+
+        post.getComments().forEach(comment -> {
+            comment.getUser().getNickname();
+        });
+
+        return PostResponse.from(post);
     }
 }
