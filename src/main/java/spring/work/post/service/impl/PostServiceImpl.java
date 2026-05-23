@@ -66,12 +66,8 @@ public class PostServiceImpl implements PostService {
     @Transactional(readOnly = true)
     @Override
     public PostResponse getPost(Long postId) {
-        Post post = postRepository.findById(postId)
+        Post post = postRepository.findPostDetail(postId)
                 .orElseThrow(() -> new BusinessException(ExceptionCode.POST_NOT_FOUND));
-
-        post.getComments().forEach(comment -> {
-            comment.getUser().getNickname();
-        });
 
         return PostResponse.from(post);
     }

@@ -11,11 +11,14 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;
 import spring.work.post.dto.request.PostSearchCondition;
 import spring.work.post.dto.response.PostListResponse;
+import spring.work.post.entity.Post;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
+import java.util.Optional;
 
+import static spring.work.comment.entity.QComment.comment;
 import static spring.work.post.entity.QPost.post;
 import static spring.work.user.entity.QUsers.users;
 
@@ -80,5 +83,18 @@ public class PostCustomRepositoryImpl implements PostCustomRepository{
         return endDate != null
                 ? post.createdAt.loe(endDate.atTime(LocalTime.MAX))
                 : null;
+    }
+
+    @Override
+    public Optional<Post> findPostDetail(Long postId) {
+        Post result = queryFactory
+                .selectFrom(post)
+                .leftJoin(post.comments, comment).fetchJoin()
+                .leftJoin(comment.user, users).fetchJoin()
+                .where(post.seq.eq(postId))
+                .distinct()
+                .fetchOne();
+
+        return Optional.ofNullable(result);
     }
 }
