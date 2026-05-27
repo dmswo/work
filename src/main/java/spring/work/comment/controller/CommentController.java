@@ -5,20 +5,26 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springdoc.core.annotations.ParameterObject;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import spring.work.comment.dto.request.CreateComment;
 import spring.work.comment.dto.request.UpdateComment;
+import spring.work.comment.dto.response.CommentListResponse;
 import spring.work.comment.service.CommentService;
 import spring.work.global.constant.ResultCode;
 import spring.work.global.dto.ApiResponse;
+import spring.work.global.dto.PageResponse;
 import spring.work.global.security.auth.AuthUser;
 
 @RestController
 @Slf4j
 @RequiredArgsConstructor
-@RequestMapping("/commment")
-@Tag(name="/commment", description = "댓글 관련 API")
+@RequestMapping("/comment")
+@Tag(name="/comment", description = "댓글 관련 API")
 public class CommentController {
 
     private final CommentService commentService;
@@ -42,5 +48,16 @@ public class CommentController {
     public ApiResponse<ResultCode> deleteComment(@PathVariable("commentId") Long commentId) {
         commentService.deleteComment(commentId);
         return ApiResponse.successResponse(ResultCode.OK);
+    }
+
+    @Operation(summary = "댓글 리스트 조회 API", description = "댓글 리스트 조회 API")
+    @GetMapping("/{postId}")
+    public ApiResponse<PageResponse<CommentListResponse>> getComments(
+            @PathVariable("postId") Long postId,
+            @ParameterObject
+            @PageableDefault(size = 10,
+                    sort = "seq",
+                    direction = Sort.Direction.DESC) Pageable pageable) {
+        return ApiResponse.successResponse(commentService.getComments(postId, pageable));
     }
 }

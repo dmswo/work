@@ -2,14 +2,18 @@ package spring.work.comment.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import spring.work.comment.dto.request.CreateComment;
 import spring.work.comment.dto.request.UpdateComment;
+import spring.work.comment.dto.response.CommentListResponse;
 import spring.work.comment.entity.Comment;
 import spring.work.comment.repository.CommentRepository;
 import spring.work.comment.service.CommentService;
 import spring.work.global.constant.ExceptionCode;
+import spring.work.global.dto.PageResponse;
 import spring.work.global.exception.BusinessException;
 import spring.work.post.entity.Post;
 import spring.work.post.repository.PostRepository;
@@ -57,5 +61,14 @@ public class CommentServiceImpl implements CommentService {
                 .orElseThrow(() -> new BusinessException(ExceptionCode.COMMENT_NOT_FOUND));
 
         commentRepository.delete(comment);
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public PageResponse<CommentListResponse> getComments(Long postId, Pageable pageable) {
+        Page<Comment> comments = commentRepository.findByPost_Seq(postId, pageable);
+        Page<CommentListResponse> response = comments.map(CommentListResponse::from);
+
+        return PageResponse.from(response);
     }
 }

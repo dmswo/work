@@ -4,10 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import spring.work.comment.dto.response.CommentResponse;
 import spring.work.post.entity.Post;
-
-import java.util.List;
 
 @Data
 @Builder
@@ -18,15 +15,15 @@ public class PostResponse {
     private String title;
     private String content;
     private Long viewCnt;
-    List<CommentResponse> comments;
+    private Long commentCnt;
 
     public static PostResponse from(Post post) {
         return PostResponse.builder()
+                .seq(post.getSeq())
                 .title(post.getTitle())
                 .content(post.getContent())
                 .viewCnt(post.getViewCnt())
-                .comments(post.getComments().stream()
-                        .map(CommentResponse::from).toList())
+                .commentCnt((long) post.getComments().size())
                 .build();
     }
 }

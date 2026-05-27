@@ -13,15 +13,15 @@ import java.time.LocalDateTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class CommentResponse {
+public class CommentListResponse {
     private String content;
     private String nickname;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createdAt;
 
 
-    public static CommentResponse from(Comment commment) {
-        return CommentResponse.builder()
+    public static CommentListResponse from(Comment commment) {
+        return CommentListResponse.builder()
                 .content(commment.getContent())
                 .nickname(commment.getUser().getNickname())
                 .createdAt(commment.getCreatedAt())

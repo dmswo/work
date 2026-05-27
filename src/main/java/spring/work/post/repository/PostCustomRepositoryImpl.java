@@ -90,7 +90,6 @@ public class PostCustomRepositoryImpl implements PostCustomRepository{
         Post result = queryFactory
                 .selectFrom(post)
                 .leftJoin(post.comments, comment).fetchJoin()
-                .leftJoin(comment.user, users).fetchJoin()
                 .where(post.seq.eq(postId))
                 .distinct()
                 .fetchOne();
