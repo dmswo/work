@@ -15,6 +15,9 @@ public enum ExceptionCode {
 
     POST_NOT_FOUND("POST_NOT_FOUND", "게시물 정보를 찾을 수 없습니다."),
 
+    POST_LIKE_NOT_FOUND("POST_LIKE_NOT_FOUND", "게시물 좋아요 정보를 찾을 수 없습니다."),
+    ALREADY_POST_LIKED("ALREADY_POST_LIKED", "이미 좋아요를 누르셨습니다."),
+
     COMMENT_NOT_FOUND("COMMENT_NOT_FOUND", "댓글 정보를 찾을 수 없습니다."),
 
     TOKEN_ERROR("TOKEN_ERROR", "잘못된 토큰입니다."),
