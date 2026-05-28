@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import spring.work.global.constant.ExceptionCode;
 import spring.work.global.exception.BusinessException;
+import spring.work.global.redis.PostLikeRedisRepository;
 import spring.work.post.entity.Post;
 import spring.work.post.repository.PostRepository;
 import spring.work.postlike.entity.PostLike;
@@ -22,23 +23,32 @@ public class PostLikeServiceImpl implements PostLikeService {
     private final PostRepository postRepository;
     private final UserRepository userRepository;
     private final PostLikeRepository postLikeRepository;
+    private final PostLikeRedisRepository postLikeRedisRepository;
 
     @Transactional
     @Override
     public void savePostLike(Long postId, String userId) {
-        Post post = postRepository.findById(postId).orElseThrow(() -> new BusinessException(ExceptionCode.POST_NOT_FOUND));
-        Users users = userRepository.findByUserId(userId).orElseThrow(() -> new BusinessException(ExceptionCode.USER_NOT_FOUND));
+        // Redis 선점
+        boolean added = postLikeRedisRepository.addLikeUser(postId, userId);
 
-        if (postLikeRepository.existsByPostAndUser(post, users)) {
+        if (!added) {
             throw new BusinessException(ExceptionCode.ALREADY_POST_LIKED);
         }
 
-        PostLike postLike = PostLike.builder()
-                .post(post)
-                .user(users)
-                .build();
+        try {
+            Post post = postRepository.findById(postId).orElseThrow(() -> new BusinessException(ExceptionCode.POST_NOT_FOUND));
+            Users users = userRepository.findByUserId(userId).orElseThrow(() -> new BusinessException(ExceptionCode.USER_NOT_FOUND));
 
-        postLikeRepository.save(postLike);
+            PostLike postLike = PostLike.builder()
+                    .post(post)
+                    .user(users)
+                    .build();
+
+            postLikeRepository.save(postLike);
+        } catch (Exception e) {
+            postLikeRedisRepository.removeLikeUser(postId, userId);
+            throw e;
+        }
     }
 
     @Transactional
@@ -49,5 +59,6 @@ public class PostLikeServiceImpl implements PostLikeService {
         PostLike postLike = postLikeRepository.findByPostAndUser(post, users).orElseThrow(() -> new BusinessException(ExceptionCode.POST_LIKE_NOT_FOUND));
 
         postLikeRepository.delete(postLike);
+        postLikeRedisRepository.removeLikeUser(postId, userId);
     }
 }

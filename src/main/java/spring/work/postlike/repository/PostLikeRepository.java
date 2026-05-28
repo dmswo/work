@@ -9,5 +9,4 @@ import java.util.Optional;
 
 public interface PostLikeRepository extends JpaRepository<PostLike, Long> {
     Optional<PostLike> findByPostAndUser(Post post, Users user);
-    boolean existsByPostAndUser(Post post, Users user);
 }

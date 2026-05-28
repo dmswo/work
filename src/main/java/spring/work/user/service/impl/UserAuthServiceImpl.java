@@ -33,12 +33,9 @@ import java.time.LocalDateTime;
 @Slf4j
 public class UserAuthServiceImpl implements UserAuthService {
 
-    // jpa 전화 repository
     private final UserRepository userRepository;
     private final UserLoginHistoryRepository userLoginHistoryRepository;
     private final SendMailFailHistoryRepository sendMailFailHistoryRepository;
-
-    // mybatis 전환 mapper
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationHelperService authenticationHelperService;
     private final UtilService utilService;

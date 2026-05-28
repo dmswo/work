@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 import spring.work.global.constant.ExceptionCode;
 import spring.work.global.dto.TokenInfo;
 import spring.work.global.exception.BusinessException;
-import spring.work.global.redis.RedisUtil;
+import spring.work.global.redis.TokenRedisRepository;
 import spring.work.global.security.auth.AuthUser;
 import spring.work.global.security.jwt.JwtTokenProvider;
 import spring.work.user.dto.request.Login;
@@ -23,18 +23,18 @@ import java.util.Collections;
 @RequiredArgsConstructor
 public class AuthenticationHelperServiceImpl implements AuthenticationHelperService {
 
-    private final RedisUtil redisUtil;
+    private final TokenRedisRepository tokenRedisRepository;
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final JwtTokenProvider jwtTokenProvider;
 
     @Override
     public String getToken(String redisKey) {
-        return redisUtil.getValues(redisKey);
+        return tokenRedisRepository.getValues(redisKey);
     }
 
     @Override
     public void setToken(String redisKey, String token) {
-        redisUtil.setValues(redisKey, token);
+        tokenRedisRepository.setValues(redisKey, token);
     }
 
     @Override
@@ -125,7 +125,7 @@ public class AuthenticationHelperServiceImpl implements AuthenticationHelperServ
     }
 
     private void checkLoggedOut(String token) {
-        String values = redisUtil.getValues(token);
+        String values = tokenRedisRepository.getValues(token);
         if ("logout".equals(values))
             throw new BusinessException(ExceptionCode.TOKEN_LOGOUT);
     }
@@ -149,6 +149,6 @@ public class AuthenticationHelperServiceImpl implements AuthenticationHelperServ
 
     private void setBlackListTokenAndDeleteToken(String token, String userId) {
         setToken(token, "logout");
-        redisUtil.deleteValues(userId);
+        tokenRedisRepository.deleteValues(userId);
     }
 }
