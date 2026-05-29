@@ -8,6 +8,8 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class PostLikeRedisRepository {
 
+    private static final String POST_LIKE_KEY = "post:like:";
+
     private final RedisTemplate<String, Object> redisTemplate;
 
     public boolean addLikeUser(Long postId, String userId) {
@@ -24,7 +26,19 @@ public class PostLikeRedisRepository {
                 .remove(generateKey(postId), userId);
     }
 
+    public Long getLikeUserCount(Long postId) {
+        return redisTemplate.opsForSet()
+                .size(generateKey(postId));
+    }
+
+    public boolean getLiked(Long postId, String userId) {
+        Boolean result = redisTemplate.opsForSet()
+                .isMember(generateKey(postId), userId);
+
+        return Boolean.TRUE.equals(result);
+    }
+
     private String generateKey(Long postId) {
-        return "post:like:" + postId;
+        return POST_LIKE_KEY + postId;
     }
 }

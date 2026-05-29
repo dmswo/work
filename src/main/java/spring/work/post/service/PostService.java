@@ -12,6 +12,6 @@ public interface PostService {
     void savePost(CreatePost request, String userId);
     void updatePost(Long postId, UpdatePost request);
     void deletePost(Long postId);
-    PageResponse<PostListResponse> getPosts(PostSearchCondition condition, Pageable pageable);
+    PageResponse<PostListResponse> getPosts(PostSearchCondition condition, Pageable pageable, String userId);
     PostResponse getPost(Long postId);
 }

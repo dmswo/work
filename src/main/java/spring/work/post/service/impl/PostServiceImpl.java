@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 import spring.work.global.constant.ExceptionCode;
 import spring.work.global.dto.PageResponse;
 import spring.work.global.exception.BusinessException;
+import spring.work.global.redis.PostLikeRedisRepository;
 import spring.work.post.dto.request.CreatePost;
 import spring.work.post.dto.request.PostSearchCondition;
 import spring.work.post.dto.request.UpdatePost;
@@ -20,6 +21,8 @@ import spring.work.user.entity.Users;
 import spring.work.post.service.PostService;
 import spring.work.user.repository.UserRepository;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -27,6 +30,7 @@ public class PostServiceImpl implements PostService {
 
     private final PostRepository postRepository;
     private final UserRepository userRepository;
+    private final PostLikeRedisRepository postLikeRedisRepository;
 
     @Transactional
     @Override
@@ -58,8 +62,15 @@ public class PostServiceImpl implements PostService {
 
     @Transactional(readOnly = true)
     @Override
-    public PageResponse<PostListResponse> getPosts(PostSearchCondition condition, Pageable pageable) {
+    public PageResponse<PostListResponse> getPosts(PostSearchCondition condition, Pageable pageable, String userId) {
         Page<PostListResponse> posts = postRepository.postList(condition, pageable);
+
+        List<PostListResponse> content = posts.getContent();
+        content.forEach(a -> {
+            a.setLikeCount(postLikeRedisRepository.getLikeUserCount(a.getSeq()));
+            a.setLiked(postLikeRedisRepository.getLiked(a.getSeq(), userId));
+        });
+
         return PageResponse.from(posts);
     }
 

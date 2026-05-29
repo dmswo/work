@@ -19,6 +19,8 @@ public class PostListResponse {
     private Long viewCnt;
     private String nickname;
     private String createdUser;
+    private Long likeCount;
+    private boolean liked;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createdAt;
 }
