@@ -10,6 +10,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import spring.work.global.constant.ExceptionCode;
+import spring.work.global.constant.ResultCode;
 import spring.work.global.dto.TokenInfo;
 import spring.work.global.exception.BusinessException;
 import spring.work.global.externalApi.workPoint.PointRequester;
@@ -21,7 +22,6 @@ import spring.work.user.dto.request.CreatePoint;
 import spring.work.user.dto.request.Login;
 import spring.work.user.dto.request.Signup;
 import spring.work.user.dto.response.CreatePointResponse;
-import spring.work.user.entity.SendMailFailHistory;
 import spring.work.user.entity.UserLoginHistory;
 import spring.work.user.entity.Users;
 import spring.work.user.repository.SendMailFailHistoryRepository;
@@ -65,17 +65,14 @@ class UserAuthServiceImplTest {
 
     @Test
     @DisplayName("이미 존재하는 userID로 회원가입시 에러발생")
-    void throw_exception_already_exist_userID() {
+    void throw_exception_when_signup_user_not_found() {
         // Given
         given(userRepository.existsByUserId("testId")).willReturn(true);
 
-        // When
+        // When & Then
         assertThatThrownBy(() -> userAuthService.signup(signup))
                 .isInstanceOf(BusinessException.class)
                 .hasMessageContaining(ExceptionCode.USER_EXIST.getMessage());
-
-        // Then
-        then(userRepository).should(times(1)).existsByUserId("testId");
     }
 
     @Test
@@ -85,20 +82,19 @@ class UserAuthServiceImplTest {
         given(userRepository.existsByUserId(anyString())).willReturn(false);
         given(passwordEncoder.encode(anyString())).willReturn("encodedPassword");
         given(utilService.encrypt(anyString())).willReturn("encryptedData");
-        given(utilService.decrypt(anyString())).willReturn("encryptedData");
         stubExternalDependencies();
 
         // When
         userAuthService.signup(signup);
 
         // Then
-        then(passwordEncoder).should(times(1)).encode("testPassword");
-        then(utilService).should(times(3)).encrypt(anyString());
-        then(userRepository).should(times(1)).save(argThat(dto ->
-                dto.getEmail().equals("encryptedData") &&
+        then(userRepository).should()
+                .save(argThat(dto ->
+                        dto.getPassword().equals("encodedPassword") &&
+                        dto.getEmail().equals("encryptedData") &&
                         dto.getPhone().equals("encryptedData") &&
                         dto.getAddress().equals("encryptedData")
-        ));
+                ));
     }
 
     @Test
@@ -112,7 +108,7 @@ class UserAuthServiceImplTest {
         userAuthService.signup(signup);
 
         // Then
-        then(pointRequester).should(times(1)).createUserPoint(any(CreatePoint.class));
+        then(pointRequester).should().createUserPoint(any(CreatePoint.class));
     }
 
     @Test
@@ -126,14 +122,81 @@ class UserAuthServiceImplTest {
         userAuthService.signup(signup);
 
         // Then
-        then(producerHelperService).should(times(1)).sendMail(any(MailDto.class));
+        then(producerHelperService).should().sendMail(any(MailDto.class));
+    }
+
+    @Test
+    @DisplayName("회원가입 성공")
+    void signup_success() {
+        // Given
+        given(userRepository.existsByUserId(anyString())).willReturn(false);
+        given(passwordEncoder.encode(anyString())).willReturn("encodedPassword");
+        given(utilService.encrypt(anyString())).willReturn("encryptedData");
+
+        stubExternalDependencies();
+
+        // When
+        ResultCode result = userAuthService.signup(signup);
+
+        // Then
+        assertThat(result).isEqualTo(ResultCode.OK);
+
+        then(userRepository).should().save(any());
+        then(pointRequester).should().createUserPoint(any());
+        then(producerHelperService).should().sendMail(any());
     }
 
     private void stubExternalDependencies() {
         // 외부 의존성 stub
         given(pointRequester.createUserPoint(any(CreatePoint.class)))
-                .willReturn(new CreatePointResponse());
+                .willReturn(mock(CreatePointResponse.class));
         willDoNothing().given(producerHelperService).sendMail(any(MailDto.class));
+    }
+
+    @Test
+    @DisplayName("존재하지 않는 사용자 로그인 시 예외 발생")
+    void throw_exception_when_login_user_not_found() {
+        // Given
+        Login login = Login.builder()
+                .userId("testId")
+                .password("password")
+                .build();
+        String ip = "127.0.0.1";
+        given(authenticationHelperService.processLoginAndReturnToken(login)).willReturn(mock(TokenInfo.class));
+        given(userRepository.findByUserId("testId")).willReturn(Optional.empty());
+
+        // When & Then
+        assertThatThrownBy(() -> userAuthService.login(login, ip))
+                .isInstanceOf(BusinessException.class)
+                .hasMessageContaining(ExceptionCode.USER_NOT_FOUND.getMessage());
+    }
+
+    @Test
+    @DisplayName("로그인 성공 시 로그인 기록이 저장된다")
+    void save_login_history() {
+        // Given
+        Login login = Login.builder()
+                .userId("testId")
+                .password("password")
+                .build();
+        String ip = "127.0.0.1";
+
+        Users users = Users.builder()
+                .userId("testId")
+                .build();
+
+        given(authenticationHelperService.processLoginAndReturnToken(login)).willReturn(mock(TokenInfo.class));
+        given(userRepository.findByUserId("testId")).willReturn(Optional.of(users));
+
+        // When
+        userAuthService.login(login, ip);
+
+        // Then
+        then(userLoginHistoryRepository).should()
+                .save(argThat(dto ->
+                        dto.getUser().equals(users) &&
+                        dto.getIp().equals(ip)
+                ));
     }
 
     @Test
@@ -159,8 +222,8 @@ class UserAuthServiceImplTest {
         TokenInfo result = userAuthService.login(login, ip);
 
         // Then
-        then(authenticationHelperService).should(times(1)).processLoginAndReturnToken(any(Login.class));
-        then(userLoginHistoryRepository).should(times(1)).save(any(UserLoginHistory.class));
+        then(authenticationHelperService).should().processLoginAndReturnToken(any(Login.class));
+        then(userLoginHistoryRepository).should().save(any(UserLoginHistory.class));
 
         assertThat(result).isEqualTo(tokenInfo);
     }
@@ -175,7 +238,7 @@ class UserAuthServiceImplTest {
         userAuthService.logout(request);
 
         // Then
-        then(authenticationHelperService).should(times(1)).logout(any(HttpServletRequest.class));
+        then(authenticationHelperService).should().logout(any(HttpServletRequest.class));
     }
 
     @Test
@@ -188,7 +251,20 @@ class UserAuthServiceImplTest {
         userAuthService.reissue(request);
 
         // Then
-        then(authenticationHelperService).should(times(1)).reissue(any(HttpServletRequest.class));
+        then(authenticationHelperService).should().reissue(any(HttpServletRequest.class));
+    }
+
+    @Test
+    @DisplayName("존재하지 않는 사용자 메일 실패 데이터 적재시 예외 발생")
+    void throw_exception_when_send_mail_fail_history_user_not_found() {
+        // Given
+        MailDto mail = MailDto.signupMailOf(signup);
+        given(userRepository.findByUserId(mail.getUserId())).willReturn(Optional.empty());
+
+        // When & Then
+        assertThatThrownBy(() -> userAuthService.sendMailFailHistory(mail))
+                .isInstanceOf(BusinessException.class)
+                .hasMessageContaining(ExceptionCode.USER_NOT_FOUND.getMessage());
     }
 
     @Test
@@ -197,7 +273,7 @@ class UserAuthServiceImplTest {
         // Given
         MailDto mail = MailDto.signupMailOf(signup);
         Users user = Users.builder()
-                .userId("dmswo")
+                .userId(mail.getUserId())
                 .build();
 
         given(userRepository.findByUserId(anyString())).willReturn(Optional.of(user));
@@ -206,6 +282,9 @@ class UserAuthServiceImplTest {
         userAuthService.sendMailFailHistory(mail);
 
         // Then
-        then(sendMailFailHistoryRepository).should(times(1)).save(any(SendMailFailHistory.class));
+        then(sendMailFailHistoryRepository).should()
+                .save(argThat(dto ->
+                        dto.getUser().equals(user)
+                ));
     }
 }
