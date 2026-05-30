@@ -38,6 +38,7 @@ public class Post extends BaseEntity {
     @JoinColumn(name = "user_seq")
     private Users user;
 
+    @Builder.Default
     @OneToMany(mappedBy = "post", fetch = FetchType.LAZY)
     private List<Comment> comments = new ArrayList<>();
 
