@@ -11,8 +11,7 @@ import spring.work.global.exception.BusinessException;
 import spring.work.global.constant.ExceptionCode;
 import spring.work.global.constant.ResultCode;
 import spring.work.global.externalApi.workPoint.PointRequester;
-import spring.work.global.kafka.dto.MailDto;
-import spring.work.global.kafka.service.ProducerHelperService;
+import spring.work.user.kafka.dto.MailDto;
 import spring.work.global.security.utils.AuthenticationHelperService;
 import spring.work.global.utils.UtilService;
 import spring.work.user.dto.request.CreatePoint;
@@ -21,6 +20,7 @@ import spring.work.user.entity.SendMailFailHistory;
 import spring.work.user.entity.UserLoginHistory;
 import spring.work.user.entity.Users;
 import spring.work.user.dto.request.Signup;
+import spring.work.user.kafka.UserProducer;
 import spring.work.user.repository.SendMailFailHistoryRepository;
 import spring.work.user.repository.UserLoginHistoryRepository;
 import spring.work.user.repository.UserRepository;
@@ -40,7 +40,7 @@ public class UserAuthServiceImpl implements UserAuthService {
     private final AuthenticationHelperService authenticationHelperService;
     private final UtilService utilService;
     private final PointRequester pointRequester;
-    private final ProducerHelperService producerHelperService;
+    private final UserProducer userProducer;
 
     @Override
     @Transactional
@@ -74,7 +74,7 @@ public class UserAuthServiceImpl implements UserAuthService {
         dto.changeUserId(dto.getUserId());
         MailDto signupMail = MailDto.signupMailOf(dto);
 
-        producerHelperService.sendMail(signupMail);
+        userProducer.sendMail(signupMail);
 
         return ResultCode.OK;
     }

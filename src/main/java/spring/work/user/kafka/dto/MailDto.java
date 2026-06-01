@@ -1,4 +1,4 @@
-package spring.work.global.kafka.dto;
+package spring.work.user.kafka.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

@@ -1,4 +1,4 @@
-package spring.work.global.kafka.dto.cdc;
+package spring.work.post.kafka.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
