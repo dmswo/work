@@ -68,7 +68,11 @@ public class PostServiceImpl implements PostService {
         List<PostListResponse> content = posts.getContent();
         content.forEach(a -> {
             a.setLikeCount(postLikeRedisRepository.getLikeUserCount(a.getSeq()));
-            a.setLiked(postLikeRedisRepository.getLiked(a.getSeq(), userId));
+            if (userId != null) {
+                a.setLiked(postLikeRedisRepository.getLiked(a.getSeq(), userId));
+            } else {
+                a.setLiked(false);
+            }
         });
 
         return PageResponse.from(posts);

@@ -62,7 +62,8 @@ public class PostController {
                     sort = "seq",
                     direction = Sort.Direction.DESC) Pageable pageable,
             @AuthenticationPrincipal AuthUser authUser) {
-        return ApiResponse.successResponse(postService.getPosts(condition, pageable, authUser.getUserId()));
+        String userId = authUser != null ? authUser.getUserId() : null;
+        return ApiResponse.successResponse(postService.getPosts(condition, pageable, userId));
     }
 
     @Operation(summary = "게시글 단건 조회 API", description = "게시글 단건 조회 API")
