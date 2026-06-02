@@ -23,16 +23,18 @@ import spring.work.global.security.auth.AuthUser;
 @RestController
 @Slf4j
 @RequiredArgsConstructor
-@RequestMapping("/comment")
-@Tag(name="/comment", description = "댓글 관련 API")
+@RequestMapping("/posts/{postId}/comments")
+@Tag(name="/posts/{postId}/comments", description = "댓글 관련 API")
 public class CommentController {
 
     private final CommentService commentService;
 
     @Operation(summary = "댓글 저장 API", description = "댓글 저장 API")
     @PostMapping
-    public ApiResponse<ResultCode> saveComment(@RequestBody @Valid CreateComment request, @AuthenticationPrincipal AuthUser authUser) {
-        commentService.saveComment(request, authUser.getUserId());
+    public ApiResponse<ResultCode> saveComment(@RequestBody @Valid CreateComment request,
+                                               @PathVariable("postId") Long postId,
+                                               @AuthenticationPrincipal AuthUser authUser) {
+        commentService.saveComment(request, postId, authUser.getUserId());
         return ApiResponse.successResponse(ResultCode.OK);
     }
 
@@ -51,7 +53,7 @@ public class CommentController {
     }
 
     @Operation(summary = "댓글 리스트 조회 API", description = "댓글 리스트 조회 API")
-    @GetMapping("/{postId}")
+    @GetMapping
     public ApiResponse<PageResponse<CommentListResponse>> getComments(
             @PathVariable("postId") Long postId,
             @ParameterObject
@@ -59,5 +61,26 @@ public class CommentController {
                     sort = "seq",
                     direction = Sort.Direction.DESC) Pageable pageable) {
         return ApiResponse.successResponse(commentService.getComments(postId, pageable));
+    }
+
+    @Operation(summary = "대댓글 작성 API", description = "대댓글 작성 API")
+    @PostMapping("/{commentId}/replies")
+    public ApiResponse<ResultCode> saveReply(@RequestBody @Valid CreateComment request,
+                                             @PathVariable("postId") Long postId,
+                                             @PathVariable("commentId") Long commentId,
+                                             @AuthenticationPrincipal AuthUser authUser) {
+        commentService.saveReply(request, postId, commentId, authUser.getUserId());
+        return ApiResponse.successResponse(ResultCode.OK);
+    }
+
+    @Operation(summary = "대댓글 조회 API", description = "대댓글 조회 API")
+    @GetMapping("/{commentId}/replies")
+    public ApiResponse<PageResponse<CommentListResponse>> getReplies(
+            @PathVariable("commentId") Long commentId,
+            @ParameterObject
+            @PageableDefault(size = 10,
+                    sort = "seq",
+                    direction = Sort.Direction.DESC) Pageable pageable) {
+        return ApiResponse.successResponse(commentService.getReplies(commentId, pageable));
     }
 }

@@ -22,7 +22,7 @@ import static spring.work.comment.entity.QComment.comment;
 import static spring.work.post.entity.QPost.post;
 import static spring.work.user.entity.QUsers.users;
 
-public class PostCustomRepositoryImpl implements PostCustomRepository{
+public class PostCustomRepositoryImpl implements PostCustomRepository {
 
     private final JPAQueryFactory queryFactory;
 

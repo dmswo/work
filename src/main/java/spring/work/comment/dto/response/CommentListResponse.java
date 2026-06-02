@@ -5,7 +5,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import spring.work.comment.entity.Comment;
 
 import java.time.LocalDateTime;
 
@@ -14,17 +13,10 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CommentListResponse {
+    private Long commentId;
     private String content;
     private String nickname;
+    private Long replyCount;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createdAt;
-
-
-    public static CommentListResponse from(Comment commment) {
-        return CommentListResponse.builder()
-                .content(commment.getContent())
-                .nickname(commment.getUser().getNickname())
-                .createdAt(commment.getCreatedAt())
-                .build();
-    }
 }

@@ -31,10 +31,10 @@ public class CommentServiceImpl implements CommentService {
 
     @Transactional
     @Override
-    public void saveComment(CreateComment request, String userId) {
+    public void saveComment(CreateComment request, Long postId, String userId) {
         Users user = userRepository.findByUserId(userId)
                 .orElseThrow(() -> new BusinessException(ExceptionCode.USER_NOT_FOUND));
-        Post post = postRepository.findById(request.getPostSeq())
+        Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new BusinessException(ExceptionCode.POST_NOT_FOUND));
 
         Comment comment = Comment.builder()
@@ -66,9 +66,33 @@ public class CommentServiceImpl implements CommentService {
     @Transactional(readOnly = true)
     @Override
     public PageResponse<CommentListResponse> getComments(Long postId, Pageable pageable) {
-        Page<Comment> comments = commentRepository.findByPost_Seq(postId, pageable);
-        Page<CommentListResponse> response = comments.map(CommentListResponse::from);
+        Page<CommentListResponse> response = commentRepository.commentList(postId, pageable);
+        return PageResponse.from(response);
+    }
 
+    @Transactional
+    @Override
+    public void saveReply(CreateComment request, Long postId, Long commentId, String userId) {
+        Users user = userRepository.findByUserId(userId)
+                .orElseThrow(() -> new BusinessException(ExceptionCode.USER_NOT_FOUND));
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new BusinessException(ExceptionCode.POST_NOT_FOUND));
+        Comment comment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new BusinessException(ExceptionCode.COMMENT_NOT_FOUND));
+
+        Comment savedComment = Comment.builder()
+                .content(request.getContent())
+                .post(post)
+                .user(user)
+                .parent(comment)
+                .build();
+        commentRepository.save(savedComment);
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public PageResponse<CommentListResponse> getReplies(Long commentId, Pageable pageable) {
+        Page<CommentListResponse> response = commentRepository.commentReplyList(commentId, pageable);
         return PageResponse.from(response);
     }
 }

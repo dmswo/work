@@ -10,6 +10,5 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class CreateComment {
-    private Long postSeq;
     private String content;
 }

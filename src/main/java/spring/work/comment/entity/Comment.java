@@ -5,7 +5,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import spring.work.comment.dto.request.CreateComment;
 import spring.work.comment.dto.request.UpdateComment;
 import spring.work.global.entity.BaseEntity;
 import spring.work.post.entity.Post;
@@ -16,6 +15,11 @@ import spring.work.user.entity.Users;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Table(
+        indexes = {
+                @Index(name = "idx_comment_parent", columnList = "parent_comment_seq")
+        }
+)
 public class Comment extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -32,13 +36,9 @@ public class Comment extends BaseEntity {
     @JoinColumn(name = "user_seq")
     private Users user;
 
-    public static Comment create(CreateComment comment, Post post, Users user) {
-        return Comment.builder()
-                .content(comment.getContent())
-                .post(post)
-                .user(user)
-                .build();
-    }
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "parent_comment_seq")
+    private Comment parent;
 
     public void modify(UpdateComment request) {
         this.content = request.getContent();

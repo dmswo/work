@@ -47,15 +47,15 @@ class CommentServiceImplTest {
     void throw_exception_when_comment_save_user_not_found() {
         // Given
         String userId = "dmswo";
+        Long postId = 1L;
         CreateComment post = CreateComment.builder()
-                .postSeq(1L)
                 .content("댓글내용")
                 .build();
 
         given(userRepository.findByUserId(userId)).willReturn(Optional.empty());
 
         // When & Then
-        assertThatThrownBy(() -> commentService.saveComment(post, userId))
+        assertThatThrownBy(() -> commentService.saveComment(post, postId, userId))
                 .isInstanceOf(BusinessException.class)
                 .hasMessageContaining(ExceptionCode.USER_NOT_FOUND.getMessage());
         then(commentRepository).shouldHaveNoInteractions();
@@ -66,8 +66,8 @@ class CommentServiceImplTest {
     void throw_exception_when_comment_save_post_not_found() {
         // Given
         String userId = "dmswo";
+        Long postId = 1L;
         CreateComment post = CreateComment.builder()
-                .postSeq(1L)
                 .content("댓글내용")
                 .build();
         Users user = Users.builder()
@@ -78,7 +78,7 @@ class CommentServiceImplTest {
         given(postRepository.findById(1L)).willReturn(Optional.empty());
 
         // When & Then
-        assertThatThrownBy(() -> commentService.saveComment(post, userId))
+        assertThatThrownBy(() -> commentService.saveComment(post, postId, userId))
                 .isInstanceOf(BusinessException.class)
                 .hasMessageContaining(ExceptionCode.POST_NOT_FOUND.getMessage());
         then(commentRepository).shouldHaveNoInteractions();
@@ -89,26 +89,26 @@ class CommentServiceImplTest {
     void comment_save_success() {
         // Given
         CreateComment comment = CreateComment.builder()
-                .postSeq(1L)
                 .content("content1")
                 .build();
         String userId = "dmswo";
+        Long postId = 1L;
 
         Users users = Users.builder()
                 .userId(userId)
                 .build();
 
         Post post = Post.builder()
-                .seq(1L)
+                .seq(postId)
                 .title("title")
                 .content("content")
                 .build();
 
         given(userRepository.findByUserId(userId)).willReturn(Optional.of(users));
-        given(postRepository.findById(1L)).willReturn(Optional.of(post));
+        given(postRepository.findById(postId)).willReturn(Optional.of(post));
 
         // When
-        commentService.saveComment(comment, userId);
+        commentService.saveComment(comment, postId, userId);
 
         // Then
         ArgumentCaptor<Comment> captor = ArgumentCaptor.forClass(Comment.class);
@@ -195,27 +195,143 @@ class CommentServiceImplTest {
         // Given
         Long postId = 1L;
         Pageable pageable = PageRequest.of(0, 10);
-        Users user = Users.builder()
-                .userId("dmswo106")
+        CommentListResponse content = CommentListResponse.builder()
+                .commentId(1L)
+                .content("내용")
                 .nickname("가오리")
-                .build();
-        Comment content = Comment.builder()
-                .content("댓글내용")
-                .user(user)
+                .replyCount(10L)
                 .build();
 
-        Page<Comment> page = new PageImpl<>(List.of(content), pageable, 1);
+        Page<CommentListResponse> page = new PageImpl<>(List.of(content), pageable, 1);
 
-        given(commentRepository.findByPost_Seq(postId, pageable)).willReturn(page);
+        given(commentRepository.commentList(postId, pageable)).willReturn(page);
 
         // When
         PageResponse<CommentListResponse> result = commentService.getComments(postId, pageable);
 
         // Then
-        CommentListResponse commentListResponse = result.getContent().get(0);
-        then(commentRepository).should().findByPost_Seq(postId, pageable);
-        assertThat(commentListResponse.getContent()).isEqualTo(content.getContent());
-        assertThat(commentListResponse.getNickname()).isEqualTo(user.getNickname());
+        CommentListResponse response = result.getContent().get(0);
+        then(commentRepository).should().commentList(postId, pageable);
+
+        assertThat(result.getContent()).hasSize(1);
         assertThat(result.getTotalElements()).isEqualTo(1);
+
+        assertThat(response.getCommentId()).isEqualTo(1L);
+        assertThat(response.getContent()).isEqualTo(content.getContent());
+        assertThat(response.getNickname()).isEqualTo(content.getNickname());
+        assertThat(response.getReplyCount()).isEqualTo(10L);
+    }
+
+    @Test
+    @DisplayName("대댓글 저장시 존재하지 않는 사용자이면 예외가 발생한다")
+    void throw_exception_when_reply_save_user_not_found() {
+        // Given
+        Long postId = 1L;
+        Long commentId = 1L;
+        String userId = "dmswo";
+        CreateComment reply = CreateComment.builder()
+                .content("대댓글 등록")
+                .build();
+        given(userRepository.findByUserId(userId)).willReturn(Optional.empty());
+
+        // When & Then
+        assertThatThrownBy(() -> commentService.saveReply(reply, postId, commentId, userId))
+                .isInstanceOf(BusinessException.class)
+                .hasMessageContaining(ExceptionCode.USER_NOT_FOUND.getMessage());
+    }
+
+    @Test
+    @DisplayName("대댓글 저장시 존재하지 않는 게시글이면 예외가 발생한다")
+    void throw_exception_when_reply_save_post_not_found() {
+        // Given
+        Long postId = 1L;
+        Long commentId = 1L;
+        String userId = "dmswo";
+
+        CreateComment reply = CreateComment.builder()
+                .content("대댓글 등록")
+                .build();
+        Users user = Users.builder()
+                .userId(userId)
+                .build();
+
+        given(userRepository.findByUserId(userId)).willReturn(Optional.of(user));
+        given(postRepository.findById(postId)).willReturn(Optional.empty());
+
+        // When & Then
+        assertThatThrownBy(() -> commentService.saveReply(reply, postId, commentId, userId))
+                .isInstanceOf(BusinessException.class)
+                .hasMessageContaining(ExceptionCode.POST_NOT_FOUND.getMessage());
+    }
+
+    @Test
+    @DisplayName("대댓글 저장시 존재하지 않는 댓글이면 예외가 발생한다")
+    void throw_exception_when_reply_save_comment_not_found() {
+        // Given
+        Long postId = 1L;
+        Long commentId = 1L;
+        String userId = "dmswo";
+
+        CreateComment reply = CreateComment.builder()
+                .content("대댓글 등록")
+                .build();
+        Users user = Users.builder()
+                .userId(userId)
+                .build();
+        Post post = Post.builder()
+                .seq(postId)
+                .user(user)
+                .build();
+
+        given(userRepository.findByUserId(userId)).willReturn(Optional.of(user));
+        given(postRepository.findById(postId)).willReturn(Optional.of(post));
+        given(commentRepository.findById(commentId)).willReturn(Optional.empty());
+
+        // When & Then
+        assertThatThrownBy(() -> commentService.saveReply(reply, postId, commentId, userId))
+                .isInstanceOf(BusinessException.class)
+                .hasMessageContaining(ExceptionCode.COMMENT_NOT_FOUND.getMessage());
+    }
+
+    @Test
+    @DisplayName("대댓글 저장 성공")
+    void saveReply_success() {
+        // Given
+        Long postId = 1L;
+        Long commentId = 1L;
+        String userId = "dmswo";
+
+        CreateComment reply = CreateComment.builder()
+                .content("대댓글 등록")
+                .build();
+        Users user = Users.builder()
+                .userId(userId)
+                .build();
+        Post post = Post.builder()
+                .seq(postId)
+                .user(user)
+                .build();
+        Comment comment = Comment.builder()
+                .post(post)
+                .user(user)
+                .content("부모댓글")
+                .build();
+
+        given(userRepository.findByUserId(userId)).willReturn(Optional.of(user));
+        given(postRepository.findById(postId)).willReturn(Optional.of(post));
+        given(commentRepository.findById(commentId)).willReturn(Optional.of(comment));
+
+        // When
+        commentService.saveReply(reply, postId, commentId, userId);
+
+        // Then
+        ArgumentCaptor<Comment> captor = ArgumentCaptor.forClass(Comment.class);
+        then(commentRepository).should().save(captor.capture());
+        Comment savedComment = captor.getValue();
+
+        assertThat(savedComment.getContent()).isEqualTo("대댓글 등록");
+        assertThat(savedComment.getUser()).isEqualTo(user);
+        assertThat(savedComment.getPost()).isEqualTo(post);
+        assertThat(savedComment.getParent()).isEqualTo(comment);
     }
 }
