@@ -8,7 +8,6 @@ import spring.work.global.constant.ExceptionCode;
 import spring.work.global.exception.BusinessException;
 import spring.work.global.redis.PostLikeRedisRepository;
 import spring.work.notification.constant.NotificationType;
-import spring.work.notification.entity.Notification;
 import spring.work.notification.service.NotificationService;
 import spring.work.post.entity.Post;
 import spring.work.post.repository.PostRepository;
