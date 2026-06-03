@@ -7,6 +7,9 @@ import org.springframework.transaction.annotation.Transactional;
 import spring.work.global.constant.ExceptionCode;
 import spring.work.global.exception.BusinessException;
 import spring.work.global.redis.PostLikeRedisRepository;
+import spring.work.notification.constant.NotificationType;
+import spring.work.notification.entity.Notification;
+import spring.work.notification.service.NotificationService;
 import spring.work.post.entity.Post;
 import spring.work.post.repository.PostRepository;
 import spring.work.postlike.entity.PostLike;
@@ -24,6 +27,7 @@ public class PostLikeServiceImpl implements PostLikeService {
     private final UserRepository userRepository;
     private final PostLikeRepository postLikeRepository;
     private final PostLikeRedisRepository postLikeRedisRepository;
+    private final NotificationService notificationService;
 
     @Transactional
     @Override
@@ -45,6 +49,15 @@ public class PostLikeServiceImpl implements PostLikeService {
                     .build();
 
             postLikeRepository.save(postLike);
+
+            // 좋아요 알림
+            Users receiver = post.getUser();
+
+            // 본인 게시글 좋아요는 알림 제외
+            if (!receiver.getSeq().equals(users.getSeq())) {
+                Notification notification = Notification.create(receiver, users, NotificationType.POST, post.getSeq());
+                notificationService.saveNotification(notification);
+            }
         } catch (Exception e) {
             postLikeRedisRepository.removeLikeUser(postId, userId);
             throw e;
