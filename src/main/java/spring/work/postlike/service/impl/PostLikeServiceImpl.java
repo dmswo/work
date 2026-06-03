@@ -52,12 +52,8 @@ public class PostLikeServiceImpl implements PostLikeService {
 
             // 좋아요 알림
             Users receiver = post.getUser();
+            notificationService.sendNotification(receiver, users, NotificationType.POST_LIKE, post.getSeq());
 
-            // 본인 게시글 좋아요는 알림 제외
-            if (!receiver.getSeq().equals(users.getSeq())) {
-                Notification notification = Notification.create(receiver, users, NotificationType.POST, post.getSeq());
-                notificationService.saveNotification(notification);
-            }
         } catch (Exception e) {
             postLikeRedisRepository.removeLikeUser(postId, userId);
             throw e;

@@ -10,6 +10,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import spring.work.global.constant.ExceptionCode;
 import spring.work.global.exception.BusinessException;
 import spring.work.global.redis.PostLikeRedisRepository;
+import spring.work.notification.service.NotificationService;
 import spring.work.post.entity.Post;
 import spring.work.post.repository.PostRepository;
 import spring.work.postlike.entity.PostLike;
@@ -34,6 +35,7 @@ class PostLikeServiceImplTest {
     @Mock private UserRepository userRepository;
     @Mock private PostLikeRepository postLikeRepository;
     @Mock private PostLikeRedisRepository postLikeRedisRepository;
+    @Mock private NotificationService notificationService;
 
     @InjectMocks
     private PostLikeServiceImpl postLikeService;
@@ -127,6 +129,7 @@ class PostLikeServiceImplTest {
         assertThat(savedPostLike.getPost()).isEqualTo(post);
         assertThat(savedPostLike.getUser()).isEqualTo(user);
         then(postLikeRedisRepository).should(never()).removeLikeUser(anyLong(), anyString());
+        then(notificationService).should().sendNotification(any(), any(), any(), anyLong());
     }
 
     @Test
