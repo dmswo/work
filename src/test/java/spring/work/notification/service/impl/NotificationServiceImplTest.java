@@ -16,9 +16,11 @@ import spring.work.global.dto.PageResponse;
 import spring.work.global.exception.BusinessException;
 import spring.work.notification.constant.NotificationType;
 import spring.work.notification.dto.response.NotificationListResponse;
+import spring.work.notification.dto.response.NotificationSseResponse;
 import spring.work.notification.dto.response.UnreadNotificationResponse;
 import spring.work.notification.entity.Notification;
 import spring.work.notification.repository.NotificationRepository;
+import spring.work.notification.service.NotificationSseService;
 import spring.work.user.entity.Users;
 import spring.work.user.repository.UserRepository;
 
@@ -37,6 +39,7 @@ class NotificationServiceImplTest {
 
     @Mock private NotificationRepository notificationRepository;
     @Mock private UserRepository userRepository;
+    @Mock private NotificationSseService notificationSseService;
 
     @InjectMocks
     private NotificationServiceImpl notificationService;
@@ -72,12 +75,16 @@ class NotificationServiceImplTest {
                 .nickname("testUser2")
                 .build();
 
+        Notification notification = Notification.create(user1, user2, NotificationType.POST_LIKE, 1L);
+        NotificationSseResponse response = NotificationSseResponse.from(notification);
+
         // When
         notificationService.sendNotification(user1, user2, NotificationType.POST_LIKE, 1L);
 
         // Then
         ArgumentCaptor<Notification> captor = ArgumentCaptor.forClass(Notification.class);
         then(notificationRepository).should().save(captor.capture());
+        then(notificationSseService).should().send(user1.getUserId(), response);
         Notification savedNotification = captor.getValue();
 
         assertThat(savedNotification.getReceiver()).isEqualTo(user1);
