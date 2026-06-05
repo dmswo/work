@@ -10,10 +10,12 @@ import spring.work.global.dto.PageResponse;
 import spring.work.global.exception.BusinessException;
 import spring.work.notification.constant.NotificationType;
 import spring.work.notification.dto.response.NotificationListResponse;
+import spring.work.notification.dto.response.NotificationSseResponse;
 import spring.work.notification.dto.response.UnreadNotificationResponse;
 import spring.work.notification.entity.Notification;
 import spring.work.notification.repository.NotificationRepository;
 import spring.work.notification.service.NotificationService;
+import spring.work.notification.service.NotificationSseService;
 import spring.work.user.entity.Users;
 import spring.work.user.repository.UserRepository;
 
@@ -29,6 +31,7 @@ public class NotificationServiceImpl implements NotificationService {
 
     private final NotificationRepository notificationRepository;
     private final UserRepository userRepository;
+    private final NotificationSseService notificationSseService;
 
     @Transactional
     @Override
@@ -41,6 +44,9 @@ public class NotificationServiceImpl implements NotificationService {
 
         Notification notification = Notification.create(receiver, sender, type, targetId);
         notificationRepository.save(notification);
+
+        // SSE 로직 추가
+        notificationSseService.send(receiver.getUserId(), NotificationSseResponse.from(notification));
     }
 
     @Transactional(readOnly = true)

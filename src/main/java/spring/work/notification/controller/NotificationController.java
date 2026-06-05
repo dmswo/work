@@ -11,6 +11,7 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import spring.work.global.constant.ResultCode;
 import spring.work.global.dto.ApiResponse;
 import spring.work.global.dto.PageResponse;
@@ -18,6 +19,7 @@ import spring.work.global.security.auth.AuthUser;
 import spring.work.notification.dto.response.NotificationListResponse;
 import spring.work.notification.dto.response.UnreadNotificationResponse;
 import spring.work.notification.service.NotificationService;
+import spring.work.notification.service.NotificationSseService;
 
 @RestController
 @Slf4j
@@ -27,6 +29,7 @@ import spring.work.notification.service.NotificationService;
 public class NotificationController {
 
     private final NotificationService notificationService;
+    private final NotificationSseService notificationSseService;
 
     @Operation(summary = "알림 목록 조회 API", description = "알림 목록 리스트를 조회합니다.")
     @GetMapping
@@ -51,5 +54,10 @@ public class NotificationController {
     @GetMapping("/unread-count")
     public ApiResponse<UnreadNotificationResponse> getUnreadNotificationCount(@AuthenticationPrincipal AuthUser authUser) {
         return ApiResponse.successResponse(notificationService.getUnreadNotificationCount(authUser.getUserId()));
+    }
+
+    @GetMapping("/subscribe")
+    public SseEmitter subscribe(@AuthenticationPrincipal AuthUser authUser) {
+        return notificationSseService.subscribe(authUser.getUserId());
     }
 }
