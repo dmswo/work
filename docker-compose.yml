@@ -141,13 +141,19 @@ services:
     networks:
       - es_network
 
-  python:
-    image: python:3.11
-    container_name: csv-generator
-    working_dir: /app
+  prometheus:
+    image: prom/prometheus
+    container_name: prometheus
+    ports:
+      - "9090:9090"
     volumes:
-      - ./python:/app
-    command: python generate_post_csv.py
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+
+  grafana:
+    image: grafana/grafana
+    container_name: grafana
+    ports:
+      - "3000:3000"
 
 networks:
   es_network:

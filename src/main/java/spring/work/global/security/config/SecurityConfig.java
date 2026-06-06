@@ -39,6 +39,7 @@ public class SecurityConfig {
                         authorizeRequest
                                 .requestMatchers(SecurityUrls.AUTH_URLS).permitAll()
                                 .requestMatchers(SecurityUrls.SWAGGER_URLS).permitAll()
+                                .requestMatchers(SecurityUrls.ACTUATOR_URLS).permitAll()
                                 .requestMatchers(HttpMethod.GET, SecurityUrls.PUBLIC_GET_URLS).permitAll()
                                 .anyRequest().authenticated()
                 )

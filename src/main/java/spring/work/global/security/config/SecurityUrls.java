@@ -15,6 +15,11 @@ public final class SecurityUrls {
             "/v3/api-docs/**"
     };
 
+    public static final String[] ACTUATOR_URLS = {
+            "/actuator",
+            "/actuator/**"
+    };
+
     public static final String[] PUBLIC_GET_URLS = {
             "/post",
             "/posts/*/comments",
