@@ -11,7 +11,8 @@ import spring.work.global.exception.BusinessException;
 import spring.work.global.constant.ExceptionCode;
 import spring.work.global.constant.ResultCode;
 import spring.work.global.externalApi.workPoint.PointRequester;
-import spring.work.user.kafka.dto.MailDto;
+import spring.work.global.kafka.dto.MailEvent;
+import spring.work.global.kafka.producer.EventProducer;
 import spring.work.global.security.utils.AuthenticationHelperService;
 import spring.work.global.utils.UtilService;
 import spring.work.user.dto.request.CreatePoint;
@@ -20,7 +21,6 @@ import spring.work.user.entity.SendMailFailHistory;
 import spring.work.user.entity.UserLoginHistory;
 import spring.work.user.entity.Users;
 import spring.work.user.dto.request.Signup;
-import spring.work.user.kafka.UserProducer;
 import spring.work.user.repository.SendMailFailHistoryRepository;
 import spring.work.user.repository.UserLoginHistoryRepository;
 import spring.work.user.repository.UserRepository;
@@ -40,7 +40,7 @@ public class UserAuthServiceImpl implements UserAuthService {
     private final AuthenticationHelperService authenticationHelperService;
     private final UtilService utilService;
     private final PointRequester pointRequester;
-    private final UserProducer userProducer;
+    private final EventProducer eventProducer;
 
     @Override
     @Transactional
@@ -72,9 +72,9 @@ public class UserAuthServiceImpl implements UserAuthService {
         // 회원가입 알림 메일 발송
         dto.decryptEmail(utilService.decrypt(dto.getEmail()));
         dto.changeUserId(dto.getUserId());
-        MailDto signupMail = MailDto.signupMailOf(dto);
+        MailEvent event = MailEvent.from(dto);
 
-        userProducer.sendMail(signupMail);
+        eventProducer.send(event);
 
         return ResultCode.OK;
     }
@@ -105,7 +105,7 @@ public class UserAuthServiceImpl implements UserAuthService {
     }
 
     @Override
-    public void sendMailFailHistory(MailDto mailDto) {
+    public void sendMailFailHistory(MailEvent mailDto) {
         Users user = userRepository.findByUserId(mailDto.getUserId())
                 .orElseThrow(() -> new BusinessException(ExceptionCode.USER_NOT_FOUND));
 

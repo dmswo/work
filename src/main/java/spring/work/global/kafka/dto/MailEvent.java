@@ -1,23 +1,25 @@
-package spring.work.user.kafka.dto;
+package spring.work.global.kafka.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import spring.work.user.dto.request.Signup;
 
-@Data
+@Getter
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
-public class MailDto {
+public class MailEvent implements Event {
     private String userId;
     private String subject;
     private String content;
     private String toEmail;
 
-    public static MailDto signupMailOf(Signup dto) {
-        return MailDto.builder()
+    @Override
+    public String getTopic() {
+        return "mail-topic";
+    }
+
+    public static MailEvent from(Signup dto) {
+        return MailEvent.builder()
                 .userId(dto.getUserId())
                 .subject(dto.getUserId()+"님의 Work프로젝트 회원가입을 축하합니다.")
                 .content("Work 프로젝트에서 작업을 시작하세요!!")

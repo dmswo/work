@@ -6,7 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
-import spring.work.user.kafka.dto.MailDto;
+import spring.work.global.kafka.dto.MailEvent;
 
 @Service
 @RequiredArgsConstructor
@@ -14,7 +14,7 @@ import spring.work.user.kafka.dto.MailDto;
 public class EmailSender {
     private final JavaMailSender emailSender;
 
-    public void sendEmail(MailDto messageDto) {
+    public void sendEmail(MailEvent messageDto) {
         MimeMessage mailMessage = emailSender.createMimeMessage();
         try {
             MimeMessageHelper helper = new MimeMessageHelper(mailMessage);

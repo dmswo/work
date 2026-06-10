@@ -6,9 +6,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import spring.work.global.constant.ExceptionCode;
 import spring.work.global.exception.BusinessException;
+import spring.work.global.kafka.dto.NotificationEvent;
+import spring.work.global.kafka.producer.EventProducer;
 import spring.work.global.redis.PostLikeRedisRepository;
 import spring.work.notification.constant.NotificationType;
-import spring.work.notification.service.NotificationService;
 import spring.work.post.entity.Post;
 import spring.work.post.repository.PostRepository;
 import spring.work.postlike.entity.PostLike;
@@ -26,7 +27,7 @@ public class PostLikeServiceImpl implements PostLikeService {
     private final UserRepository userRepository;
     private final PostLikeRepository postLikeRepository;
     private final PostLikeRedisRepository postLikeRedisRepository;
-    private final NotificationService notificationService;
+    private final EventProducer eventProducer;
 
     @Transactional
     @Override
@@ -40,18 +41,19 @@ public class PostLikeServiceImpl implements PostLikeService {
 
         try {
             Post post = postRepository.findById(postId).orElseThrow(() -> new BusinessException(ExceptionCode.POST_NOT_FOUND));
-            Users users = userRepository.findByUserId(userId).orElseThrow(() -> new BusinessException(ExceptionCode.USER_NOT_FOUND));
+            Users sender = userRepository.findByUserId(userId).orElseThrow(() -> new BusinessException(ExceptionCode.USER_NOT_FOUND));
 
             PostLike postLike = PostLike.builder()
                     .post(post)
-                    .user(users)
+                    .user(sender)
                     .build();
 
             postLikeRepository.save(postLike);
 
-            // 좋아요 알림
+            // 알림 전송
             Users receiver = post.getUser();
-            notificationService.sendNotification(receiver, users, NotificationType.POST_LIKE, post.getSeq());
+            NotificationEvent event = NotificationEvent.from(receiver.getSeq(), sender.getSeq(), NotificationType.POST_LIKE, post.getSeq());
+            eventProducer.send(event);
 
         } catch (Exception e) {
             postLikeRedisRepository.removeLikeUser(postId, userId);

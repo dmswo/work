@@ -14,8 +14,8 @@ import spring.work.global.constant.ResultCode;
 import spring.work.global.dto.TokenInfo;
 import spring.work.global.exception.BusinessException;
 import spring.work.global.externalApi.workPoint.PointRequester;
-import spring.work.user.kafka.UserProducer;
-import spring.work.user.kafka.dto.MailDto;
+import spring.work.global.kafka.dto.MailEvent;
+import spring.work.global.kafka.producer.EventProducer;
 import spring.work.global.security.utils.AuthenticationHelperService;
 import spring.work.global.utils.UtilService;
 import spring.work.user.dto.request.CreatePoint;
@@ -43,7 +43,7 @@ class UserAuthServiceImplTest {
     @Mock private SendMailFailHistoryRepository sendMailFailHistoryRepository;
     @Mock private PasswordEncoder passwordEncoder;
     @Mock private AuthenticationHelperService authenticationHelperService;
-    @Mock private UserProducer userProducer;
+    @Mock private EventProducer eventProducer;
     @Mock private UtilService utilService;
     @Mock private PointRequester pointRequester;
 
@@ -122,7 +122,7 @@ class UserAuthServiceImplTest {
         userAuthService.signup(signup);
 
         // Then
-        then(userProducer).should().sendMail(any(MailDto.class));
+        then(eventProducer).should().send(any(MailEvent.class));
     }
 
     @Test
@@ -143,14 +143,14 @@ class UserAuthServiceImplTest {
 
         then(userRepository).should().save(any());
         then(pointRequester).should().createUserPoint(any());
-        then(userProducer).should().sendMail(any());
+        then(eventProducer).should().send(any());
     }
 
     private void stubExternalDependencies() {
         // 외부 의존성 stub
         given(pointRequester.createUserPoint(any(CreatePoint.class)))
                 .willReturn(mock(CreatePointResponse.class));
-        willDoNothing().given(userProducer).sendMail(any(MailDto.class));
+        willDoNothing().given(eventProducer).send(any(MailEvent.class));
     }
 
     @Test
@@ -258,7 +258,7 @@ class UserAuthServiceImplTest {
     @DisplayName("존재하지 않는 사용자 메일 실패 데이터 적재시 예외 발생")
     void throw_exception_when_send_mail_fail_history_user_not_found() {
         // Given
-        MailDto mail = MailDto.signupMailOf(signup);
+        MailEvent mail = MailEvent.from(signup);
         given(userRepository.findByUserId(mail.getUserId())).willReturn(Optional.empty());
 
         // When & Then
@@ -271,7 +271,7 @@ class UserAuthServiceImplTest {
     @DisplayName("메일발송 실패 히스토리 저장성공")
     void send_mail_fail_history_success() {
         // Given
-        MailDto mail = MailDto.signupMailOf(signup);
+        MailEvent mail = MailEvent.from(signup);
         Users user = Users.builder()
                 .userId(mail.getUserId())
                 .build();

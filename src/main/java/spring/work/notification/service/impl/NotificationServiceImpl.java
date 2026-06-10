@@ -45,8 +45,12 @@ public class NotificationServiceImpl implements NotificationService {
         Notification notification = Notification.create(receiver, sender, type, targetId);
         notificationRepository.save(notification);
 
-        // SSE 로직 추가
-        notificationSseService.send(receiver.getUserId(), NotificationSseResponse.from(notification));
+        // SSE 전송
+        try {
+            notificationSseService.send(receiver.getUserId(), NotificationSseResponse.from(notification));
+        } catch (Exception e) {
+            log.error("SSE 전송 실패", e);
+        }
     }
 
     @Transactional(readOnly = true)

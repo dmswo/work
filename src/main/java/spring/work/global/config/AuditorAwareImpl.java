@@ -15,7 +15,7 @@ public class AuditorAwareImpl implements AuditorAware<String> {
     public Optional<String> getCurrentAuditor() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || !authentication.isAuthenticated()) {
-            return Optional.of("anonymousUser");
+            return Optional.of("SYSTEM");
         }
 
         Object principal = authentication.getPrincipal();
@@ -30,6 +30,6 @@ public class AuditorAwareImpl implements AuditorAware<String> {
             return Optional.of(userId);
         }
 
-        return Optional.of("anonymousUser");
+        return Optional.of("SYSTEM");
     }
 }

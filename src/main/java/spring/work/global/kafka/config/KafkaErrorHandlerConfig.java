@@ -7,6 +7,7 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.listener.DeadLetterPublishingRecoverer;
 import org.springframework.kafka.listener.DefaultErrorHandler;
 import org.springframework.util.backoff.FixedBackOff;
+import spring.work.global.exception.BusinessException;
 
 @Configuration
 public class KafkaErrorHandlerConfig {
@@ -20,6 +21,12 @@ public class KafkaErrorHandlerConfig {
         // 1초 간격, 3회 재시도
         FixedBackOff backOff = new FixedBackOff(1000L, 3);
 
-        return new DefaultErrorHandler(recoverer, backOff);
+        DefaultErrorHandler handler =
+                new DefaultErrorHandler(recoverer, backOff);
+
+        // BusinessException 재시도하지 않고 바로 DLT
+        handler.addNotRetryableExceptions(BusinessException.class);
+
+        return handler;
     }
 }
