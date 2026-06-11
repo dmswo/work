@@ -24,7 +24,6 @@ import spring.work.user.dto.request.Signup;
 import spring.work.user.dto.response.CreatePointResponse;
 import spring.work.user.entity.UserLoginHistory;
 import spring.work.user.entity.Users;
-import spring.work.user.repository.SendMailFailHistoryRepository;
 import spring.work.user.repository.UserLoginHistoryRepository;
 import spring.work.user.repository.UserRepository;
 
@@ -40,7 +39,6 @@ class UserAuthServiceImplTest {
 
     @Mock private UserRepository userRepository;
     @Mock private UserLoginHistoryRepository userLoginHistoryRepository;
-    @Mock private SendMailFailHistoryRepository sendMailFailHistoryRepository;
     @Mock private PasswordEncoder passwordEncoder;
     @Mock private AuthenticationHelperService authenticationHelperService;
     @Mock private EventProducer eventProducer;
@@ -252,39 +250,5 @@ class UserAuthServiceImplTest {
 
         // Then
         then(authenticationHelperService).should().reissue(any(HttpServletRequest.class));
-    }
-
-    @Test
-    @DisplayName("존재하지 않는 사용자 메일 실패 데이터 적재시 예외 발생")
-    void throw_exception_when_send_mail_fail_history_user_not_found() {
-        // Given
-        MailEvent mail = MailEvent.from(signup);
-        given(userRepository.findByUserId(mail.getUserId())).willReturn(Optional.empty());
-
-        // When & Then
-        assertThatThrownBy(() -> userAuthService.sendMailFailHistory(mail))
-                .isInstanceOf(BusinessException.class)
-                .hasMessageContaining(ExceptionCode.USER_NOT_FOUND.getMessage());
-    }
-
-    @Test
-    @DisplayName("메일발송 실패 히스토리 저장성공")
-    void send_mail_fail_history_success() {
-        // Given
-        MailEvent mail = MailEvent.from(signup);
-        Users user = Users.builder()
-                .userId(mail.getUserId())
-                .build();
-
-        given(userRepository.findByUserId(anyString())).willReturn(Optional.of(user));
-
-        // When
-        userAuthService.sendMailFailHistory(mail);
-
-        // Then
-        then(sendMailFailHistoryRepository).should()
-                .save(argThat(dto ->
-                        dto.getUser().equals(user)
-                ));
     }
 }
