@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import spring.work.event.constant.EventFailStatus;
 import spring.work.event.constant.EventType;
 import spring.work.event.entity.EventFail;
@@ -18,6 +19,7 @@ public class EventFailServiceImpl implements EventFailService {
     private final EventFailRepository eventFailRepository;
     private final ObjectMapper objectMapper;
 
+    @Transactional
     @Override
     public void saveEventFail(EventType eventType, String topic, Object event, String errorMessage) {
         try {
