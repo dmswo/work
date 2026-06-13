@@ -34,4 +34,8 @@ public class EventFail extends BaseEntity {
     // 재처리 여부
     @Enumerated(EnumType.STRING)
     private EventFailStatus status;
+
+    public void changeStatus(EventFailStatus status) {
+        this.status = status;
+    }
 }

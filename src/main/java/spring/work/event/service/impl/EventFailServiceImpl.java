@@ -1,6 +1,7 @@
 package spring.work.event.service.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -10,6 +11,16 @@ import spring.work.event.constant.EventType;
 import spring.work.event.entity.EventFail;
 import spring.work.event.repository.EventFailRepository;
 import spring.work.event.service.EventFailService;
+import spring.work.event.service.retry.EventRetryHandler;
+import spring.work.global.exception.BusinessException;
+
+import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
+import static spring.work.global.constant.ExceptionCode.EVENT_NOT_FOUND;
+import static spring.work.global.constant.ExceptionCode.UNSUPPORTED_EVENT_TYPE;
 
 @Service
 @RequiredArgsConstructor
@@ -18,6 +29,37 @@ public class EventFailServiceImpl implements EventFailService {
 
     private final EventFailRepository eventFailRepository;
     private final ObjectMapper objectMapper;
+    private final List<EventRetryHandler> handlers;
+
+    private Map<EventType, EventRetryHandler> handlerMap;
+
+    @PostConstruct
+    public void init() {
+        handlerMap = handlers.stream()
+                .collect(Collectors.toMap(
+                        EventRetryHandler::getEventType,
+                        Function.identity()
+                ));
+    }
+
+    @Transactional
+    @Override
+    public void retryFailEvent(Long eventFailId) {
+        EventFail eventFail = eventFailRepository.findById(eventFailId).orElseThrow(() -> new BusinessException(EVENT_NOT_FOUND));
+
+        EventRetryHandler handler = handlerMap.get(eventFail.getEventType());
+
+        if (handler == null) {
+            throw new BusinessException(UNSUPPORTED_EVENT_TYPE);
+        }
+
+        handler.retry(eventFail.getPayload());
+
+        eventFail.changeStatus(EventFailStatus.RETRY_SUCCESS);
+
+        log.info("Retry success. eventFailId={}, eventType={}",
+                eventFailId, eventFail.getEventType());
+    }
 
     @Transactional
     @Override

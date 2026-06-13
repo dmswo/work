@@ -19,6 +19,9 @@ public enum ExceptionCode {
 
     EXTERNAL_API_ERROR("EXTERNAL_API_ERROR", "외부 API 호출 에러입니다."),
 
+    EVENT_NOT_FOUND("EVENT_NOT_FOUND", "이벤트를 찾을 수 없습니다."),
+    UNSUPPORTED_EVENT_TYPE("UNSUPPORTED_EVENT_TYPE", "지원하지 않는 이벤트 타입입니다."),
+
     // User 도메인 에러 코드
     USER_NOT_FOUND("USERNAME_NOT_FOUND", "유저 정보를 찾을 수 없습니다."),
     USER_EXIST("USER_EXIST", "이미 존재하는 유저ID입니다."),
