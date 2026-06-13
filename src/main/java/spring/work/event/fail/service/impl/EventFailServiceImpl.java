@@ -1,4 +1,4 @@
-package spring.work.event.service.impl;
+package spring.work.event.fail.service.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.annotation.PostConstruct;
@@ -6,12 +6,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import spring.work.event.constant.EventFailStatus;
-import spring.work.event.constant.EventType;
-import spring.work.event.entity.EventFail;
-import spring.work.event.repository.EventFailRepository;
-import spring.work.event.service.EventFailService;
-import spring.work.event.service.retry.EventRetryHandler;
+import spring.work.event.fail.constant.EventFailStatus;
+import spring.work.event.fail.constant.EventType;
+import spring.work.event.fail.entity.EventFail;
+import spring.work.event.fail.repository.EventFailRepository;
+import spring.work.event.fail.service.EventFailService;
+import spring.work.event.fail.service.retry.EventRetryHandler;
 import spring.work.global.exception.BusinessException;
 
 import java.util.List;

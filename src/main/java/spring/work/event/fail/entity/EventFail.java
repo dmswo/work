@@ -1,12 +1,12 @@
-package spring.work.event.entity;
+package spring.work.event.fail.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import spring.work.event.constant.EventFailStatus;
-import spring.work.event.constant.EventType;
+import spring.work.event.fail.constant.EventFailStatus;
+import spring.work.event.fail.constant.EventType;
 import spring.work.global.entity.BaseEntity;
 
 @Entity
