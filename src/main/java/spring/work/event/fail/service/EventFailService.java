@@ -1,6 +1,6 @@
 package spring.work.event.fail.service;
 
-import spring.work.event.fail.constant.EventType;
+import spring.work.event.constant.EventType;
 
 public interface EventFailService {
     void retryFailEvent(Long eventFailId);

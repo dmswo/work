@@ -1,6 +1,6 @@
 package spring.work.event.fail.service.retry;
 
-import spring.work.event.fail.constant.EventType;
+import spring.work.event.constant.EventType;
 
 public interface EventRetryHandler {
     EventType getEventType();

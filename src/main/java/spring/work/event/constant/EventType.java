@@ -1,4 +1,4 @@
-package spring.work.event.fail.constant;
+package spring.work.event.constant;
 
 import lombok.Getter;
 
