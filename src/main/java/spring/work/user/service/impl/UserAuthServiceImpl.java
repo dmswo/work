@@ -1,18 +1,23 @@
 package spring.work.user.service.impl;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import spring.work.event.constant.EventType;
+import spring.work.event.constant.OutBoxStatus;
+import spring.work.event.outbox.entity.OutboxEvent;
+import spring.work.event.outbox.repository.OutBoxEventRepository;
+import spring.work.event.outbox.service.OutBoxEventService;
 import spring.work.global.dto.TokenInfo;
 import spring.work.global.exception.BusinessException;
 import spring.work.global.constant.ExceptionCode;
 import spring.work.global.constant.ResultCode;
 import spring.work.global.externalApi.workPoint.PointRequester;
 import spring.work.global.kafka.dto.MailEvent;
-import spring.work.global.kafka.producer.EventProducer;
 import spring.work.global.security.utils.AuthenticationHelperService;
 import spring.work.global.utils.UtilService;
 import spring.work.user.dto.request.CreatePoint;
@@ -37,7 +42,8 @@ public class UserAuthServiceImpl implements UserAuthService {
     private final AuthenticationHelperService authenticationHelperService;
     private final UtilService utilService;
     private final PointRequester pointRequester;
-    private final EventProducer eventProducer;
+    private final OutBoxEventRepository outBoxEventRepository;
+    private final OutBoxEventService outBoxEventService;
 
     @Override
     @Transactional
@@ -71,7 +77,9 @@ public class UserAuthServiceImpl implements UserAuthService {
         dto.changeUserId(dto.getUserId());
         MailEvent event = MailEvent.from(dto);
 
-        eventProducer.send(event);
+        // Outbox 저장
+        OutboxEvent outboxEvent = outBoxEventService.createOutbox(EventType.MAIL, event);
+        outBoxEventRepository.save(outboxEvent);
 
         return ResultCode.OK;
     }

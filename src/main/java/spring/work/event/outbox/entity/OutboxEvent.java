@@ -7,7 +7,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import spring.work.event.constant.EventType;
 import spring.work.event.constant.OutBoxStatus;
-import spring.work.post.dto.request.UpdatePost;
 
 import java.time.LocalDateTime;
 

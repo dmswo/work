@@ -9,13 +9,17 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import spring.work.event.constant.EventType;
+import spring.work.event.constant.OutBoxStatus;
+import spring.work.event.outbox.entity.OutboxEvent;
+import spring.work.event.outbox.repository.OutBoxEventRepository;
+import spring.work.event.outbox.service.OutBoxEventService;
 import spring.work.global.constant.ExceptionCode;
 import spring.work.global.constant.ResultCode;
 import spring.work.global.dto.TokenInfo;
 import spring.work.global.exception.BusinessException;
 import spring.work.global.externalApi.workPoint.PointRequester;
 import spring.work.global.kafka.dto.MailEvent;
-import spring.work.global.kafka.producer.EventProducer;
 import spring.work.global.security.utils.AuthenticationHelperService;
 import spring.work.global.utils.UtilService;
 import spring.work.user.dto.request.CreatePoint;
@@ -41,9 +45,10 @@ class UserAuthServiceImplTest {
     @Mock private UserLoginHistoryRepository userLoginHistoryRepository;
     @Mock private PasswordEncoder passwordEncoder;
     @Mock private AuthenticationHelperService authenticationHelperService;
-    @Mock private EventProducer eventProducer;
     @Mock private UtilService utilService;
     @Mock private PointRequester pointRequester;
+    @Mock private OutBoxEventRepository outBoxEventRepository;
+    @Mock private OutBoxEventService outBoxEventService;
 
     @InjectMocks
     private UserAuthServiceImpl userAuthService;
@@ -80,6 +85,7 @@ class UserAuthServiceImplTest {
         given(userRepository.existsByUserId(anyString())).willReturn(false);
         given(passwordEncoder.encode(anyString())).willReturn("encodedPassword");
         given(utilService.encrypt(anyString())).willReturn("encryptedData");
+        given(outBoxEventService.createOutbox(any(), any())).willReturn(createOutboxEvent());
         stubExternalDependencies();
 
         // When
@@ -100,6 +106,7 @@ class UserAuthServiceImplTest {
     void make_point() {
         // Given
         given(userRepository.existsByUserId(anyString())).willReturn(false);
+        given(outBoxEventService.createOutbox(any(), any())).willReturn(createOutboxEvent());
         stubExternalDependencies();
 
         // When
@@ -114,13 +121,15 @@ class UserAuthServiceImplTest {
     void send_mail() {
         // Given
         given(userRepository.existsByUserId(anyString())).willReturn(false);
+        given(outBoxEventService.createOutbox(any(), any())).willReturn(createOutboxEvent());
         stubExternalDependencies();
 
         // When
         userAuthService.signup(signup);
 
         // Then
-        then(eventProducer).should().send(any(MailEvent.class));
+        then(outBoxEventService).should().createOutbox(eq(EventType.MAIL), any(MailEvent.class));
+        then(outBoxEventRepository).should().save(any(OutboxEvent.class));
     }
 
     @Test
@@ -130,6 +139,7 @@ class UserAuthServiceImplTest {
         given(userRepository.existsByUserId(anyString())).willReturn(false);
         given(passwordEncoder.encode(anyString())).willReturn("encodedPassword");
         given(utilService.encrypt(anyString())).willReturn("encryptedData");
+        given(outBoxEventService.createOutbox(any(), any())).willReturn(createOutboxEvent());
 
         stubExternalDependencies();
 
@@ -141,14 +151,21 @@ class UserAuthServiceImplTest {
 
         then(userRepository).should().save(any());
         then(pointRequester).should().createUserPoint(any());
-        then(eventProducer).should().send(any());
+        then(outBoxEventRepository).should().save(any(OutboxEvent.class));
     }
 
     private void stubExternalDependencies() {
         // 외부 의존성 stub
         given(pointRequester.createUserPoint(any(CreatePoint.class)))
                 .willReturn(mock(CreatePointResponse.class));
-        willDoNothing().given(eventProducer).send(any(MailEvent.class));
+    }
+
+    private OutboxEvent createOutboxEvent() {
+        return OutboxEvent.builder()
+                .eventType(EventType.MAIL)
+                .payload("{}")
+                .status(OutBoxStatus.PENDING)
+                .build();
     }
 
     @Test
