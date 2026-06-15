@@ -4,10 +4,13 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import spring.work.event.constant.EventType;
+import spring.work.event.outbox.entity.OutboxEvent;
+import spring.work.event.outbox.repository.OutBoxEventRepository;
+import spring.work.event.outbox.service.OutBoxEventService;
 import spring.work.global.constant.ExceptionCode;
 import spring.work.global.exception.BusinessException;
 import spring.work.global.kafka.dto.NotificationEvent;
-import spring.work.global.kafka.producer.EventProducer;
 import spring.work.global.redis.PostLikeRedisRepository;
 import spring.work.notification.constant.NotificationType;
 import spring.work.post.entity.Post;
@@ -27,7 +30,8 @@ public class PostLikeServiceImpl implements PostLikeService {
     private final UserRepository userRepository;
     private final PostLikeRepository postLikeRepository;
     private final PostLikeRedisRepository postLikeRedisRepository;
-    private final EventProducer eventProducer;
+    private final OutBoxEventService outBoxEventService;
+    private final OutBoxEventRepository outBoxEventRepository;
 
     @Transactional
     @Override
@@ -50,10 +54,11 @@ public class PostLikeServiceImpl implements PostLikeService {
 
             postLikeRepository.save(postLike);
 
-            // 알림 전송
+            // 알림 전송(Outbox 저장)
             Users receiver = post.getUser();
             NotificationEvent event = NotificationEvent.from(receiver.getSeq(), sender.getSeq(), NotificationType.POST_LIKE, post.getSeq());
-            eventProducer.send(event);
+            OutboxEvent outboxEvent = outBoxEventService.createOutbox(EventType.NOTIFICATION, event);
+            outBoxEventRepository.save(outboxEvent);
 
         } catch (Exception e) {
             postLikeRedisRepository.removeLikeUser(postId, userId);

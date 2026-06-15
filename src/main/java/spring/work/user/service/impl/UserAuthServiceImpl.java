@@ -77,7 +77,7 @@ public class UserAuthServiceImpl implements UserAuthService {
         dto.changeUserId(dto.getUserId());
         MailEvent event = MailEvent.from(dto);
 
-        // Outbox 저장
+        // 메일전송(Outbox 저장)
         OutboxEvent outboxEvent = outBoxEventService.createOutbox(EventType.MAIL, event);
         outBoxEventRepository.save(outboxEvent);
 

@@ -7,6 +7,11 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import spring.work.event.constant.EventType;
+import spring.work.event.constant.OutBoxStatus;
+import spring.work.event.outbox.entity.OutboxEvent;
+import spring.work.event.outbox.repository.OutBoxEventRepository;
+import spring.work.event.outbox.service.OutBoxEventService;
 import spring.work.global.constant.ExceptionCode;
 import spring.work.global.exception.BusinessException;
 import spring.work.global.kafka.producer.EventProducer;
@@ -36,6 +41,8 @@ class PostLikeServiceImplTest {
     @Mock private PostLikeRepository postLikeRepository;
     @Mock private PostLikeRedisRepository postLikeRedisRepository;
     @Mock private EventProducer eventProducer;
+    @Mock private OutBoxEventService outBoxEventService;
+    @Mock private OutBoxEventRepository outBoxEventRepository;
 
     @InjectMocks
     private PostLikeServiceImpl postLikeService;
@@ -117,6 +124,7 @@ class PostLikeServiceImplTest {
         given(postLikeRedisRepository.addLikeUser(postId, userId)).willReturn(true);
         given(postRepository.findById(postId)).willReturn(Optional.of(post));
         given(userRepository.findByUserId(userId)).willReturn(Optional.of(user));
+        given(outBoxEventService.createOutbox(any(), any())).willReturn(createOutboxEvent());
 
         // When
         postLikeService.savePostLike(postId, userId);
@@ -129,7 +137,7 @@ class PostLikeServiceImplTest {
         assertThat(savedPostLike.getPost()).isEqualTo(post);
         assertThat(savedPostLike.getUser()).isEqualTo(user);
         then(postLikeRedisRepository).should(never()).removeLikeUser(anyLong(), anyString());
-        then(eventProducer).should().send(any());
+        then(outBoxEventRepository).should().save(any(OutboxEvent.class));
     }
 
     @Test
@@ -159,6 +167,14 @@ class PostLikeServiceImplTest {
                 .isInstanceOf(RuntimeException.class)
                 .hasMessageContaining("DB 저장 실패");
         then(postLikeRedisRepository).should().removeLikeUser(postId, userId);
+    }
+
+    private OutboxEvent createOutboxEvent() {
+        return OutboxEvent.builder()
+                .eventType(EventType.NOTIFICATION)
+                .payload("{}")
+                .status(OutBoxStatus.PENDING)
+                .build();
     }
 
     @Test
