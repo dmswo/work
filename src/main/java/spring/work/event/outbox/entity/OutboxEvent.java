@@ -42,7 +42,16 @@ public class OutboxEvent {
 
     private LocalDateTime publishedAt;
 
-    public void statusUpdate(OutBoxStatus status) {
-        this.status = status;
+    public void makeProcessing() {
+        this.status = OutBoxStatus.PROCESSING;
+    }
+
+    public void makeSuccess() {
+        this.status = OutBoxStatus.SUCCESS;
+        this.publishedAt = LocalDateTime.now();
+    }
+
+    public void makeFailed() {
+        this.status = OutBoxStatus.FAILED;
     }
 }

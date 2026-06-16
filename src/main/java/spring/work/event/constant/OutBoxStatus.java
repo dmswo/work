@@ -4,5 +4,9 @@ import lombok.Getter;
 
 @Getter
 public enum OutBoxStatus {
-    PENDING, SUCCESS
+    PENDING,
+    PROCESSING,
+    SUCCESS,
+    FAILED,
+    DEAD
 }
