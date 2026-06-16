@@ -4,8 +4,8 @@ import spring.work.event.outbox.entity.OutboxEvent;
 
 import java.util.List;
 
-public interface OutboxStatusService {
+public interface OutboxLifecycleService {
     List<OutboxEvent> makeProcessing();
-    void makeSuccess(Long seq);
-    void makeFailed(Long seq);
+    void increaseRetry(Long seq);
+    void makeDeadLetter(Long seq);
 }

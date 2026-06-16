@@ -14,8 +14,8 @@ import java.time.LocalDateTime;
 @Table(
         indexes = {
                 @Index(
-                        name = "idx_outbox_status_created_at",
-                        columnList = "status, createdAt"
+                        name = "idx_outbox_status_next_retry",
+                        columnList = "status, nextRetryAt"
                 )
         }
 )
@@ -42,16 +42,46 @@ public class OutboxEvent {
 
     private LocalDateTime publishedAt;
 
+    // retry 관련
+    private int retryCount;
+
+    private LocalDateTime lastRetriedAt;
+
+    private LocalDateTime nextRetryAt;
+
     public void makeProcessing() {
         this.status = OutBoxStatus.PROCESSING;
     }
 
-    public void makeSuccess() {
-        this.status = OutBoxStatus.SUCCESS;
-        this.publishedAt = LocalDateTime.now();
+    public void makeDeadLetter() {
+        this.status = OutBoxStatus.DEAD_LETTER;
     }
 
-    public void makeFailed() {
-        this.status = OutBoxStatus.FAILED;
+    public void increaseRetry(int maxRetry) {
+        this.retryCount += 1;
+        this.lastRetriedAt = LocalDateTime.now();
+
+        if (this.retryCount >= maxRetry) {
+            this.status = OutBoxStatus.DEAD_LETTER;
+            this.nextRetryAt = null;
+        } else {
+            this.status = OutBoxStatus.PENDING;
+            this.nextRetryAt = calculateNextRetry();
+        }
+    }
+
+    private LocalDateTime calculateNextRetry() {
+        long delayMinutes;
+
+        switch (retryCount) {
+            case 0 -> delayMinutes = 1;
+            case 1 -> delayMinutes = 2;
+            case 2 -> delayMinutes = 5;
+            case 3 -> delayMinutes = 10;
+            case 4 -> delayMinutes = 30;
+            default -> delayMinutes = 60;
+        }
+
+        return LocalDateTime.now().plusMinutes(delayMinutes);
     }
 }

@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import spring.work.event.outbox.entity.OutboxEvent;
 import spring.work.event.outbox.repository.OutBoxEventRepository;
-import spring.work.event.outbox.service.OutboxStatusService;
+import spring.work.event.outbox.service.OutboxLifecycleService;
 import spring.work.global.constant.ExceptionCode;
 import spring.work.global.exception.BusinessException;
 
@@ -15,7 +15,9 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class OutboxStatusServiceImpl implements OutboxStatusService {
+public class OutboxLifecycleServiceImpl implements OutboxLifecycleService {
+
+    private static final int MAX_RETRY = 5;
 
     private final OutBoxEventRepository outBoxEventRepository;
 
@@ -33,15 +35,14 @@ public class OutboxStatusServiceImpl implements OutboxStatusService {
 
     @Transactional
     @Override
-    public void makeSuccess(Long seq) {
+    public void increaseRetry(Long seq) {
         OutboxEvent outboxEvent = outBoxEventRepository.findById(seq).orElseThrow(() -> new BusinessException(ExceptionCode.EVENT_NOT_FOUND));
-        outboxEvent.makeSuccess();
+        outboxEvent.increaseRetry(MAX_RETRY);
     }
 
-    @Transactional
     @Override
-    public void makeFailed(Long seq) {
-        OutboxEvent outboxEvent = outBoxEventRepository.findById(seq).orElseThrow(() -> new BusinessException(ExceptionCode.EVENT_NOT_FOUND));
-        outboxEvent.makeFailed();
+    public void makeDeadLetter(Long seq) {
+        OutboxEvent outboxEvent = outBoxEventRepository.findById(seq).orElseThrow();
+        outboxEvent.makeDeadLetter();
     }
 }
