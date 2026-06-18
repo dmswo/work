@@ -49,6 +49,9 @@ public class OutboxEvent {
 
     private LocalDateTime nextRetryAt;
 
+    @Column(length = 1000)
+    private String lastErrorMessage;
+
     public void makeProcessing() {
         this.status = OutBoxStatus.PROCESSING;
     }
@@ -57,9 +60,10 @@ public class OutboxEvent {
         this.status = OutBoxStatus.DEAD_LETTER;
     }
 
-    public void increaseRetry(int maxRetry) {
+    public void increaseRetry(int maxRetry, String errorMessage) {
         this.retryCount += 1;
         this.lastRetriedAt = LocalDateTime.now();
+        this.lastErrorMessage = errorMessage;
 
         if (this.retryCount >= maxRetry) {
             this.status = OutBoxStatus.DEAD_LETTER;

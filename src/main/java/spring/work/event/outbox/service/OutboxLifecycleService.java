@@ -6,6 +6,7 @@ import java.util.List;
 
 public interface OutboxLifecycleService {
     List<OutboxEvent> makeProcessing();
-    void increaseRetry(Long seq);
+    void increaseRetry(Long seq, String errorMessage);
     void makeDeadLetter(Long seq);
+    void remove(Long seq);
 }

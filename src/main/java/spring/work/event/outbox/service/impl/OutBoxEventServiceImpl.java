@@ -55,11 +55,14 @@ public class OutBoxEventServiceImpl implements OutBoxEventService {
                             objectMapper.readValue(outboxEvent.getPayload(), NotificationEvent.class);
                 };
 
-                // Kafka 발행(비동기)
-                eventProducer.send(event);
+                // Kafka ACK까지 대기
+                eventProducer.send(event).get();
+
+                // 성공 시 Outbox 삭제
+                outboxLifecycleService.remove(outboxEvent.getSeq());
 
             } catch (Exception e) {
-                outboxLifecycleService.increaseRetry(outboxEvent.getSeq());
+                outboxLifecycleService.increaseRetry(outboxEvent.getSeq(), e.getMessage());
                 log.error("Outbox 발행 실패. seq={}", outboxEvent.getSeq(), e);
             }
         }

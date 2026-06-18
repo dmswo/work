@@ -35,14 +35,22 @@ public class OutboxLifecycleServiceImpl implements OutboxLifecycleService {
 
     @Transactional
     @Override
-    public void increaseRetry(Long seq) {
+    public void increaseRetry(Long seq, String errorMessage) {
         OutboxEvent outboxEvent = outBoxEventRepository.findById(seq).orElseThrow(() -> new BusinessException(ExceptionCode.EVENT_NOT_FOUND));
-        outboxEvent.increaseRetry(MAX_RETRY);
+        outboxEvent.increaseRetry(MAX_RETRY, errorMessage);
     }
 
+    @Transactional
     @Override
     public void makeDeadLetter(Long seq) {
-        OutboxEvent outboxEvent = outBoxEventRepository.findById(seq).orElseThrow();
+        OutboxEvent outboxEvent = outBoxEventRepository.findById(seq).orElseThrow(() -> new BusinessException(ExceptionCode.EVENT_NOT_FOUND));
         outboxEvent.makeDeadLetter();
+    }
+
+    @Transactional
+    @Override
+    public void remove(Long seq) {
+        OutboxEvent outboxEvent = outBoxEventRepository.findById(seq).orElseThrow(() -> new BusinessException(ExceptionCode.EVENT_NOT_FOUND));
+        outBoxEventRepository.delete(outboxEvent);
     }
 }
