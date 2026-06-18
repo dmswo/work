@@ -14,7 +14,7 @@ import spring.work.global.entity.BaseEntity;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class EventFail extends BaseEntity {
+public class FailEvent extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long seq;

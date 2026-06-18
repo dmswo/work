@@ -7,7 +7,7 @@ import org.springframework.messaging.MessageHeaders;
 import org.springframework.messaging.handler.annotation.Headers;
 import org.springframework.stereotype.Service;
 import spring.work.event.common.EventType;
-import spring.work.event.consumer.fail.service.EventFailService;
+import spring.work.event.consumer.fail.service.FailEventService;
 import spring.work.global.constant.ExceptionCode;
 import spring.work.global.exception.BusinessException;
 import spring.work.global.kafka.dto.NotificationEvent;
@@ -25,7 +25,7 @@ public class NotificationConsumer {
 
     private final NotificationService notificationService;
     private final UserRepository userRepository;
-    private final EventFailService eventFailService;
+    private final FailEventService failEventService;
 
     @KafkaListener(topics = "notification-topic")
     public void sendNotification(NotificationEvent event) {
@@ -46,7 +46,7 @@ public class NotificationConsumer {
         String originalTopic = getHeaderAsString(headers, "kafka_dlt-original-topic");
         String errorMessage = extractRootMessage(getHeaderAsString(headers, "kafka_dlt-exception-message"));
 
-        eventFailService.saveEventFail(EventType.NOTIFICATION, originalTopic, event, errorMessage);
+        failEventService.saveEventFail(EventType.NOTIFICATION, originalTopic, event, errorMessage);
     }
 
     private String extractRootMessage(String message) {

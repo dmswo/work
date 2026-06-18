@@ -7,7 +7,7 @@ import org.springframework.messaging.MessageHeaders;
 import org.springframework.messaging.handler.annotation.Headers;
 import org.springframework.stereotype.Service;
 import spring.work.event.common.EventType;
-import spring.work.event.consumer.fail.service.EventFailService;
+import spring.work.event.consumer.fail.service.FailEventService;
 import spring.work.global.kafka.dto.MailEvent;
 import spring.work.global.utils.EmailSender;
 
@@ -19,7 +19,7 @@ import java.nio.charset.StandardCharsets;
 public class UserConsumer {
 
     private final EmailSender emailSender;
-    private final EventFailService eventFailService;
+    private final FailEventService failEventService;
 
     @KafkaListener(topics = "mail-topic")
     public void sendMail(MailEvent event) {
@@ -34,7 +34,7 @@ public class UserConsumer {
         String originalTopic = getHeaderAsString(headers, "kafka_dlt-original-topic");
         String errorMessage = extractRootMessage(getHeaderAsString(headers, "kafka_dlt-exception-message"));
 
-        eventFailService.saveEventFail(EventType.MAIL, originalTopic, event, errorMessage);
+        failEventService.saveEventFail(EventType.MAIL, originalTopic, event, errorMessage);
     }
 
     private String extractRootMessage(String message) {

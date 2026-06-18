@@ -8,9 +8,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import spring.work.event.common.EventFailStatus;
 import spring.work.event.common.EventType;
-import spring.work.event.consumer.fail.repository.EventFailRepository;
-import spring.work.event.consumer.fail.service.EventFailService;
-import spring.work.event.consumer.fail.entity.EventFail;
+import spring.work.event.consumer.fail.entity.FailEvent;
+import spring.work.event.consumer.fail.repository.FailEventRepository;
+import spring.work.event.consumer.fail.service.FailEventService;
 import spring.work.event.consumer.fail.service.retry.EventRetryHandler;
 import spring.work.global.exception.BusinessException;
 
@@ -25,9 +25,9 @@ import static spring.work.global.constant.ExceptionCode.UNSUPPORTED_EVENT_TYPE;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class EventFailServiceImpl implements EventFailService {
+public class FailEventServiceImpl implements FailEventService {
 
-    private final EventFailRepository eventFailRepository;
+    private final FailEventRepository failEventRepository;
     private final ObjectMapper objectMapper;
     private final List<EventRetryHandler> handlers;
 
@@ -44,21 +44,21 @@ public class EventFailServiceImpl implements EventFailService {
 
     @Transactional
     @Override
-    public void retryFailEvent(Long eventFailId) {
-        EventFail eventFail = eventFailRepository.findById(eventFailId).orElseThrow(() -> new BusinessException(EVENT_NOT_FOUND));
+    public void retryFailEvent(Long failEventId) {
+        FailEvent failEvent = failEventRepository.findById(failEventId).orElseThrow(() -> new BusinessException(EVENT_NOT_FOUND));
 
-        EventRetryHandler handler = handlerMap.get(eventFail.getEventType());
+        EventRetryHandler handler = handlerMap.get(failEvent.getEventType());
 
         if (handler == null) {
             throw new BusinessException(UNSUPPORTED_EVENT_TYPE);
         }
 
-        handler.retry(eventFail.getPayload());
+        handler.retry(failEvent.getPayload());
 
-        eventFail.changeStatus(EventFailStatus.RETRY_SUCCESS);
+        failEvent.changeStatus(EventFailStatus.RETRY_SUCCESS);
 
-        log.info("Retry success. eventFailId={}, eventType={}",
-                eventFailId, eventFail.getEventType());
+        log.info("Retry success. failEventId={}, eventType={}",
+                failEventId, failEvent.getEventType());
     }
 
     @Transactional
@@ -67,7 +67,7 @@ public class EventFailServiceImpl implements EventFailService {
         try {
             String payload = objectMapper.writeValueAsString(event);
 
-            EventFail eventFail = EventFail.builder()
+            FailEvent failEvent = FailEvent.builder()
                     .eventType(eventType)
                     .topic(topic)
                     .payload(payload)
@@ -75,7 +75,7 @@ public class EventFailServiceImpl implements EventFailService {
                     .status(EventFailStatus.FAILED)
                     .build();
 
-            eventFailRepository.save(eventFail);
+            failEventRepository.save(failEvent);
 
             log.info("Failed event saved. type={}, topic={}", eventType, topic);
 

@@ -13,9 +13,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 import spring.work.event.common.EventFailStatus;
 import spring.work.event.common.EventType;
-import spring.work.event.consumer.fail.entity.EventFail;
-import spring.work.event.consumer.fail.repository.EventFailRepository;
-import spring.work.event.consumer.fail.service.impl.EventFailServiceImpl;
+import spring.work.event.consumer.fail.entity.FailEvent;
+import spring.work.event.consumer.fail.repository.FailEventRepository;
+import spring.work.event.consumer.fail.service.impl.FailEventServiceImpl;
 import spring.work.event.consumer.fail.service.retry.EventRetryHandler;
 import spring.work.global.constant.ExceptionCode;
 import spring.work.global.exception.BusinessException;
@@ -32,14 +32,14 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 
 @ExtendWith(MockitoExtension.class)
-class EventFailServiceImplTest {
+class FailEventServiceImplTest {
 
-    @Mock private EventFailRepository eventFailRepository;
+    @Mock private FailEventRepository failEventRepository;
     @Mock private ObjectMapper objectMapper;
     @Mock private EventRetryHandler handler;
 
     @InjectMocks
-    private EventFailServiceImpl eventFailService;
+    private FailEventServiceImpl eventFailService;
 
     private Map<EventType, EventRetryHandler> handlerMap;
 
@@ -56,7 +56,7 @@ class EventFailServiceImplTest {
         // Given
         Long eventFailId = 1L;
 
-        given(eventFailRepository.findById(eventFailId)).willReturn(Optional.empty());
+        given(failEventRepository.findById(eventFailId)).willReturn(Optional.empty());
 
         // When & Then
         assertThatThrownBy(() -> eventFailService.retryFailEvent(1L))
@@ -69,11 +69,11 @@ class EventFailServiceImplTest {
     void throw_exception_when_retryFailEvent_eventType_not_found() {
         // Given
         Long eventFailId = 1L;
-        EventFail event = EventFail.builder()
+        FailEvent event = FailEvent.builder()
                 .eventType(EventType.MAIL)
                 .build();
 
-        given(eventFailRepository.findById(eventFailId)).willReturn(Optional.of(event));
+        given(failEventRepository.findById(eventFailId)).willReturn(Optional.of(event));
 
         handlerMap.remove(EventType.MAIL);
 
@@ -88,13 +88,13 @@ class EventFailServiceImplTest {
     void retryFailEvent_success() {
         // Given
         Long eventFailId = 1L;
-        EventFail event = EventFail.builder()
+        FailEvent event = FailEvent.builder()
                 .eventType(EventType.MAIL)
                 .status(EventFailStatus.FAILED)
                 .payload("payload")
                 .build();
 
-        given(eventFailRepository.findById(eventFailId)).willReturn(Optional.of(event));
+        given(failEventRepository.findById(eventFailId)).willReturn(Optional.of(event));
 
         // When
         eventFailService.retryFailEvent(eventFailId);
@@ -134,15 +134,15 @@ class EventFailServiceImplTest {
         eventFailService.saveEventFail(EventType.NOTIFICATION, "notification-topic", event, "에러");
 
         // Then
-        ArgumentCaptor<EventFail> captor = ArgumentCaptor.forClass(EventFail.class);
-        then(eventFailRepository).should().save(captor.capture());
-        EventFail savedEventFail = captor.getValue();
+        ArgumentCaptor<FailEvent> captor = ArgumentCaptor.forClass(FailEvent.class);
+        then(failEventRepository).should().save(captor.capture());
+        FailEvent savedFailEvent = captor.getValue();
 
-        assertThat(savedEventFail.getEventType()).isEqualTo(EventType.NOTIFICATION);
-        assertThat(savedEventFail.getTopic()).isEqualTo("notification-topic");
-        assertThat(savedEventFail.getErrorMessage()).isEqualTo("에러");
-        assertThat(savedEventFail.getPayload()).isEqualTo("{\"test\":\"value\"}");
-        assertThat(savedEventFail.getStatus()).isEqualTo(EventFailStatus.FAILED);
+        assertThat(savedFailEvent.getEventType()).isEqualTo(EventType.NOTIFICATION);
+        assertThat(savedFailEvent.getTopic()).isEqualTo("notification-topic");
+        assertThat(savedFailEvent.getErrorMessage()).isEqualTo("에러");
+        assertThat(savedFailEvent.getPayload()).isEqualTo("{\"test\":\"value\"}");
+        assertThat(savedFailEvent.getStatus()).isEqualTo(EventFailStatus.FAILED);
     }
 
 }
