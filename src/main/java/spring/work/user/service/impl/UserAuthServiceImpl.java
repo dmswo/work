@@ -1,17 +1,15 @@
 package spring.work.user.service.impl;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import spring.work.event.constant.EventType;
-import spring.work.event.constant.OutBoxStatus;
-import spring.work.event.outbox.entity.OutboxEvent;
-import spring.work.event.outbox.repository.OutBoxEventRepository;
-import spring.work.event.outbox.service.OutBoxEventService;
+import spring.work.event.common.EventType;
+import spring.work.event.producer.outbox.entity.OutboxEvent;
+import spring.work.event.producer.outbox.repository.OutBoxEventRepository;
+import spring.work.event.producer.outbox.service.OutBoxEventService;
 import spring.work.global.dto.TokenInfo;
 import spring.work.global.exception.BusinessException;
 import spring.work.global.constant.ExceptionCode;

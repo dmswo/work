@@ -6,8 +6,8 @@ import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.messaging.MessageHeaders;
 import org.springframework.messaging.handler.annotation.Headers;
 import org.springframework.stereotype.Service;
-import spring.work.event.constant.EventType;
-import spring.work.event.fail.service.EventFailService;
+import spring.work.event.common.EventType;
+import spring.work.event.consumer.fail.service.EventFailService;
 import spring.work.global.kafka.dto.MailEvent;
 import spring.work.global.utils.EmailSender;
 
