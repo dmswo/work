@@ -3,12 +3,14 @@ package spring.work.global.kafka.dto;
 import lombok.*;
 import spring.work.user.dto.request.Signup;
 
+import java.util.UUID;
+
 @Getter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class MailEvent implements Event {
-    private Long eventId; // 멱등성을 위해 이벤트Id 사용
+    private String eventId; // 멱등성을 위해 이벤트Id 사용
     private String userId;
     private String subject;
     private String content;
@@ -21,6 +23,7 @@ public class MailEvent implements Event {
 
     public static MailEvent from(Signup dto) {
         return MailEvent.builder()
+                .eventId(UUID.randomUUID().toString())
                 .userId(dto.getUserId())
                 .subject(dto.getUserId()+"님의 Work프로젝트 회원가입을 축하합니다.")
                 .content("Work 프로젝트에서 작업을 시작하세요!!")

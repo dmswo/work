@@ -18,12 +18,12 @@ public class ProcessedEventServiceImpl implements ProcessedEventService {
 
     @Transactional(readOnly = true)
     @Override
-    public boolean exists(Long eventId) {
+    public boolean exists(String eventId) {
         return processedEventRepository.existsById(eventId);
     }
 
     @Override
-    public void save(Long eventId, EventType eventType) {
+    public void save(String eventId, EventType eventType) {
         ProcessedEvent processedEvent = ProcessedEvent.from(eventId, eventType);
         processedEventRepository.save(processedEvent);
     }

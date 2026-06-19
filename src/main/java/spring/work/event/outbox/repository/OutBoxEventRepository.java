@@ -12,7 +12,8 @@ public interface OutBoxEventRepository extends JpaRepository<OutboxEvent, Long> 
     SELECT *
     FROM outbox_event
     WHERE status = 'PENDING'
-    AND next_retry_at <= NOW()
+    AND (next_retry_at IS NULL
+    OR next_retry_at <= NOW())
     ORDER BY created_at
     LIMIT :limit
     FOR UPDATE SKIP LOCKED

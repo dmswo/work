@@ -6,12 +6,14 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import spring.work.notification.constant.NotificationType;
 
+import java.util.UUID;
+
 @Getter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class NotificationEvent implements Event {
-    private Long eventId; // 멱등성을 위해 이벤트Id 사용
+    private String eventId; // 멱등성을 위해 이벤트Id 사용
     private Long receiverId;
     private Long senderId;
     private NotificationType type;
@@ -24,6 +26,7 @@ public class NotificationEvent implements Event {
 
     public static NotificationEvent from(Long receiverId, Long senderId, NotificationType type, Long targetId) {
         return NotificationEvent.builder()
+                .eventId(UUID.randomUUID().toString())
                 .receiverId(receiverId)
                 .senderId(senderId)
                 .type(type)

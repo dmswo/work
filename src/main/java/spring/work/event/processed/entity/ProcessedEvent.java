@@ -17,7 +17,7 @@ import java.time.LocalDateTime;
 public class ProcessedEvent {
 
     @Id
-    private Long eventId;
+    private String eventId;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -26,7 +26,7 @@ public class ProcessedEvent {
     @Column(nullable = false)
     private LocalDateTime processedAt;
 
-    public static ProcessedEvent from(Long eventId, EventType eventType) {
+    public static ProcessedEvent from(String eventId, EventType eventType) {
         return ProcessedEvent.builder()
                 .eventId(eventId)
                 .eventType(eventType)
