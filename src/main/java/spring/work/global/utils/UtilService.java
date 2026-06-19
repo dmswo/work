@@ -3,6 +3,7 @@ package spring.work.global.utils;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.messaging.MessageHeaders;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import spring.work.global.constant.ExceptionCode;
@@ -10,6 +11,7 @@ import spring.work.global.exception.BusinessException;
 
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
@@ -77,5 +79,32 @@ public class UtilService {
         } catch (Exception e) {
             throw new BusinessException(ExceptionCode.DECRYPT);
         }
+    }
+
+    public String extractRootMessage(String message) {
+        if (message == null) {
+            return null;
+        }
+
+        int idx = message.lastIndexOf("; ");
+        if (idx != -1 && idx + 2 < message.length()) {
+            return message.substring(idx + 2);
+        }
+
+        return message;
+    }
+
+    public String getHeaderAsString(MessageHeaders headers, String key) {
+        Object value = headers.get(key);
+
+        if (value == null) {
+            return null;
+        }
+
+        if (value instanceof byte[] bytes) {
+            return new String(bytes, StandardCharsets.UTF_8);
+        }
+
+        return value.toString();
     }
 }

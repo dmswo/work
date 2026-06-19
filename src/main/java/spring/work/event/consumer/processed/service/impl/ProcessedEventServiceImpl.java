@@ -22,7 +22,6 @@ public class ProcessedEventServiceImpl implements ProcessedEventService {
         return processedEventRepository.existsById(eventId);
     }
 
-    @Transactional
     @Override
     public void save(Long eventId, EventType eventType) {
         ProcessedEvent processedEvent = ProcessedEvent.from(eventId, eventType);
