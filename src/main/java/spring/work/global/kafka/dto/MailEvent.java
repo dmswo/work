@@ -8,6 +8,7 @@ import spring.work.user.dto.request.Signup;
 @NoArgsConstructor
 @AllArgsConstructor
 public class MailEvent implements Event {
+    private Long eventId; // 멱등성을 위해 이벤트Id 사용
     private String userId;
     private String subject;
     private String content;

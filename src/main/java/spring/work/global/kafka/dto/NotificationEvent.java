@@ -5,13 +5,13 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import spring.work.notification.constant.NotificationType;
-import spring.work.user.entity.Users;
 
 @Getter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class NotificationEvent implements Event {
+    private Long eventId; // 멱등성을 위해 이벤트Id 사용
     private Long receiverId;
     private Long senderId;
     private NotificationType type;

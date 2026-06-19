@@ -25,4 +25,12 @@ public class ProcessedEvent {
 
     @Column(nullable = false)
     private LocalDateTime processedAt;
+
+    public static ProcessedEvent from(Long eventId, EventType eventType) {
+        return ProcessedEvent.builder()
+                .eventId(eventId)
+                .eventType(eventType)
+                .processedAt(LocalDateTime.now())
+                .build();
+    }
 }

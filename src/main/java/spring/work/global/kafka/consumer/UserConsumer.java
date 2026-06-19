@@ -8,6 +8,7 @@ import org.springframework.messaging.handler.annotation.Headers;
 import org.springframework.stereotype.Service;
 import spring.work.event.common.EventType;
 import spring.work.event.consumer.fail.service.FailEventService;
+import spring.work.event.consumer.processed.service.ProcessedEventService;
 import spring.work.global.kafka.dto.MailEvent;
 import spring.work.global.utils.EmailSender;
 
@@ -20,11 +21,23 @@ public class UserConsumer {
 
     private final EmailSender emailSender;
     private final FailEventService failEventService;
+    private final ProcessedEventService processedEventService;
 
     @KafkaListener(topics = "mail-topic")
     public void sendMail(MailEvent event) {
         log.info("Kafka Consumer sendMail received: {}", event);
+
+        // 1. 이미 처리한 이벤트인지 확인
+        if (processedEventService.exists(event.getEventId())) {
+            log.info("이미 처리된 이벤트입니다. eventId={}", event.getEventId());
+            return;
+        }
+
+        // 2. 메일 발송
         emailSender.sendEmail(event);
+
+        // 3. 성공한 경우에만 처리 완료 기록
+        processedEventService.save(event.getEventId(), EventType.MAIL);
     }
 
     @KafkaListener(topics = "mail-topic.DLT")
