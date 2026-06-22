@@ -9,8 +9,8 @@ public enum ExceptionCode {
     FAIL("FAIL", "특정하지 않은 오류가 발생하였습니다."),
     ENCRYPT("ENCRYPT", "암호화 에러."),
     DECRYPT("DECRYPT", "복호화 에러."),
-    UNAUTHORIZED("UNAUTHORIZED", "인증 에러."),
-    FORBIDDEN("FORBIDDEN", "인가 에러."),
+    UNAUTHORIZED("UNAUTHORIZED", "로그인이 필요합니다."),
+    FORBIDDEN("FORBIDDEN", "접근 권한이 없습니다."),
 
     TOKEN_ERROR("TOKEN_ERROR", "잘못된 토큰입니다."),
     TOKEN_EXPIRE("TOKEN_EXPIRE", "만료된 토큰입니다."),

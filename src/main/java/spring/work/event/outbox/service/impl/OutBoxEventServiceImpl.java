@@ -58,8 +58,8 @@ public class OutBoxEventServiceImpl implements OutBoxEventService {
                 // Kafka ACK까지 대기
                 eventProducer.send(event).get();
 
-                // 성공 시 Outbox 삭제
-                outboxLifecycleService.remove(outboxEvent.getSeq());
+                // 성공 시 상태값 변경
+                outboxLifecycleService.makeSuccess(outboxEvent.getSeq());
 
             } catch (Exception e) {
                 outboxLifecycleService.increaseRetry(outboxEvent.getSeq(), e.getMessage());

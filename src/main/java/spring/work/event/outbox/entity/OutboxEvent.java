@@ -56,6 +56,10 @@ public class OutboxEvent {
         this.status = OutBoxStatus.PROCESSING;
     }
 
+    public void makeSuccess() {
+        this.status = OutBoxStatus.SUCCESS;
+    }
+
     public void makeDeadLetter() {
         this.status = OutBoxStatus.DEAD_LETTER;
     }

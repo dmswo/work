@@ -42,6 +42,13 @@ public class OutboxLifecycleServiceImpl implements OutboxLifecycleService {
 
     @Transactional
     @Override
+    public void makeSuccess(Long seq) {
+        OutboxEvent outboxEvent = outBoxEventRepository.findById(seq).orElseThrow(() -> new BusinessException(ExceptionCode.EVENT_NOT_FOUND));
+        outboxEvent.makeSuccess();
+    }
+
+    @Transactional
+    @Override
     public void makeDeadLetter(Long seq) {
         OutboxEvent outboxEvent = outBoxEventRepository.findById(seq).orElseThrow(() -> new BusinessException(ExceptionCode.EVENT_NOT_FOUND));
         outboxEvent.makeDeadLetter();

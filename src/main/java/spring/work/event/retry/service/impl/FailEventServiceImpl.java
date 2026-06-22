@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import spring.work.event.common.EventFailStatus;
@@ -42,6 +43,7 @@ public class FailEventServiceImpl implements FailEventService {
                 ));
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @Transactional
     @Override
     public void retryFailEvent(Long failEventId) {

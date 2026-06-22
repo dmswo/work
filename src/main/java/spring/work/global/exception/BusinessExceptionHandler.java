@@ -1,6 +1,7 @@
 package spring.work.global.exception;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.ObjectError;
@@ -41,6 +42,12 @@ public class BusinessExceptionHandler {
             return ApiResponse.errorResponse(e.getExceptionCode(), String.format("%s(%s)", e.getExceptionCode().getMessage(), e.getMessage()));
         }
         return ApiResponse.errorResponse(e.getExceptionCode());
+    }
+
+    @ExceptionHandler(AuthorizationDeniedException.class)
+    public ApiResponse<?> handleAuthorizationDeniedException(AuthorizationDeniedException e) {
+        log.warn("Access denied: {}", e.getMessage());
+        return ApiResponse.errorResponse(ExceptionCode.FORBIDDEN);
     }
 
     @ExceptionHandler(Exception.class)

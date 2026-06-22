@@ -66,8 +66,8 @@ class OutBoxEventServiceImplTest {
     }
 
     @Test
-    @DisplayName("이벤트 발행 성공 시 Outbox를 삭제한다")
-    void remove_outbox_when_publishPendingEvents_success() throws JsonProcessingException {
+    @DisplayName("이벤트 발행 성공 시 Outbox 상태값을 변경한다")
+    void update_outbox_status_when_publishPendingEvents_success() throws JsonProcessingException {
         // Given
         String payload = "{\"userId\":\"dmswo\"}";
         OutboxEvent outboxEvent = OutboxEvent.builder()
@@ -93,6 +93,6 @@ class OutBoxEventServiceImplTest {
         outBoxEventService.publishPendingEvents();
 
         // Then
-        then(outboxLifecycleService).should().remove(outboxEvent.getSeq());
+        then(outboxLifecycleService).should().makeSuccess(outboxEvent.getSeq());
     }
 }
