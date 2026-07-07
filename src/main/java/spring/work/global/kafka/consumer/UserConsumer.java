@@ -10,6 +10,8 @@ import org.springframework.transaction.annotation.Transactional;
 import spring.work.event.common.EventType;
 import spring.work.event.retry.service.FailEventService;
 import spring.work.event.processed.service.ProcessedEventService;
+import spring.work.global.ai.service.AiService;
+import spring.work.global.ai.dto.MailContent;
 import spring.work.global.kafka.dto.MailEvent;
 import spring.work.global.utils.EmailSender;
 import spring.work.global.utils.UtilService;
@@ -23,6 +25,7 @@ public class UserConsumer {
     private final FailEventService failEventService;
     private final ProcessedEventService processedEventService;
     private final UtilService utilService;
+    private final AiService aiService;
 
     @Transactional
     @KafkaListener(topics = "mail-topic")
@@ -35,10 +38,29 @@ public class UserConsumer {
             return;
         }
 
-        // 2. 메일 발송
-        emailSender.sendEmail(event);
+        MailContent mail;
 
-        // 3. 성공한 경우에만 처리 완료 기록
+        // 2. OpenAi 회원가입 정보 만들어 오기
+        try {
+            mail = aiService.createWelcomeMail(event);
+        } catch (Exception e) {
+            log.error("AI 메일 생성 실패", e);
+
+            mail = MailContent.builder()
+                    .subject(event.getUserId() + "님의 Work 가입을 축하합니다.")
+                    .content("""
+                    안녕하세요.
+
+                    Work 프로젝트 가입을 환영합니다.
+                    즐거운 하루 되세요.
+                    """)
+                    .build();
+        }
+
+        // 3. 메일 발송
+        emailSender.sendEmail(event, mail);
+
+        // 4. 성공한 경우에만 처리 완료 기록
         processedEventService.save(event.getEventId(), EventType.MAIL);
     }
 

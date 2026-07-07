@@ -12,8 +12,6 @@ import java.util.UUID;
 public class MailEvent implements Event {
     private String eventId; // 멱등성을 위해 이벤트Id 사용
     private String userId;
-    private String subject;
-    private String content;
     private String toEmail;
 
     @Override
@@ -25,8 +23,6 @@ public class MailEvent implements Event {
         return MailEvent.builder()
                 .eventId(UUID.randomUUID().toString())
                 .userId(dto.getUserId())
-                .subject(dto.getUserId()+"님의 Work프로젝트 회원가입을 축하합니다.")
-                .content("Work 프로젝트에서 작업을 시작하세요!!")
                 .toEmail(dto.getEmail())
                 .build();
     }
