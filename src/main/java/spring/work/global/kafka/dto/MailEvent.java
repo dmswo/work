@@ -13,6 +13,7 @@ public class MailEvent implements Event {
     private String eventId; // 멱등성을 위해 이벤트Id 사용
     private String userId;
     private String toEmail;
+    private String nickname;
 
     @Override
     public String getTopic() {
@@ -24,6 +25,7 @@ public class MailEvent implements Event {
                 .eventId(UUID.randomUUID().toString())
                 .userId(dto.getUserId())
                 .toEmail(dto.getEmail())
+                .nickname(dto.getNickname())
                 .build();
     }
 }
