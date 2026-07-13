@@ -6,6 +6,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import spring.work.global.ai.dto.PostValidationResult;
+import spring.work.global.ai.service.AiService;
 import spring.work.global.constant.ExceptionCode;
 import spring.work.global.dto.PageResponse;
 import spring.work.global.exception.BusinessException;
@@ -31,12 +33,24 @@ public class PostServiceImpl implements PostService {
     private final PostRepository postRepository;
     private final UserRepository userRepository;
     private final PostLikeRedisRepository postLikeRedisRepository;
+    private final AiService aiService;
 
     @Transactional
     @Override
     public void savePost(CreatePost request, String userId) {
         Users user = userRepository.findByUserId(userId)
                 .orElseThrow(() -> new BusinessException(ExceptionCode.USER_NOT_FOUND));
+
+        // AI 검사
+        PostValidationResult postValidationResult = aiService.validatePost(request);
+        if (!postValidationResult.isPassed()) {
+            log.warn("AI 게시글 검증 실패 - reason={}, title={}, content={}",
+                    postValidationResult.getReason(),
+                    request.getTitle(),
+                    request.getContent());
+
+            throw new BusinessException(ExceptionCode.POST_CONTENT_BLOCKED);
+        }
 
         Post post = Post.create(request, user);
         postRepository.save(post);

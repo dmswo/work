@@ -4,9 +4,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.stereotype.Service;
+import spring.work.global.ai.dto.PostValidationResult;
 import spring.work.global.ai.service.AiService;
 import spring.work.global.ai.dto.MailContent;
 import spring.work.global.kafka.dto.MailEvent;
+import spring.work.post.dto.request.CreatePost;
 
 @Service
 @RequiredArgsConstructor
@@ -55,5 +57,31 @@ public class OpenAiServiceImpl implements AiService {
                         """.formatted(event.getNickname(), event.getNickname()))
                 .call()
                 .entity(MailContent.class);
+    }
+
+    @Override
+    public PostValidationResult validatePost(CreatePost request) {
+        return chatClient.prompt()
+                .system("""
+                    너는 게시글 검수 AI이다.
+
+                    반드시 아래 규칙을 따른다.
+
+                    - 응답은 JSON만 반환한다.
+                    - JSON 필드는 passed, reason 두 개만 사용한다.
+                    - 욕설, 비방, 혐오 표현, 음란성, 협박, 심한 비속어가 포함되면 passed는 false이다.
+                    - 정상적인 게시글이면 passed는 true이다.
+                    - reason에는 판단 이유를 한 문장으로 작성한다.
+                    """)
+                .user("""
+                    게시글 제목
+                    %s
+
+                    게시글 내용
+                    %s
+                    """
+                        .formatted(request.getTitle(), request.getContent()))
+                .call()
+                .entity(PostValidationResult.class);
     }
 }

@@ -11,6 +11,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import spring.work.global.ai.dto.PostValidationResult;
+import spring.work.global.ai.service.AiService;
 import spring.work.global.constant.ExceptionCode;
 import spring.work.global.dto.PageResponse;
 import spring.work.global.exception.BusinessException;
@@ -40,6 +42,7 @@ class PostServiceImplTest {
     @Mock private PostRepository postRepository;
     @Mock private UserRepository userRepository;
     @Mock private PostLikeRedisRepository postLikeRedisRepository;
+    @Mock private AiService aiService;
 
     @InjectMocks
     private PostServiceImpl postService;
@@ -64,6 +67,35 @@ class PostServiceImplTest {
     }
 
     @Test
+    @DisplayName("게시물 저장시 AI 검증에 실패하면 예외가 발생한다")
+    void throw_exception_when_ai_validation_failed() {
+        // Given
+        CreatePost post = CreatePost.builder()
+                .title("시발")
+                .content("시발")
+                .build();
+        String userId = "dmswo";
+
+        Users users = Users.builder()
+                .userId(userId)
+                .build();
+
+        PostValidationResult result = PostValidationResult.builder()
+                .passed(false)
+                .reason("부적절한 표현이 감지되었습니다.")
+                .build();
+
+        given(userRepository.findByUserId(userId)).willReturn(Optional.of(users));
+        given(aiService.validatePost(post)).willReturn(result);
+
+        // When & Then
+        assertThatThrownBy(() -> postService.savePost(post, userId))
+                .isInstanceOf(BusinessException.class)
+                .hasMessageContaining(ExceptionCode.POST_CONTENT_BLOCKED.getMessage());
+        then(postRepository).shouldHaveNoInteractions();
+    }
+
+    @Test
     @DisplayName("게시물 저장 성공")
     void post_save_success() {
         // Given
@@ -77,7 +109,13 @@ class PostServiceImplTest {
                 .userId(userId)
                 .build();
 
+        PostValidationResult result = PostValidationResult.builder()
+                .passed(true)
+                .reason("통과")
+                .build();
+
         given(userRepository.findByUserId(userId)).willReturn(Optional.of(users));
+        given(aiService.validatePost(post)).willReturn(result);
 
         // When
         postService.savePost(post, userId);
@@ -85,6 +123,8 @@ class PostServiceImplTest {
         // Then
         ArgumentCaptor<Post> captor = ArgumentCaptor.forClass(Post.class);
         then(postRepository).should().save(captor.capture());
+        then(userRepository).should().findByUserId(userId);
+        then(aiService).should().validatePost(post);
         Post savedPost = captor.getValue();
 
         assertThat(savedPost.getTitle()).isEqualTo("title");

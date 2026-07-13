@@ -28,6 +28,7 @@ public enum ExceptionCode {
 
     // Post 도메인 에러 코드
     POST_NOT_FOUND("POST_NOT_FOUND", "게시물 정보를 찾을 수 없습니다."),
+    POST_CONTENT_BLOCKED("POST_CONTENT_BLOCKED", "게시글에 부적절한 표현이 포함되어 있습니다."),
 
     // Post_Like 도메인 에러 코드
     POST_LIKE_NOT_FOUND("POST_LIKE_NOT_FOUND", "게시물 좋아요 정보를 찾을 수 없습니다."),
