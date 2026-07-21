@@ -31,7 +31,9 @@ public class NotificationConsumer {
     private final UtilService utilService;
 
     @Transactional
-    @KafkaListener(topics = "notification-topic")
+    @KafkaListener(topics = "notification-topic"
+            , groupId = "notification-consumer-group"
+            , concurrency = "3")
     public void sendNotification(NotificationEvent event) {
         log.info("Kafka Consumer sendNotification received: {}", event);
 
@@ -53,7 +55,7 @@ public class NotificationConsumer {
         processedEventService.save(event.getEventId(), EventType.NOTIFICATION);
     }
 
-    @KafkaListener(topics = "notification-topic.DLT")
+    @KafkaListener(topics = "notification-topic.DLT", groupId = "notification-dlt-consumer-group")
     public void failSendNotification(NotificationEvent event, @Headers MessageHeaders headers) {
         log.info("Kafka Consumer failSendNotification received: {}", event);
 

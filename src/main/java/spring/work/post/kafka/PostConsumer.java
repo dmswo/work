@@ -23,6 +23,7 @@ public class PostConsumer {
     @KafkaListener(
             topics = "work.work.post",
             groupId = "cdc-post-group",
+            concurrency = "3",
             containerFactory = "cdcKafkaListenerContainerFactory"
     )
     public void handlePostCdc(ConsumerRecord<String, String> record) {

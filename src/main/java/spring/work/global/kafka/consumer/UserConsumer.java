@@ -28,7 +28,9 @@ public class UserConsumer {
     private final AiService aiService;
 
     @Transactional
-    @KafkaListener(topics = "mail-topic")
+    @KafkaListener(topics = "mail-topic"
+            , groupId = "mail-consumer-group"
+            , concurrency = "3")
     public void sendMail(MailEvent event) {
         log.info("Kafka Consumer sendMail received: {}", event);
 
@@ -64,7 +66,7 @@ public class UserConsumer {
         processedEventService.save(event.getEventId(), EventType.MAIL);
     }
 
-    @KafkaListener(topics = "mail-topic.DLT")
+    @KafkaListener(topics = "mail-topic.DLT", groupId = "mail-dlt-consumer-group")
     public void failSendMail(MailEvent event, @Headers MessageHeaders headers) {
         log.info("Kafka Consumer failSendMail received: {}", event);
 
