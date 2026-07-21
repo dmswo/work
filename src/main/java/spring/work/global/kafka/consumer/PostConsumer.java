@@ -1,4 +1,4 @@
-package spring.work.post.kafka;
+package spring.work.global.kafka.consumer;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -7,8 +7,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
-import spring.work.post.kafka.dto.DebeziumCdcMessage;
-import spring.work.post.kafka.dto.PostCdcDto;
+import spring.work.global.kafka.dto.cdc.DebeziumCdcMessage;
+import spring.work.global.kafka.dto.cdc.PostCdcDto;
 import spring.work.post.document.PostDocument;
 import spring.work.user.repository.ElasticSearchRepository;
 

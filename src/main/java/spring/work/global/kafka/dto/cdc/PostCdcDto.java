@@ -1,4 +1,4 @@
-package spring.work.post.kafka.dto;
+package spring.work.global.kafka.dto.cdc;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
