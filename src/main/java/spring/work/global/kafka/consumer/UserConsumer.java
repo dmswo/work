@@ -27,6 +27,8 @@ public class UserConsumer {
     private final UtilService utilService;
     private final AiService aiService;
 
+    private static final String CONSUMER_GROUP = "mail-consumer-group";
+
     @Transactional
     @KafkaListener(topics = "mail-topic"
             , groupId = "mail-consumer-group"
@@ -35,7 +37,7 @@ public class UserConsumer {
         log.info("Kafka Consumer sendMail received: {}", event);
 
         // 1. 이미 처리한 이벤트인지 확인
-        if (processedEventService.exists(event.getEventId())) {
+        if (processedEventService.exists(event.getEventId(), CONSUMER_GROUP)) {
             log.info("이미 처리된 이벤트입니다. eventId={}", event.getEventId());
             return;
         }
@@ -63,7 +65,7 @@ public class UserConsumer {
         emailSender.sendEmail(event, mail);
 
         // 4. 성공한 경우에만 처리 완료 기록
-        processedEventService.save(event.getEventId(), EventType.MAIL);
+        processedEventService.save(event.getEventId(), CONSUMER_GROUP, EventType.MAIL);
     }
 
     @KafkaListener(topics = "mail-topic.DLT", groupId = "mail-dlt-consumer-group")

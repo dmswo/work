@@ -12,7 +12,8 @@ import spring.work.event.retry.service.FailEventService;
 import spring.work.event.processed.service.ProcessedEventService;
 import spring.work.global.constant.ExceptionCode;
 import spring.work.global.exception.BusinessException;
-import spring.work.global.kafka.dto.NotificationEvent;
+import spring.work.global.kafka.dto.CommentEvent;
+import spring.work.global.kafka.dto.PostLikeEvent;
 import spring.work.global.utils.UtilService;
 import spring.work.notification.constant.NotificationType;
 import spring.work.notification.service.NotificationService;
@@ -30,38 +31,58 @@ public class NotificationConsumer {
     private final ProcessedEventService processedEventService;
     private final UtilService utilService;
 
+    private static final String NOTIFICATION_GROUP = "notification-consumer-group";
+
     @Transactional
-    @KafkaListener(topics = "notification-topic"
+    @KafkaListener(topics = "post-like-topic"
             , groupId = "notification-consumer-group"
             , concurrency = "3")
-    public void sendNotification(NotificationEvent event) {
-        log.info("Kafka Consumer sendNotification received: {}", event);
+    public void sendNotificationPostLike(PostLikeEvent event) {
+        log.info("Kafka Consumer sendNotificationPostLike received: {}", event);
 
         // 1. 이미 처리한 이벤트인지 확인
-        if (processedEventService.exists(event.getEventId())) {
+        if (processedEventService.exists(event.getEventId(), NOTIFICATION_GROUP)) {
             log.info("이미 처리된 이벤트입니다. eventId={}", event.getEventId());
             return;
         }
 
         // 2. 알림 발송
-        Users receiver = userRepository.findById(event.getReceiverId()).orElseThrow(() -> new BusinessException(ExceptionCode.USER_NOT_FOUND));
-        Users sender = userRepository.findById(event.getSenderId()).orElseThrow(() -> new BusinessException(ExceptionCode.USER_NOT_FOUND));
-        NotificationType type = event.getType();
-        Long targetId = event.getTargetId();
+        Users receiver = userRepository.findById(event.getPostOwnerId()).orElseThrow(() -> new BusinessException(ExceptionCode.USER_NOT_FOUND));
+        Users sender = userRepository.findById(event.getLikerId()).orElseThrow(() -> new BusinessException(ExceptionCode.USER_NOT_FOUND));
+        Long targetId = event.getPostId();
 
-        notificationService.sendNotification(receiver, sender, type, targetId);
+        notificationService.sendNotification(receiver, sender, NotificationType.POST_LIKE, targetId);
 
         // 3. 성공한 경우에만 처리 완료 기록
-        processedEventService.save(event.getEventId(), EventType.NOTIFICATION);
+        processedEventService.save(event.getEventId(), NOTIFICATION_GROUP, EventType.POST_LIKE);
     }
 
-    @KafkaListener(topics = "notification-topic.DLT", groupId = "notification-dlt-consumer-group")
-    public void failSendNotification(NotificationEvent event, @Headers MessageHeaders headers) {
-        log.info("Kafka Consumer failSendNotification received: {}", event);
+    @KafkaListener(topics = "post-like-topic.DLT", groupId = "notification-dlt-consumer-group")
+    public void failSendNotificationPostLike(PostLikeEvent event, @Headers MessageHeaders headers) {
+        log.info("Kafka Consumer failSendNotificationPostLike received: {}", event);
 
         String originalTopic = utilService.getHeaderAsString(headers, "kafka_dlt-original-topic");
         String errorMessage = utilService.extractRootMessage(utilService.getHeaderAsString(headers, "kafka_dlt-exception-message"));
 
-        failEventService.saveEventFail(EventType.NOTIFICATION, originalTopic, event, errorMessage);
+        failEventService.saveEventFail(EventType.POST_LIKE, originalTopic, event, errorMessage);
+    }
+
+    @Transactional
+    @KafkaListener(topics = "comment-topic"
+            , groupId = "notification-consumer-group"
+            , concurrency = "3")
+    public void sendNotificationComment(CommentEvent event) {
+        log.info("Kafka Consumer sendNotificationComment received: {}", event);
+
+//        // 1. 이미 처리한 이벤트인지 확인
+//        if (processedEventService.exists(event.getEventId(), NOTIFICATION_GROUP)) {
+//            log.info("이미 처리된 이벤트입니다. eventId={}", event.getEventId());
+//            return;
+//        }
+//
+//        // 2. 댓글 알림 발송
+//
+//        // 3. 성공한 경우에만 처리 완료 기록
+//        processedEventService.save(event.getEventId(), NOTIFICATION_GROUP, EventType.NOTIFICATION);
     }
 }

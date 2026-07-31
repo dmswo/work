@@ -4,4 +4,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import spring.work.event.processed.entity.ProcessedEvent;
 
 public interface ProcessedEventRepository extends JpaRepository<ProcessedEvent, String> {
+    boolean existsByEventIdAndConsumerGroup(String eventId, String consumerGroup);
 }

@@ -10,9 +10,8 @@ import spring.work.event.outbox.repository.OutBoxEventRepository;
 import spring.work.event.outbox.service.OutBoxEventService;
 import spring.work.global.constant.ExceptionCode;
 import spring.work.global.exception.BusinessException;
-import spring.work.global.kafka.dto.NotificationEvent;
+import spring.work.global.kafka.dto.PostLikeEvent;
 import spring.work.global.redis.PostLikeRedisRepository;
-import spring.work.notification.constant.NotificationType;
 import spring.work.post.entity.Post;
 import spring.work.post.repository.PostRepository;
 import spring.work.postlike.entity.PostLike;
@@ -54,10 +53,10 @@ public class PostLikeServiceImpl implements PostLikeService {
 
             postLikeRepository.save(postLike);
 
-            // 알림 전송(Outbox 저장)
+            // 좋아요 이벤트(Outbox 저장)
             Users receiver = post.getUser();
-            NotificationEvent event = NotificationEvent.from(receiver.getSeq(), sender.getSeq(), NotificationType.POST_LIKE, post.getSeq());
-            OutboxEvent outboxEvent = outBoxEventService.createOutbox(EventType.NOTIFICATION, event);
+            PostLikeEvent event = PostLikeEvent.from(post.getSeq(), receiver.getSeq(), sender.getSeq());
+            OutboxEvent outboxEvent = outBoxEventService.createOutbox(EventType.POST_LIKE, event);
             outBoxEventRepository.save(outboxEvent);
 
         } catch (Exception e) {

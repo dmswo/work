@@ -4,5 +4,5 @@ import lombok.Getter;
 
 @Getter
 public enum EventType {
-    MAIL, NOTIFICATION
+    MAIL, NOTIFICATION, POST_LIKE, STATISTICS
 }

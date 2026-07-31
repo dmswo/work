@@ -10,9 +10,7 @@ import spring.work.event.common.OutBoxStatus;
 import spring.work.event.outbox.service.OutBoxEventService;
 import spring.work.event.outbox.service.OutboxLifecycleService;
 import spring.work.event.outbox.entity.OutboxEvent;
-import spring.work.global.kafka.dto.Event;
-import spring.work.global.kafka.dto.MailEvent;
-import spring.work.global.kafka.dto.NotificationEvent;
+import spring.work.global.kafka.dto.*;
 import spring.work.global.kafka.producer.EventProducer;
 
 import java.time.LocalDateTime;
@@ -53,6 +51,12 @@ public class OutBoxEventServiceImpl implements OutBoxEventService {
 
                     case NOTIFICATION ->
                             objectMapper.readValue(outboxEvent.getPayload(), NotificationEvent.class);
+
+                    case POST_LIKE ->
+                            objectMapper.readValue(outboxEvent.getPayload(), PostLikeEvent.class);
+
+                    case STATISTICS ->
+                            objectMapper.readValue(outboxEvent.getPayload(), StatisticsEvent.class);
                 };
 
                 // Kafka ACK까지 대기

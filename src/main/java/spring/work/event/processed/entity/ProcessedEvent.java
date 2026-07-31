@@ -10,6 +10,14 @@ import spring.work.event.common.EventType;
 import java.time.LocalDateTime;
 
 @Entity
+@Table(
+        uniqueConstraints = {
+                @UniqueConstraint(
+                        name = "uk_processed_event",
+                        columnNames = {"eventId", "consumerGroup"}
+                )
+        }
+)
 @Getter
 @Builder
 @NoArgsConstructor
@@ -17,7 +25,14 @@ import java.time.LocalDateTime;
 public class ProcessedEvent {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(nullable = false)
     private String eventId;
+
+    @Column(nullable = false)
+    private String consumerGroup;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -26,9 +41,11 @@ public class ProcessedEvent {
     @Column(nullable = false)
     private LocalDateTime processedAt;
 
-    public static ProcessedEvent from(String eventId, EventType eventType) {
+
+    public static ProcessedEvent from(String eventId, String consumerGroup, EventType eventType) {
         return ProcessedEvent.builder()
                 .eventId(eventId)
+                .consumerGroup(consumerGroup)
                 .eventType(eventType)
                 .processedAt(LocalDateTime.now())
                 .build();
