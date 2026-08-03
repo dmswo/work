@@ -14,7 +14,6 @@ import spring.work.event.outbox.repository.OutBoxEventRepository;
 import spring.work.event.outbox.service.OutBoxEventService;
 import spring.work.global.constant.ExceptionCode;
 import spring.work.global.exception.BusinessException;
-import spring.work.global.kafka.producer.EventProducer;
 import spring.work.global.redis.PostLikeRedisRepository;
 import spring.work.post.entity.Post;
 import spring.work.post.repository.PostRepository;
@@ -40,7 +39,6 @@ class PostLikeServiceImplTest {
     @Mock private UserRepository userRepository;
     @Mock private PostLikeRepository postLikeRepository;
     @Mock private PostLikeRedisRepository postLikeRedisRepository;
-    @Mock private EventProducer eventProducer;
     @Mock private OutBoxEventService outBoxEventService;
     @Mock private OutBoxEventRepository outBoxEventRepository;
 
@@ -178,11 +176,29 @@ class PostLikeServiceImplTest {
     }
 
     @Test
+    @DisplayName("좋아요를 누르지 않은 게시글이면 예외가 발생한다")
+    void throw_exception_when_post_like_already_not_exists() {
+        // Given
+        Long postId = 1L;
+        String userId = "dmswo";
+        given(postLikeRedisRepository.removeLikeUser(postId, userId)).willReturn(false);
+
+        // When & Then
+        assertThatThrownBy(() -> postLikeService.deletePostLike(postId, userId))
+                .isInstanceOf(BusinessException.class)
+                .hasMessageContaining(ExceptionCode.POST_LIKE_NOT_FOUND.getMessage());
+        then(postRepository).shouldHaveNoInteractions();
+        then(userRepository).shouldHaveNoInteractions();
+        then(postLikeRepository).shouldHaveNoInteractions();
+    }
+
+    @Test
     @DisplayName("좋아요 취소시 존재하지 않는 게시글이면 예외가 발생한다")
     void throw_exception_when_delete_post_like_post_not_found() {
         // Given
         Long postId = 1L;
         String userId = "dmswo";
+        given(postLikeRedisRepository.removeLikeUser(postId, userId)).willReturn(true);
         given(postRepository.findById(postId)).willReturn(Optional.empty());
 
         // When & Then
@@ -191,7 +207,6 @@ class PostLikeServiceImplTest {
                 .hasMessageContaining(ExceptionCode.POST_NOT_FOUND.getMessage());
         then(userRepository).shouldHaveNoInteractions();
         then(postLikeRepository).shouldHaveNoInteractions();
-        then(postLikeRedisRepository).shouldHaveNoInteractions();
     }
 
     @Test
@@ -206,6 +221,7 @@ class PostLikeServiceImplTest {
                 .content("게시글 내용")
                 .build();
 
+        given(postLikeRedisRepository.removeLikeUser(postId, userId)).willReturn(true);
         given(postRepository.findById(postId)).willReturn(Optional.of(post));
         given(userRepository.findByUserId(userId)).willReturn(Optional.empty());
 
@@ -214,35 +230,6 @@ class PostLikeServiceImplTest {
                 .isInstanceOf(BusinessException.class)
                 .hasMessageContaining(ExceptionCode.USER_NOT_FOUND.getMessage());
         then(postLikeRepository).shouldHaveNoInteractions();
-        then(postLikeRedisRepository).shouldHaveNoInteractions();
-    }
-
-    @Test
-    @DisplayName("좋아요 취소시 존재하지 않는 좋아요면 예외가 발생한다")
-    void throw_exception_when_delete_post_like_postLike_not_found() {
-        // Given
-        Long postId = 1L;
-        String userId = "dmswo";
-        Users user = Users.builder()
-                .userId(userId)
-                .nickname("가오리")
-                .build();
-        Post post = Post.builder()
-                .seq(postId)
-                .title("게시글 제목")
-                .content("게시글 내용")
-                .user(user)
-                .build();
-
-        given(postRepository.findById(postId)).willReturn(Optional.of(post));
-        given(userRepository.findByUserId(userId)).willReturn(Optional.of(user));
-        given(postLikeRepository.findByPostAndUser(post, user)).willReturn(Optional.empty());
-
-        // When & Then
-        assertThatThrownBy(() -> postLikeService.deletePostLike(postId, userId))
-                .isInstanceOf(BusinessException.class)
-                .hasMessageContaining(ExceptionCode.POST_LIKE_NOT_FOUND.getMessage());
-        then(postLikeRedisRepository).shouldHaveNoInteractions();
     }
 
     @Test
@@ -266,6 +253,7 @@ class PostLikeServiceImplTest {
                 .post(post)
                 .build();
 
+        given(postLikeRedisRepository.removeLikeUser(postId, userId)).willReturn(true);
         given(postRepository.findById(postId)).willReturn(Optional.of(post));
         given(userRepository.findByUserId(userId)).willReturn(Optional.of(user));
         given(postLikeRepository.findByPostAndUser(post, user)).willReturn(Optional.of(postLike));
