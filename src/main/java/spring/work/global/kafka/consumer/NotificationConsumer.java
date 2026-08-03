@@ -17,6 +17,7 @@ import spring.work.global.kafka.dto.PostLikeEvent;
 import spring.work.global.utils.UtilService;
 import spring.work.notification.constant.NotificationType;
 import spring.work.notification.service.NotificationService;
+import spring.work.postlike.constant.LikeActionType;
 import spring.work.user.entity.Users;
 import spring.work.user.repository.UserRepository;
 
@@ -46,14 +47,19 @@ public class NotificationConsumer {
             return;
         }
 
-        // 2. 알림 발송
+        // 2. 좋아요 취소일 경우는 알림 발송 제외
+        if(event.getAction() != LikeActionType.LIKE){
+            return;
+        }
+
+        // 3. 알림 발송
         Users receiver = userRepository.findById(event.getPostOwnerId()).orElseThrow(() -> new BusinessException(ExceptionCode.USER_NOT_FOUND));
         Users sender = userRepository.findById(event.getLikerId()).orElseThrow(() -> new BusinessException(ExceptionCode.USER_NOT_FOUND));
         Long targetId = event.getPostId();
 
         notificationService.sendNotification(receiver, sender, NotificationType.POST_LIKE, targetId);
 
-        // 3. 성공한 경우에만 처리 완료 기록
+        // 4. 성공한 경우에만 처리 완료 기록
         processedEventService.save(event.getEventId(), NOTIFICATION_GROUP, EventType.POST_LIKE);
     }
 

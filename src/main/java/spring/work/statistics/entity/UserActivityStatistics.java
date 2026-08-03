@@ -6,10 +6,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import spring.work.global.entity.BaseEntity;
-import spring.work.global.kafka.dto.PostLikeEvent;
 
 import java.time.LocalDate;
-import java.util.UUID;
 
 @Entity
 @Getter
@@ -55,7 +53,9 @@ public class UserActivityStatistics extends BaseEntity {
     }
 
     public void decreaseLikeCount() {
-        this.likeCount--;
+        if(this.likeCount > 0) {
+            this.likeCount--;
+        }
     }
 
     public static UserActivityStatistics from(Long userId, LocalDate date) {

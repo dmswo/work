@@ -14,6 +14,7 @@ import spring.work.global.kafka.dto.PostLikeEvent;
 import spring.work.global.redis.PostLikeRedisRepository;
 import spring.work.post.entity.Post;
 import spring.work.post.repository.PostRepository;
+import spring.work.postlike.constant.LikeActionType;
 import spring.work.postlike.entity.PostLike;
 import spring.work.postlike.repository.PostLikeRepository;
 import spring.work.postlike.service.PostLikeService;
@@ -55,7 +56,7 @@ public class PostLikeServiceImpl implements PostLikeService {
 
             // 좋아요 이벤트(Outbox 저장)
             Users receiver = post.getUser();
-            PostLikeEvent event = PostLikeEvent.from(post.getSeq(), receiver.getSeq(), sender.getSeq());
+            PostLikeEvent event = PostLikeEvent.from(post.getSeq(), receiver.getSeq(), sender.getSeq(), LikeActionType.LIKE);
             OutboxEvent outboxEvent = outBoxEventService.createOutbox(EventType.POST_LIKE, event);
             outBoxEventRepository.save(outboxEvent);
 
@@ -68,11 +69,29 @@ public class PostLikeServiceImpl implements PostLikeService {
     @Transactional
     @Override
     public void deletePostLike(Long postId, String userId) {
-        Post post = postRepository.findById(postId).orElseThrow(() -> new BusinessException(ExceptionCode.POST_NOT_FOUND));
-        Users users = userRepository.findByUserId(userId).orElseThrow(() -> new BusinessException(ExceptionCode.USER_NOT_FOUND));
-        PostLike postLike = postLikeRepository.findByPostAndUser(post, users).orElseThrow(() -> new BusinessException(ExceptionCode.POST_LIKE_NOT_FOUND));
+        // Redis 선점
+        boolean cancel = postLikeRedisRepository.removeLikeUser(postId, userId);
 
-        postLikeRepository.delete(postLike);
-        postLikeRedisRepository.removeLikeUser(postId, userId);
+        if (!cancel) {
+            throw new BusinessException(ExceptionCode.POST_LIKE_NOT_FOUND);
+        }
+
+        try {
+            Post post = postRepository.findById(postId).orElseThrow(() -> new BusinessException(ExceptionCode.POST_NOT_FOUND));
+            Users users = userRepository.findByUserId(userId).orElseThrow(() -> new BusinessException(ExceptionCode.USER_NOT_FOUND));
+            PostLike postLike = postLikeRepository.findByPostAndUser(post, users).orElseThrow(() -> new BusinessException(ExceptionCode.POST_LIKE_NOT_FOUND));
+
+            postLikeRepository.delete(postLike);
+
+            // 좋아요 이벤트(Outbox 저장)
+            Users receiver = post.getUser();
+            PostLikeEvent event = PostLikeEvent.from(post.getSeq(), receiver.getSeq(), users.getSeq(), LikeActionType.CANCEL);
+            OutboxEvent outboxEvent = outBoxEventService.createOutbox(EventType.POST_LIKE, event);
+            outBoxEventRepository.save(outboxEvent);
+
+        } catch (Exception e) {
+            postLikeRedisRepository.addLikeUser(postId, userId);
+            throw e;
+        }
     }
 }

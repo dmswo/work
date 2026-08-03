@@ -11,7 +11,7 @@ public class OutboxScheduler {
 
     private final OutBoxEventService outBoxEventService;
 
-    @Scheduled(fixedDelay = 60000)
+    @Scheduled(fixedDelay = 30000)
     public void publishOutbox() {
         outBoxEventService.publishPendingEvents();
     }

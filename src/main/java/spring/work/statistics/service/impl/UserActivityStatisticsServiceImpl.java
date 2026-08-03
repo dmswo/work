@@ -28,4 +28,16 @@ public class UserActivityStatisticsServiceImpl implements UserActivityStatistics
 
         userActivityStatisticsRepository.save(statistics);
     }
+
+    @Transactional
+    @Override
+    public void decreaseLikeCount(Long id) {
+        LocalDate today = LocalDate.now();
+        UserActivityStatistics statistics = userActivityStatisticsRepository.findByUserIdAndStatisticsDate(id, today)
+                .orElseGet(() -> UserActivityStatistics.from(id, today));
+
+        statistics.decreaseLikeCount();
+
+        userActivityStatisticsRepository.save(statistics);
+    }
 }

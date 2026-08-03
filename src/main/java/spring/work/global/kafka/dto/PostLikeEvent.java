@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import spring.work.postlike.constant.LikeActionType;
 
 import java.util.UUID;
 
@@ -17,17 +18,20 @@ public class PostLikeEvent implements Event{
     private Long postOwnerId;
     private Long likerId;
 
+    private LikeActionType action;
+
     @Override
     public String getTopic() {
         return "post-like-topic";
     }
 
-    public static PostLikeEvent from(Long postId, Long postOwnerId, Long likerId) {
+    public static PostLikeEvent from(Long postId, Long postOwnerId, Long likerId, LikeActionType action) {
         return PostLikeEvent.builder()
                 .eventId(UUID.randomUUID().toString())
                 .postId(postId)
                 .postOwnerId(postOwnerId)
                 .likerId(likerId)
+                .action(action)
                 .build();
     }
 }

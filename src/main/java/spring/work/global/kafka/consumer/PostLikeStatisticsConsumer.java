@@ -8,6 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 import spring.work.event.common.EventType;
 import spring.work.event.processed.service.ProcessedEventService;
 import spring.work.global.kafka.dto.PostLikeEvent;
+import spring.work.postlike.constant.LikeActionType;
 import spring.work.statistics.service.UserActivityStatisticsService;
 
 @Service
@@ -33,7 +34,11 @@ public class PostLikeStatisticsConsumer {
         }
 
         // 2. 통계 기록 저장
-        userActivityStatisticsService.increaseLikeCount(event.getLikerId());
+        if (event.getAction().equals(LikeActionType.LIKE)) {
+            userActivityStatisticsService.increaseLikeCount(event.getLikerId());
+        } else if (event.getAction().equals(LikeActionType.CANCEL)) {
+            userActivityStatisticsService.decreaseLikeCount(event.getLikerId());
+        }
 
         // 3. 성공한 경우에만 처리 완료 기록
         processedEventService.save(event.getEventId(), STATISTIC_GROUP, EventType.POST_LIKE);

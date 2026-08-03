@@ -21,9 +21,13 @@ public class PostLikeRedisRepository {
         return result != null && result > 0;
     }
 
-    public void removeLikeUser(Long postId, String userId) {
-        redisTemplate.opsForSet()
-                .remove(generateKey(postId), userId);
+    public boolean removeLikeUser(Long postId, String userId) {
+        String key = generateKey(postId);
+
+        Long result = redisTemplate.opsForSet()
+                .remove(key, userId);
+
+        return result != null && result > 0;
     }
 
     public Long getLikeUserCount(Long postId) {
