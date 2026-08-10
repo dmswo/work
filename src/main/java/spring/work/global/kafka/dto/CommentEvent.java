@@ -4,7 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import spring.work.notification.constant.NotificationType;
+
+import java.util.UUID;
 
 @Getter
 @Builder
@@ -12,13 +13,21 @@ import spring.work.notification.constant.NotificationType;
 @AllArgsConstructor
 public class CommentEvent implements Event{
     private String eventId; // 멱등성을 위해 이벤트Id 사용
-    private Long receiverId;
-    private Long senderId;
-    private NotificationType type;
-    private Long targetId; // LIKE, COMMENT 등
+    private Long postId;
+    private Long postOwnerId;
+    private Long replierId;
 
     @Override
     public String getTopic() {
-        return "";
+        return "comment-topic";
+    }
+
+    public static CommentEvent from(Long postId, Long postOwnerId, Long replierId) {
+        return CommentEvent.builder()
+                .eventId(UUID.randomUUID().toString())
+                .postId(postId)
+                .postOwnerId(postOwnerId)
+                .replierId(replierId)
+                .build();
     }
 }

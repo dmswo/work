@@ -4,5 +4,5 @@ import lombok.Getter;
 
 @Getter
 public enum NotificationType {
-    POST_LIKE;
+    POST_LIKE, COMMENT;
 }

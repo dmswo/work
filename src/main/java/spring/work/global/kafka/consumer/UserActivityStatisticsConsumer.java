@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import spring.work.event.common.EventType;
 import spring.work.event.processed.service.ProcessedEventService;
+import spring.work.global.kafka.dto.CommentEvent;
 import spring.work.global.kafka.dto.PostLikeEvent;
 import spring.work.postlike.constant.LikeActionType;
 import spring.work.statistics.service.UserActivityStatisticsService;
@@ -14,17 +15,17 @@ import spring.work.statistics.service.UserActivityStatisticsService;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class PostLikeStatisticsConsumer {
+public class UserActivityStatisticsConsumer {
 
     private final ProcessedEventService processedEventService;
     private final UserActivityStatisticsService userActivityStatisticsService;
-    private static final String STATISTIC_GROUP = "post-like-statistic-consumer-group";
+    private static final String STATISTIC_GROUP = "statistic-consumer-group";
 
     @Transactional
     @KafkaListener(topics = "post-like-topic"
             , groupId = STATISTIC_GROUP
             , concurrency = "3")
-    public void updateUserActivityStatistics(PostLikeEvent event) {
+    public void updatePostLikeUserActivityStatistics(PostLikeEvent event) {
         log.info("Kafka Consumer updateUserActivityStatistics received: {}", event);
 
         // 1. 이미 처리한 이벤트인지 확인
@@ -42,6 +43,26 @@ public class PostLikeStatisticsConsumer {
 
         // 3. 성공한 경우에만 처리 완료 기록
         processedEventService.save(event.getEventId(), STATISTIC_GROUP, EventType.POST_LIKE);
+    }
+
+    @Transactional
+    @KafkaListener(topics = "comment-topic"
+            , groupId = STATISTIC_GROUP
+            , concurrency = "3")
+    public void updateCommentUserActivityStatistics(CommentEvent event) {
+        log.info("Kafka Consumer updateCommentUserActivityStatistics received: {}", event);
+
+        // 1. 이미 처리한 이벤트인지 확인
+        if (processedEventService.exists(event.getEventId(), STATISTIC_GROUP)) {
+            log.info("이미 처리된 이벤트입니다. eventId={}", event.getEventId());
+            return;
+        }
+
+        // 2. 통계 기록 저장
+        userActivityStatisticsService.increaseCommentCount(event.getReplierId());
+
+        // 3. 성공한 경우에만 처리 완료 기록
+        processedEventService.save(event.getEventId(), STATISTIC_GROUP, EventType.COMMENT);
     }
 }
 

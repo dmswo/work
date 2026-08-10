@@ -70,7 +70,7 @@ public class NotificationServiceImpl implements NotificationService {
         dto.setMessage(
                 switch (dto.getType()) {
                     case POST_LIKE -> dto.getSenderNickname() + "님이 좋아요를 눌렀습니다";
-//                    case COMMENT -> dto.getSenderNickname() + "님이 댓글을 남겼습니다";
+                    case COMMENT -> dto.getSenderNickname() + "님이 댓글을 남겼습니다";
 //                    case FOLLOW -> dto.getSenderNickname() + "님이 팔로우했습니다";
                 }
         );

@@ -16,6 +16,11 @@ import spring.work.comment.dto.request.UpdateComment;
 import spring.work.comment.dto.response.CommentListResponse;
 import spring.work.comment.entity.Comment;
 import spring.work.comment.repository.CommentRepository;
+import spring.work.event.common.EventType;
+import spring.work.event.common.OutBoxStatus;
+import spring.work.event.outbox.entity.OutboxEvent;
+import spring.work.event.outbox.repository.OutBoxEventRepository;
+import spring.work.event.outbox.service.OutBoxEventService;
 import spring.work.global.constant.ExceptionCode;
 import spring.work.global.dto.PageResponse;
 import spring.work.global.exception.BusinessException;
@@ -29,6 +34,7 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 
@@ -38,6 +44,8 @@ class CommentServiceImplTest {
     @Mock private UserRepository userRepository;
     @Mock private PostRepository postRepository;
     @Mock private CommentRepository commentRepository;
+    @Mock private OutBoxEventService outBoxEventService;
+    @Mock private OutBoxEventRepository outBoxEventRepository;
 
     @InjectMocks
     private CommentServiceImpl commentService;
@@ -100,12 +108,14 @@ class CommentServiceImplTest {
 
         Post post = Post.builder()
                 .seq(postId)
+                .user(users)
                 .title("title")
                 .content("content")
                 .build();
 
         given(userRepository.findByUserId(userId)).willReturn(Optional.of(users));
         given(postRepository.findById(postId)).willReturn(Optional.of(post));
+        given(outBoxEventService.createOutbox(any(), any())).willReturn(createOutboxEvent());
 
         // When
         commentService.saveComment(comment, postId, userId);
@@ -118,6 +128,15 @@ class CommentServiceImplTest {
         assertThat(savedComment.getContent()).isEqualTo("content1");
         assertThat(savedComment.getUser().getUserId()).isEqualTo(userId);
         assertThat(savedComment.getPost().getSeq()).isEqualTo(post.getSeq());
+        then(outBoxEventRepository).should().save(any(OutboxEvent.class));
+    }
+
+    private OutboxEvent createOutboxEvent() {
+        return OutboxEvent.builder()
+                .eventType(EventType.COMMENT)
+                .payload("{}")
+                .status(OutBoxStatus.PENDING)
+                .build();
     }
 
     @Test

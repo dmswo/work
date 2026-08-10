@@ -55,6 +55,9 @@ public class OutBoxEventServiceImpl implements OutBoxEventService {
                     case POST_LIKE ->
                             objectMapper.readValue(outboxEvent.getPayload(), PostLikeEvent.class);
 
+                    case COMMENT ->
+                            objectMapper.readValue(outboxEvent.getPayload(), CommentEvent.class);
+
                     case STATISTICS ->
                             objectMapper.readValue(outboxEvent.getPayload(), StatisticsEvent.class);
                 };

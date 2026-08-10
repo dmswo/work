@@ -33,10 +33,11 @@ public class NotificationConsumer {
     private final UtilService utilService;
 
     private static final String NOTIFICATION_GROUP = "notification-consumer-group";
+    private static final String NOTIFICATION_DLT_GROUP = "notification-dlt-consumer-group";
 
     @Transactional
     @KafkaListener(topics = "post-like-topic"
-            , groupId = "notification-consumer-group"
+            , groupId = NOTIFICATION_GROUP
             , concurrency = "3")
     public void sendNotificationPostLike(PostLikeEvent event) {
         log.info("Kafka Consumer sendNotificationPostLike received: {}", event);
@@ -63,7 +64,7 @@ public class NotificationConsumer {
         processedEventService.save(event.getEventId(), NOTIFICATION_GROUP, EventType.POST_LIKE);
     }
 
-    @KafkaListener(topics = "post-like-topic.DLT", groupId = "notification-dlt-consumer-group")
+    @KafkaListener(topics = "post-like-topic.DLT", groupId = NOTIFICATION_DLT_GROUP)
     public void failSendNotificationPostLike(PostLikeEvent event, @Headers MessageHeaders headers) {
         log.info("Kafka Consumer failSendNotificationPostLike received: {}", event);
 
@@ -75,20 +76,35 @@ public class NotificationConsumer {
 
     @Transactional
     @KafkaListener(topics = "comment-topic"
-            , groupId = "notification-consumer-group"
+            , groupId = NOTIFICATION_GROUP
             , concurrency = "3")
     public void sendNotificationComment(CommentEvent event) {
         log.info("Kafka Consumer sendNotificationComment received: {}", event);
 
-//        // 1. 이미 처리한 이벤트인지 확인
-//        if (processedEventService.exists(event.getEventId(), NOTIFICATION_GROUP)) {
-//            log.info("이미 처리된 이벤트입니다. eventId={}", event.getEventId());
-//            return;
-//        }
-//
-//        // 2. 댓글 알림 발송
-//
-//        // 3. 성공한 경우에만 처리 완료 기록
-//        processedEventService.save(event.getEventId(), NOTIFICATION_GROUP, EventType.NOTIFICATION);
+        // 1. 이미 처리한 이벤트인지 확인
+        if (processedEventService.exists(event.getEventId(), NOTIFICATION_GROUP)) {
+            log.info("이미 처리된 이벤트입니다. eventId={}", event.getEventId());
+            return;
+        }
+
+        // 2. 댓글 알림 발송
+        Users receiver = userRepository.findById(event.getPostOwnerId()).orElseThrow(() -> new BusinessException(ExceptionCode.USER_NOT_FOUND));
+        Users sender = userRepository.findById(event.getReplierId()).orElseThrow(() -> new BusinessException(ExceptionCode.USER_NOT_FOUND));
+        Long targetId = event.getPostId();
+
+        notificationService.sendNotification(receiver, sender, NotificationType.COMMENT, targetId);
+
+        // 3. 성공한 경우에만 처리 완료 기록
+        processedEventService.save(event.getEventId(), NOTIFICATION_GROUP, EventType.COMMENT);
+    }
+
+    @KafkaListener(topics = "comment-topic.DLT", groupId = NOTIFICATION_DLT_GROUP)
+    public void failSendNotificationComment(CommentEvent event, @Headers MessageHeaders headers) {
+        log.info("Kafka Consumer failSendNotificationComment received: {}", event);
+
+        String originalTopic = utilService.getHeaderAsString(headers,"kafka_dlt-original-topic");
+        String errorMessage = utilService.extractRootMessage(utilService.getHeaderAsString(headers,"kafka_dlt-exception-message"));
+
+        failEventService.saveEventFail(EventType.COMMENT, originalTopic, event, errorMessage);
     }
 }

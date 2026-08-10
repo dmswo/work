@@ -40,4 +40,16 @@ public class UserActivityStatisticsServiceImpl implements UserActivityStatistics
 
         userActivityStatisticsRepository.save(statistics);
     }
+
+    @Transactional
+    @Override
+    public void increaseCommentCount(Long id) {
+        LocalDate today = LocalDate.now();
+        UserActivityStatistics statistics = userActivityStatisticsRepository.findByUserIdAndStatisticsDate(id, today)
+                .orElseGet(() -> UserActivityStatistics.from(id, today));
+
+        statistics.increaseCommentCount();
+
+        userActivityStatisticsRepository.save(statistics);
+    }
 }

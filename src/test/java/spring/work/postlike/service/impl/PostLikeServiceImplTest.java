@@ -169,7 +169,7 @@ class PostLikeServiceImplTest {
 
     private OutboxEvent createOutboxEvent() {
         return OutboxEvent.builder()
-                .eventType(EventType.NOTIFICATION)
+                .eventType(EventType.POST_LIKE)
                 .payload("{}")
                 .status(OutBoxStatus.PENDING)
                 .build();

@@ -7,5 +7,6 @@ public enum EventType {
     MAIL,
     NOTIFICATION,
     POST_LIKE,
+    COMMENT,
     STATISTICS
 }
