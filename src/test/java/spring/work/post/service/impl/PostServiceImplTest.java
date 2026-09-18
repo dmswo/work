@@ -11,6 +11,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import spring.work.comment.repository.CommentRepository;
 import spring.work.global.ai.dto.PostValidationResult;
 import spring.work.global.ai.service.AiService;
 import spring.work.global.constant.ExceptionCode;
@@ -41,6 +42,7 @@ class PostServiceImplTest {
 
     @Mock private PostRepository postRepository;
     @Mock private UserRepository userRepository;
+    @Mock private CommentRepository commentRepository;
     @Mock private PostLikeRedisRepository postLikeRedisRepository;
     @Mock private AiService aiService;
 
@@ -272,6 +274,7 @@ class PostServiceImplTest {
                 .content("재미있는내용")
                 .build();
         given(postRepository.findPostDetail(postId)).willReturn(Optional.of(post));
+        given(commentRepository.countByPostSeq(postId)).willReturn(1L);
 
         // When
         PostResponse result = postService.getPost(postId);

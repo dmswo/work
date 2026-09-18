@@ -89,9 +89,7 @@ public class PostCustomRepositoryImpl implements PostCustomRepository {
     public Optional<Post> findPostDetail(Long postId) {
         Post result = queryFactory
                 .selectFrom(post)
-                .leftJoin(post.comments, comment).fetchJoin()
                 .where(post.seq.eq(postId))
-                .distinct()
                 .fetchOne();
 
         return Optional.ofNullable(result);

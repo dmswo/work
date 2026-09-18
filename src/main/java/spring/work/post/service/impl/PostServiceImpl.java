@@ -6,6 +6,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import spring.work.comment.repository.CommentRepository;
 import spring.work.global.ai.dto.PostValidationResult;
 import spring.work.global.ai.service.AiService;
 import spring.work.global.constant.ExceptionCode;
@@ -32,6 +33,7 @@ public class PostServiceImpl implements PostService {
 
     private final PostRepository postRepository;
     private final UserRepository userRepository;
+    private final CommentRepository commentRepository;
     private final PostLikeRedisRepository postLikeRedisRepository;
     private final AiService aiService;
 
@@ -97,7 +99,8 @@ public class PostServiceImpl implements PostService {
     public PostResponse getPost(Long postId) {
         Post post = postRepository.findPostDetail(postId)
                 .orElseThrow(() -> new BusinessException(ExceptionCode.POST_NOT_FOUND));
+        long commentCnt = commentRepository.countByPostSeq(postId);
 
-        return PostResponse.from(post);
+        return PostResponse.from(post, commentCnt);
     }
 }

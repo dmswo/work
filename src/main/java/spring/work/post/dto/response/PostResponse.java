@@ -17,13 +17,13 @@ public class PostResponse {
     private Long viewCnt;
     private Long commentCnt;
 
-    public static PostResponse from(Post post) {
+    public static PostResponse from(Post post, long commentCnt) {
         return PostResponse.builder()
                 .seq(post.getSeq())
                 .title(post.getTitle())
                 .content(post.getContent())
                 .viewCnt(post.getViewCnt())
-                .commentCnt((long) post.getComments().size())
+                .commentCnt(commentCnt)
                 .build();
     }
 }
