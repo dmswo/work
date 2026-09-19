@@ -25,6 +25,7 @@ import spring.work.post.service.PostService;
 import spring.work.user.repository.UserRepository;
 
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -82,6 +83,14 @@ public class PostServiceImpl implements PostService {
         Page<PostListResponse> posts = postRepository.postList(condition, pageable);
 
         List<PostListResponse> content = posts.getContent();
+        List<Long> postIds = content.stream()
+                .map(PostListResponse::getSeq)
+                .toList();
+        Map<Long, Long> commentCounts =
+                commentRepository.countByPostIds(postIds);
+
+
+        // 게시글 좋아요 수, 좋아요 여부, 댓글 수 세팅
         content.forEach(a -> {
             a.setLikeCount(postLikeRedisRepository.getLikeUserCount(a.getSeq()));
             if (userId != null) {
@@ -89,6 +98,7 @@ public class PostServiceImpl implements PostService {
             } else {
                 a.setLiked(false);
             }
+            a.setCommentCount(commentCounts.getOrDefault(a.getSeq(), 0L));
         });
 
         return PageResponse.from(posts);

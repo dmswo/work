@@ -11,6 +11,8 @@ import spring.work.comment.dto.response.CommentListResponse;
 import spring.work.comment.entity.QComment;
 
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import static spring.work.comment.entity.QComment.comment;
 import static spring.work.user.entity.QUsers.users;
@@ -102,5 +104,21 @@ public class CommentCustomRepositoryImpl implements CommentCustomRepository {
                 pageable,
                 countQuery::fetchOne
         );
+    }
+
+    @Override
+    public Map<Long, Long> countByPostIds(List<Long> postIds) {
+        return queryFactory
+                .select(comment.post.seq,
+                        comment.count())
+                .from(comment)
+                .where(comment.post.seq.in(postIds))
+                .groupBy(comment.post.seq)
+                .fetch()
+                .stream()
+                .collect(Collectors.toMap(
+                        tuple -> tuple.get(comment.post.seq),
+                        tuple -> tuple.get(comment.count())
+                ));
     }
 }

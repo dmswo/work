@@ -30,6 +30,7 @@ import spring.work.user.repository.UserRepository;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -236,6 +237,7 @@ class PostServiceImplTest {
         given(postRepository.postList(condition, pageable)).willReturn(page);
         given(postLikeRedisRepository.getLiked(1L, userId)).willReturn(true);
         given(postLikeRedisRepository.getLikeUserCount(1L)).willReturn(10L);
+        given(commentRepository.countByPostIds(List.of(1L))).willReturn(Map.of(1L, 100L));
 
         // When
         PageResponse<PostListResponse> result = postService.getPosts(condition, pageable, userId);
@@ -247,6 +249,7 @@ class PostServiceImplTest {
         assertThat(post.getContent()).isEqualTo("content");
         assertThat(post.isLiked()).isTrue();
         assertThat(post.getLikeCount()).isEqualTo(10L);
+        assertThat(post.getCommentCount()).isEqualTo(100L);
         assertThat(result.getTotalElements()).isEqualTo(1);
     }
 

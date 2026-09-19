@@ -18,9 +18,9 @@ import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
 
-import static spring.work.comment.entity.QComment.comment;
 import static spring.work.post.entity.QPost.post;
 import static spring.work.user.entity.QUsers.users;
+import static spring.work.comment.entity.QComment.comment;
 
 public class PostCustomRepositoryImpl implements PostCustomRepository {
 
@@ -55,6 +55,9 @@ public class PostCustomRepositoryImpl implements PostCustomRepository {
 
         JPAQuery<Long> countQuery = queryFactory
                 .select(post.count())
+                .where(titleContains(condition.getTitle()),
+                        createdAtGoe(condition.getStartDate()),
+                        createdAtLoe(condition.getEndDate()))
                 .from(post);
 
         return PageableExecutionUtils.getPage(
