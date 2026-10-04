@@ -10,7 +10,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import spring.work.event.common.EventType;
 import spring.work.event.common.OutBoxStatus;
 import spring.work.event.outbox.entity.OutboxEvent;
-import spring.work.event.outbox.repository.OutBoxEventRepository;
 import spring.work.event.outbox.service.OutBoxEventService;
 import spring.work.global.constant.ExceptionCode;
 import spring.work.global.exception.BusinessException;
@@ -40,7 +39,6 @@ class PostLikeServiceImplTest {
     @Mock private PostLikeRepository postLikeRepository;
     @Mock private PostLikeRedisRepository postLikeRedisRepository;
     @Mock private OutBoxEventService outBoxEventService;
-    @Mock private OutBoxEventRepository outBoxEventRepository;
 
     @InjectMocks
     private PostLikeServiceImpl postLikeService;
@@ -135,7 +133,7 @@ class PostLikeServiceImplTest {
         assertThat(savedPostLike.getPost()).isEqualTo(post);
         assertThat(savedPostLike.getUser()).isEqualTo(user);
         then(postLikeRedisRepository).should(never()).removeLikeUser(anyLong(), anyString());
-        then(outBoxEventRepository).should().save(any(OutboxEvent.class));
+        then(outBoxEventService).should().createOutbox(eq(EventType.POST_LIKE), any());
     }
 
     @Test

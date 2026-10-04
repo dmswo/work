@@ -12,7 +12,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import spring.work.event.common.EventType;
 import spring.work.event.common.OutBoxStatus;
 import spring.work.event.outbox.entity.OutboxEvent;
-import spring.work.event.outbox.repository.OutBoxEventRepository;
 import spring.work.event.outbox.service.OutBoxEventService;
 import spring.work.global.constant.ExceptionCode;
 import spring.work.global.constant.ResultCode;
@@ -47,7 +46,6 @@ class UserAuthServiceImplTest {
     @Mock private AuthenticationHelperService authenticationHelperService;
     @Mock private UtilService utilService;
     @Mock private PointRequester pointRequester;
-    @Mock private OutBoxEventRepository outBoxEventRepository;
     @Mock private OutBoxEventService outBoxEventService;
 
     @InjectMocks
@@ -129,7 +127,6 @@ class UserAuthServiceImplTest {
 
         // Then
         then(outBoxEventService).should().createOutbox(eq(EventType.MAIL), any(MailEvent.class));
-        then(outBoxEventRepository).should().save(any(OutboxEvent.class));
     }
 
     @Test
@@ -151,7 +148,7 @@ class UserAuthServiceImplTest {
 
         then(userRepository).should().save(any());
         then(pointRequester).should().createUserPoint(any());
-        then(outBoxEventRepository).should().save(any(OutboxEvent.class));
+        then(outBoxEventService).should().createOutbox(eq(EventType.MAIL), any());
     }
 
     private void stubExternalDependencies() {

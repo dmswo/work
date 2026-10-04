@@ -13,8 +13,6 @@ import spring.work.comment.entity.Comment;
 import spring.work.comment.repository.CommentRepository;
 import spring.work.comment.service.CommentService;
 import spring.work.event.common.EventType;
-import spring.work.event.outbox.entity.OutboxEvent;
-import spring.work.event.outbox.repository.OutBoxEventRepository;
 import spring.work.event.outbox.service.OutBoxEventService;
 import spring.work.global.constant.ExceptionCode;
 import spring.work.global.dto.PageResponse;
@@ -34,7 +32,6 @@ public class CommentServiceImpl implements CommentService {
     private final UserRepository userRepository;
     private final PostRepository postRepository;
     private final OutBoxEventService outBoxEventService;
-    private final OutBoxEventRepository outBoxEventRepository;
 
     @Transactional
     @Override
@@ -54,8 +51,7 @@ public class CommentServiceImpl implements CommentService {
         // 댓글 이벤트(Outbox 저장)
         Users receiver = post.getUser();
         CommentEvent event = CommentEvent.from(post.getSeq(), receiver.getSeq(), user.getSeq());
-        OutboxEvent outboxEvent = outBoxEventService.createOutbox(EventType.COMMENT, event);
-        outBoxEventRepository.save(outboxEvent);
+        outBoxEventService.createOutbox(EventType.COMMENT, event);
     }
 
     @Transactional

@@ -19,7 +19,6 @@ import spring.work.comment.repository.CommentRepository;
 import spring.work.event.common.EventType;
 import spring.work.event.common.OutBoxStatus;
 import spring.work.event.outbox.entity.OutboxEvent;
-import spring.work.event.outbox.repository.OutBoxEventRepository;
 import spring.work.event.outbox.service.OutBoxEventService;
 import spring.work.global.constant.ExceptionCode;
 import spring.work.global.dto.PageResponse;
@@ -35,6 +34,7 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 
@@ -45,7 +45,6 @@ class CommentServiceImplTest {
     @Mock private PostRepository postRepository;
     @Mock private CommentRepository commentRepository;
     @Mock private OutBoxEventService outBoxEventService;
-    @Mock private OutBoxEventRepository outBoxEventRepository;
 
     @InjectMocks
     private CommentServiceImpl commentService;
@@ -128,7 +127,7 @@ class CommentServiceImplTest {
         assertThat(savedComment.getContent()).isEqualTo("content1");
         assertThat(savedComment.getUser().getUserId()).isEqualTo(userId);
         assertThat(savedComment.getPost().getSeq()).isEqualTo(post.getSeq());
-        then(outBoxEventRepository).should().save(any(OutboxEvent.class));
+        then(outBoxEventService).should().createOutbox(eq(EventType.COMMENT), any());
     }
 
     private OutboxEvent createOutboxEvent() {

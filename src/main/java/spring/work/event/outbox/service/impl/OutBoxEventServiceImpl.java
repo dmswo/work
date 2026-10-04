@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import spring.work.event.common.EventType;
 import spring.work.event.common.OutBoxStatus;
+import spring.work.event.outbox.repository.OutBoxEventRepository;
 import spring.work.event.outbox.service.OutBoxEventService;
 import spring.work.event.outbox.service.OutboxLifecycleService;
 import spring.work.event.outbox.entity.OutboxEvent;
@@ -24,16 +25,18 @@ public class OutBoxEventServiceImpl implements OutBoxEventService {
     private final EventProducer eventProducer;
     private final ObjectMapper objectMapper;
     private final OutboxLifecycleService outboxLifecycleService;
+    private final OutBoxEventRepository outBoxEventRepository;
 
     @Override
     public OutboxEvent createOutbox(EventType eventType, Object event) {
         try {
-            return OutboxEvent.builder()
+            OutboxEvent outboxEvent = OutboxEvent.builder()
                     .eventType(eventType)
                     .payload(objectMapper.writeValueAsString(event))
                     .status(OutBoxStatus.PENDING)
                     .createdAt(LocalDateTime.now())
                     .build();
+            return outBoxEventRepository.save(outboxEvent);
         } catch (JsonProcessingException e) {
             throw new RuntimeException("Outbox payload 직렬화 실패", e);
         }

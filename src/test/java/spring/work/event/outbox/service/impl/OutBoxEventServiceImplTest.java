@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -12,6 +13,7 @@ import org.springframework.kafka.support.SendResult;
 import spring.work.event.common.EventType;
 import spring.work.event.common.OutBoxStatus;
 import spring.work.event.outbox.entity.OutboxEvent;
+import spring.work.event.outbox.repository.OutBoxEventRepository;
 import spring.work.event.outbox.service.OutboxLifecycleService;
 import spring.work.global.kafka.dto.MailEvent;
 import spring.work.global.kafka.producer.EventProducer;
@@ -19,6 +21,7 @@ import spring.work.global.kafka.producer.EventProducer;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
@@ -31,9 +34,30 @@ class OutBoxEventServiceImplTest {
     @Mock private EventProducer eventProducer;
     @Mock private ObjectMapper objectMapper;
     @Mock private OutboxLifecycleService outboxLifecycleService;
+    @Mock private OutBoxEventRepository outBoxEventRepository;
 
     @InjectMocks
     private OutBoxEventServiceImpl outBoxEventService;
+
+    @Test
+    @DisplayName("createOutbox 호출 시 Outbox 엔티티를 저장한다")
+    void createOutbox_saves_entity() throws JsonProcessingException {
+        // Given
+        MailEvent mailEvent = MailEvent.builder().userId("dmswo").build();
+        given(objectMapper.writeValueAsString(mailEvent)).willReturn("{\"userId\":\"dmswo\"}");
+        given(outBoxEventRepository.save(any(OutboxEvent.class)))
+                .willAnswer(invocation -> invocation.getArgument(0));
+
+        // When
+        OutboxEvent result = outBoxEventService.createOutbox(EventType.MAIL, mailEvent);
+
+        // Then
+        ArgumentCaptor<OutboxEvent> captor = ArgumentCaptor.forClass(OutboxEvent.class);
+        then(outBoxEventRepository).should().save(captor.capture());
+        assertThat(captor.getValue().getEventType()).isEqualTo(EventType.MAIL);
+        assertThat(captor.getValue().getStatus()).isEqualTo(OutBoxStatus.PENDING);
+        assertThat(result).isSameAs(captor.getValue());
+    }
 
     @Test
     @DisplayName("이벤트 발행 실패 시 increaseRetry를 호출한다")

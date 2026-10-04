@@ -5,8 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import spring.work.event.common.EventType;
-import spring.work.event.outbox.entity.OutboxEvent;
-import spring.work.event.outbox.repository.OutBoxEventRepository;
 import spring.work.event.outbox.service.OutBoxEventService;
 import spring.work.global.constant.ExceptionCode;
 import spring.work.global.exception.BusinessException;
@@ -31,7 +29,6 @@ public class PostLikeServiceImpl implements PostLikeService {
     private final PostLikeRepository postLikeRepository;
     private final PostLikeRedisRepository postLikeRedisRepository;
     private final OutBoxEventService outBoxEventService;
-    private final OutBoxEventRepository outBoxEventRepository;
 
     @Transactional
     @Override
@@ -57,8 +54,7 @@ public class PostLikeServiceImpl implements PostLikeService {
             // 좋아요 이벤트(Outbox 저장)
             Users receiver = post.getUser();
             PostLikeEvent event = PostLikeEvent.from(post.getSeq(), receiver.getSeq(), sender.getSeq(), LikeActionType.LIKE);
-            OutboxEvent outboxEvent = outBoxEventService.createOutbox(EventType.POST_LIKE, event);
-            outBoxEventRepository.save(outboxEvent);
+            outBoxEventService.createOutbox(EventType.POST_LIKE, event);
 
         } catch (Exception e) {
             postLikeRedisRepository.removeLikeUser(postId, userId);
@@ -86,8 +82,7 @@ public class PostLikeServiceImpl implements PostLikeService {
             // 좋아요 이벤트(Outbox 저장)
             Users receiver = post.getUser();
             PostLikeEvent event = PostLikeEvent.from(post.getSeq(), receiver.getSeq(), users.getSeq(), LikeActionType.CANCEL);
-            OutboxEvent outboxEvent = outBoxEventService.createOutbox(EventType.POST_LIKE, event);
-            outBoxEventRepository.save(outboxEvent);
+            outBoxEventService.createOutbox(EventType.POST_LIKE, event);
 
         } catch (Exception e) {
             postLikeRedisRepository.addLikeUser(postId, userId);

@@ -7,8 +7,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import spring.work.event.common.EventType;
-import spring.work.event.outbox.entity.OutboxEvent;
-import spring.work.event.outbox.repository.OutBoxEventRepository;
 import spring.work.event.outbox.service.OutBoxEventService;
 import spring.work.global.dto.TokenInfo;
 import spring.work.global.exception.BusinessException;
@@ -40,7 +38,6 @@ public class UserAuthServiceImpl implements UserAuthService {
     private final AuthenticationHelperService authenticationHelperService;
     private final UtilService utilService;
     private final PointRequester pointRequester;
-    private final OutBoxEventRepository outBoxEventRepository;
     private final OutBoxEventService outBoxEventService;
 
     @Override
@@ -68,7 +65,7 @@ public class UserAuthServiceImpl implements UserAuthService {
         }
 
         // 포인트 데이터 생성
-        // pointRequester.createUserPoint(CreatePoint.builder().userId(dto.getUserId()).build());
+         pointRequester.createUserPoint(CreatePoint.builder().userId(dto.getUserId()).build());
 
         // 회원가입 알림 메일 발송
         dto.decryptEmail(utilService.decrypt(dto.getEmail()));
@@ -76,8 +73,7 @@ public class UserAuthServiceImpl implements UserAuthService {
         MailEvent event = MailEvent.from(dto);
 
         // 메일전송(Outbox 저장)
-        OutboxEvent outboxEvent = outBoxEventService.createOutbox(EventType.MAIL, event);
-        outBoxEventRepository.save(outboxEvent);
+        outBoxEventService.createOutbox(EventType.MAIL, event);
 
         return ResultCode.OK;
     }
