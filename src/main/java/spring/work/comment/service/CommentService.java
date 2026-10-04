@@ -9,8 +9,8 @@ import spring.work.global.dto.PageResponse;
 
 public interface CommentService {
     void saveComment(CreateComment request, Long postId, String userId);
-    void updateComment(Long postId, UpdateComment request);
-    void deleteComment(Long postId);
+    void updateComment(Long commentId, UpdateComment request, String userId);
+    void deleteComment(Long commentId, String userId);
     PageResponse<CommentListResponse> getComments(Long postId, Pageable pageable);
     void saveReply(CreateComment request, Long postId, Long commentId, String userId);
     PageResponse<CommentListResponse> getReplies(Long commentId, Pageable pageable);

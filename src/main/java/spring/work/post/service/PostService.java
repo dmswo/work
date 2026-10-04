@@ -10,8 +10,8 @@ import spring.work.post.dto.response.PostResponse;
 
 public interface PostService {
     void savePost(CreatePost request, String userId);
-    void updatePost(Long postId, UpdatePost request);
-    void deletePost(Long postId);
+    void updatePost(Long postId, UpdatePost request, String userId);
+    void deletePost(Long postId, String userId);
     PageResponse<PostListResponse> getPosts(PostSearchCondition condition, Pageable pageable, String userId);
     PostResponse getPost(Long postId);
 }

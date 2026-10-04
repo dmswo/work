@@ -148,9 +148,32 @@ class PostServiceImplTest {
         given(postRepository.findById(postId)).willReturn(Optional.empty());
 
         // When & Then
-        assertThatThrownBy(() -> postService.updatePost(postId, post))
+        assertThatThrownBy(() -> postService.updatePost(postId, post, "dmswo"))
                 .isInstanceOf(BusinessException.class)
                 .hasMessageContaining(ExceptionCode.POST_NOT_FOUND.getMessage());
+    }
+
+    @Test
+    @DisplayName("게시물 수정시 작성자가 아니면 예외가 발생한다")
+    void throw_exception_when_post_update_not_owner() {
+        // Given
+        UpdatePost updatePost = UpdatePost.builder()
+                .title("title2")
+                .content("content2")
+                .build();
+        Users owner = Users.builder().userId("dmswo").build();
+        Post post = Post.builder()
+                .seq(1L)
+                .title("title")
+                .content("content")
+                .user(owner)
+                .build();
+        given(postRepository.findById(1L)).willReturn(Optional.of(post));
+
+        // When & Then
+        assertThatThrownBy(() -> postService.updatePost(1L, updatePost, "other"))
+                .isInstanceOf(BusinessException.class)
+                .hasMessageContaining(ExceptionCode.FORBIDDEN.getMessage());
     }
 
     @Test
@@ -161,15 +184,17 @@ class PostServiceImplTest {
                 .title("title2")
                 .content("content2")
                 .build();
+        Users owner = Users.builder().userId("dmswo").build();
         Post post = Post.builder()
                 .seq(1L)
                 .title("title")
                 .content("content")
+                .user(owner)
                 .build();
         given(postRepository.findById(1L)).willReturn(Optional.of(post));
 
         // When
-        postService.updatePost(1L, updatePost);
+        postService.updatePost(1L, updatePost, "dmswo");
 
         // Then
         assertThat(post.getTitle()).isEqualTo("title2");
@@ -185,24 +210,45 @@ class PostServiceImplTest {
         given(postRepository.findById(postId)).willReturn(Optional.empty());
 
         // When & Then
-        assertThatThrownBy(() -> postService.deletePost(postId))
+        assertThatThrownBy(() -> postService.deletePost(postId, "dmswo"))
                 .isInstanceOf(BusinessException.class)
                 .hasMessageContaining(ExceptionCode.POST_NOT_FOUND.getMessage());
+    }
+
+    @Test
+    @DisplayName("게시물 삭제시 작성자가 아니면 예외가 발생한다")
+    void throw_exception_when_post_delete_not_owner() {
+        // Given
+        Users owner = Users.builder().userId("dmswo").build();
+        Post post = Post.builder()
+                .seq(1L)
+                .title("title")
+                .content("content")
+                .user(owner)
+                .build();
+        given(postRepository.findById(1L)).willReturn(Optional.of(post));
+
+        // When & Then
+        assertThatThrownBy(() -> postService.deletePost(1L, "other"))
+                .isInstanceOf(BusinessException.class)
+                .hasMessageContaining(ExceptionCode.FORBIDDEN.getMessage());
     }
 
     @Test
     @DisplayName("게시물 삭제 성공")
     void post_delete_success() {
         // Given
+        Users owner = Users.builder().userId("dmswo").build();
         Post post = Post.builder()
                 .seq(1L)
                 .title("title")
                 .content("content")
+                .user(owner)
                 .build();
         given(postRepository.findById(1L)).willReturn(Optional.of(post));
 
         // When
-        postService.deletePost(1L);
+        postService.deletePost(1L, "dmswo");
 
         // Then
         ArgumentCaptor<Post> captor = ArgumentCaptor.forClass(Post.class);

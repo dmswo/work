@@ -150,9 +150,32 @@ class CommentServiceImplTest {
         given(commentRepository.findById(commentId)).willReturn(Optional.empty());
 
         // When & Then
-        assertThatThrownBy(() -> commentService.updateComment(commentId, comment))
+        assertThatThrownBy(() -> commentService.updateComment(commentId, comment, "dmswo"))
                 .isInstanceOf(BusinessException.class)
                 .hasMessageContaining(ExceptionCode.COMMENT_NOT_FOUND.getMessage());
+    }
+
+    @Test
+    @DisplayName("댓글 수정시 작성자가 아니면 예외가 발생한다")
+    void throw_exception_when_comment_update_not_owner() {
+        // Given
+        UpdateComment updateComment = UpdateComment.builder()
+                .content("content1")
+                .build();
+
+        Users owner = Users.builder().userId("dmswo").build();
+        Comment comment = Comment.builder()
+                .seq(1L)
+                .content("content")
+                .user(owner)
+                .build();
+
+        given(commentRepository.findById(1L)).willReturn(Optional.of(comment));
+
+        // When & Then
+        assertThatThrownBy(() -> commentService.updateComment(1L, updateComment, "other"))
+                .isInstanceOf(BusinessException.class)
+                .hasMessageContaining(ExceptionCode.FORBIDDEN.getMessage());
     }
 
     @Test
@@ -163,14 +186,17 @@ class CommentServiceImplTest {
                 .content("content1")
                 .build();
 
+        Users owner = Users.builder().userId("dmswo").build();
         Comment comment = Comment.builder()
                 .seq(1L)
-                .content("content").build();
+                .content("content")
+                .user(owner)
+                .build();
 
         given(commentRepository.findById(1L)).willReturn(Optional.of(comment));
 
         // When
-        commentService.updateComment(1L, updateComment);
+        commentService.updateComment(1L, updateComment, "dmswo");
 
         // Then
         assertThat(comment.getContent()).isEqualTo("content1");
@@ -184,9 +210,29 @@ class CommentServiceImplTest {
         given(commentRepository.findById(commentId)).willReturn(Optional.empty());
 
         // When & Then
-        assertThatThrownBy(() -> commentService.deleteComment(commentId))
+        assertThatThrownBy(() -> commentService.deleteComment(commentId, "dmswo"))
                 .isInstanceOf(BusinessException.class)
                 .hasMessageContaining(ExceptionCode.COMMENT_NOT_FOUND.getMessage());
+    }
+
+    @Test
+    @DisplayName("댓글 삭제시 작성자가 아니면 예외가 발생한다")
+    void throw_exception_when_comment_delete_not_owner() {
+        // Given
+        Long commentId = 1L;
+        Users owner = Users.builder().userId("dmswo").build();
+        Comment comment = Comment.builder()
+                .seq(commentId)
+                .content("content")
+                .user(owner)
+                .build();
+
+        given(commentRepository.findById(commentId)).willReturn(Optional.of(comment));
+
+        // When & Then
+        assertThatThrownBy(() -> commentService.deleteComment(commentId, "other"))
+                .isInstanceOf(BusinessException.class)
+                .hasMessageContaining(ExceptionCode.FORBIDDEN.getMessage());
     }
 
     @Test
@@ -194,14 +240,17 @@ class CommentServiceImplTest {
     void comment_delete_success() {
         // Given
         Long commentId = 1L;
+        Users owner = Users.builder().userId("dmswo").build();
         Comment comment = Comment.builder()
                 .seq(commentId)
-                .content("content").build();
+                .content("content")
+                .user(owner)
+                .build();
 
         given(commentRepository.findById(commentId)).willReturn(Optional.of(comment));
 
         // When
-        commentService.deleteComment(commentId);
+        commentService.deleteComment(commentId, "dmswo");
 
         // Then
         then(commentRepository).should().findById(commentId);

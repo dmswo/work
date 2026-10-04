@@ -61,20 +61,28 @@ public class PostServiceImpl implements PostService {
 
     @Transactional
     @Override
-    public void updatePost(Long postId, UpdatePost request) {
+    public void updatePost(Long postId, UpdatePost request, String userId) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new BusinessException(ExceptionCode.POST_NOT_FOUND));
 
+        validateOwner(post, userId);
         post.modify(request);
     }
 
     @Transactional
     @Override
-    public void deletePost(Long postId) {
+    public void deletePost(Long postId, String userId) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new BusinessException(ExceptionCode.POST_NOT_FOUND));
 
+        validateOwner(post, userId);
         postRepository.delete(post);
+    }
+
+    private void validateOwner(Post post, String userId) {
+        if (!post.getUser().getUserId().equals(userId)) {
+            throw new BusinessException(ExceptionCode.FORBIDDEN);
+        }
     }
 
     @Transactional(readOnly = true)

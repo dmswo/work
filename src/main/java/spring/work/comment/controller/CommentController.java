@@ -40,15 +40,18 @@ public class CommentController {
 
     @Operation(summary = "댓글 수정 API", description = "댓글 수정 API")
     @PatchMapping("/{commentId}")
-    public ApiResponse<ResultCode> updateComment(@PathVariable("commentId") Long commentId, @RequestBody @Valid UpdateComment request) {
-        commentService.updateComment(commentId, request);
+    public ApiResponse<ResultCode> updateComment(@PathVariable("commentId") Long commentId,
+                                                  @RequestBody @Valid UpdateComment request,
+                                                  @AuthenticationPrincipal AuthUser authUser) {
+        commentService.updateComment(commentId, request, authUser.getUserId());
         return ApiResponse.successResponse(ResultCode.OK);
     }
 
     @Operation(summary = "댓글 삭제 API", description = "댓글 삭제 API")
     @DeleteMapping("/{commentId}")
-    public ApiResponse<ResultCode> deleteComment(@PathVariable("commentId") Long commentId) {
-        commentService.deleteComment(commentId);
+    public ApiResponse<ResultCode> deleteComment(@PathVariable("commentId") Long commentId,
+                                                  @AuthenticationPrincipal AuthUser authUser) {
+        commentService.deleteComment(commentId, authUser.getUserId());
         return ApiResponse.successResponse(ResultCode.OK);
     }
 

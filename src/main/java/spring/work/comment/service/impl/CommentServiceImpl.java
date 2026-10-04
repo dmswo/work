@@ -60,20 +60,28 @@ public class CommentServiceImpl implements CommentService {
 
     @Transactional
     @Override
-    public void updateComment(Long commentId, UpdateComment request) {
+    public void updateComment(Long commentId, UpdateComment request, String userId) {
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new BusinessException(ExceptionCode.COMMENT_NOT_FOUND));
 
+        validateOwner(comment, userId);
         comment.modify(request);
     }
 
     @Transactional
     @Override
-    public void deleteComment(Long commentId) {
+    public void deleteComment(Long commentId, String userId) {
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new BusinessException(ExceptionCode.COMMENT_NOT_FOUND));
 
+        validateOwner(comment, userId);
         commentRepository.delete(comment);
+    }
+
+    private void validateOwner(Comment comment, String userId) {
+        if (!comment.getUser().getUserId().equals(userId)) {
+            throw new BusinessException(ExceptionCode.FORBIDDEN);
+        }
     }
 
     @Transactional(readOnly = true)
