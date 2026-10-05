@@ -16,6 +16,7 @@ import spring.work.global.security.auth.AuthUser;
 import spring.work.global.security.jwt.JwtTokenProvider;
 import spring.work.user.dto.request.Login;
 
+import java.time.Duration;
 import java.util.Collections;
 
 @Slf4j
@@ -33,8 +34,8 @@ public class AuthenticationHelperServiceImpl implements AuthenticationHelperServ
     }
 
     @Override
-    public void setToken(String redisKey, String token) {
-        tokenRedisRepository.setValues(redisKey, token);
+    public void setToken(String redisKey, String token, Duration duration) {
+        tokenRedisRepository.setValues(redisKey, token, duration);
     }
 
     @Override
@@ -140,15 +141,16 @@ public class AuthenticationHelperServiceImpl implements AuthenticationHelperServ
     }
 
     private void setAuthenticationToRedis(Authentication authentication, String redisKey, String token) {
-        // 토큰 redis 저장
-        setToken(redisKey, token);
+        // Refresh Token 추적용 저장 - Refresh Token 수명과 동일하게 TTL 설정
+        setToken(redisKey, token, Duration.ofMillis(JwtTokenProvider.REFRESH_TOKEN_EXPIRE_TIME));
 
         // 인증정보 SecurityContext 저장
         setAuthentication(authentication);
     }
 
     private void setBlackListTokenAndDeleteToken(String token, String userId) {
-        setToken(token, "logout");
+        // 블랙리스트 등록 - 로그아웃된 토큰이 어차피 살아있었을 Access Token 수명만큼만 TTL 설정
+        setToken(token, "logout", Duration.ofMillis(JwtTokenProvider.ACCESS_TOKEN_EXPIRE_TIME));
         tokenRedisRepository.deleteValues(userId);
     }
 }

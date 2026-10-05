@@ -5,7 +5,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Component;
 
-import java.util.concurrent.TimeUnit;
+import java.time.Duration;
 
 @Component
 @RequiredArgsConstructor
@@ -13,9 +13,9 @@ public class TokenRedisRepository {
 
     private final RedisTemplate<String, Object> redisTemplate;
 
-    public void setValues(String key, String data) {
+    public void setValues(String key, String data, Duration duration) {
         ValueOperations<String, Object> values = redisTemplate.opsForValue();
-        values.set(key, data, 30, TimeUnit.MINUTES);
+        values.set(key, data, duration);
     }
 
     public String getValues(String key) {

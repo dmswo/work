@@ -5,9 +5,11 @@ import org.springframework.security.core.Authentication;
 import spring.work.global.dto.TokenInfo;
 import spring.work.user.dto.request.Login;
 
+import java.time.Duration;
+
 public interface AuthenticationHelperService {
     String getToken(String userId);
-    void setToken(String userId, String token);
+    void setToken(String userId, String token, Duration duration);
 
     TokenInfo processLoginAndReturnToken(Login login);
     void saveAuthentication(Authentication authentication, String token);
