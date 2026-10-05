@@ -20,7 +20,7 @@ public class FailEventController {
 
     @Operation(summary = "실패 이벤트 API", description = "실패 이벤트 API")
     @PostMapping("/{failEventId}/retry")
-    public ApiResponse<ResultCode> retryFailEvent(@PathVariable("failEventId") Long failEventId) {
+    public ApiResponse<Void> retryFailEvent(@PathVariable("failEventId") Long failEventId) {
         failEventService.retryFailEvent(failEventId);
         return ApiResponse.successResponse(ResultCode.OK);
     }

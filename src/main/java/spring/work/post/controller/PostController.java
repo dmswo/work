@@ -33,14 +33,14 @@ public class PostController {
 
     @Operation(summary = "게시글 저장 API", description = "게시글 저장 API")
     @PostMapping
-    public ApiResponse<ResultCode> savePost(@RequestBody @Valid CreatePost request, @AuthenticationPrincipal AuthUser authUser) {
+    public ApiResponse<Void> savePost(@RequestBody @Valid CreatePost request, @AuthenticationPrincipal AuthUser authUser) {
         postService.savePost(request, authUser.getUserId());
         return ApiResponse.successResponse(ResultCode.OK);
     }
 
     @Operation(summary = "게시글 수정 API", description = "게시글 수정 API")
     @PatchMapping("/{postId}")
-    public ApiResponse<ResultCode> updatePost(@PathVariable("postId") Long postId,
+    public ApiResponse<Void> updatePost(@PathVariable("postId") Long postId,
                                                @RequestBody @Valid UpdatePost request,
                                                @AuthenticationPrincipal AuthUser authUser) {
         postService.updatePost(postId, request, authUser.getUserId());
@@ -49,7 +49,7 @@ public class PostController {
 
     @Operation(summary = "게시글 삭제 API", description = "게시글 삭제 API")
     @DeleteMapping("/{postId}")
-    public ApiResponse<ResultCode> deletePost(@PathVariable("postId") Long postId,
+    public ApiResponse<Void> deletePost(@PathVariable("postId") Long postId,
                                                @AuthenticationPrincipal AuthUser authUser) {
         postService.deletePost(postId, authUser.getUserId());
         return ApiResponse.successResponse(ResultCode.OK);

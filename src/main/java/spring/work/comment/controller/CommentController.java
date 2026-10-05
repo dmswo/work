@@ -31,7 +31,7 @@ public class CommentController {
 
     @Operation(summary = "댓글 저장 API", description = "댓글 저장 API")
     @PostMapping
-    public ApiResponse<ResultCode> saveComment(@RequestBody @Valid CreateComment request,
+    public ApiResponse<Void> saveComment(@RequestBody @Valid CreateComment request,
                                                @PathVariable("postId") Long postId,
                                                @AuthenticationPrincipal AuthUser authUser) {
         commentService.saveComment(request, postId, authUser.getUserId());
@@ -40,7 +40,7 @@ public class CommentController {
 
     @Operation(summary = "댓글 수정 API", description = "댓글 수정 API")
     @PatchMapping("/{commentId}")
-    public ApiResponse<ResultCode> updateComment(@PathVariable("commentId") Long commentId,
+    public ApiResponse<Void> updateComment(@PathVariable("commentId") Long commentId,
                                                   @RequestBody @Valid UpdateComment request,
                                                   @AuthenticationPrincipal AuthUser authUser) {
         commentService.updateComment(commentId, request, authUser.getUserId());
@@ -49,7 +49,7 @@ public class CommentController {
 
     @Operation(summary = "댓글 삭제 API", description = "댓글 삭제 API")
     @DeleteMapping("/{commentId}")
-    public ApiResponse<ResultCode> deleteComment(@PathVariable("commentId") Long commentId,
+    public ApiResponse<Void> deleteComment(@PathVariable("commentId") Long commentId,
                                                   @AuthenticationPrincipal AuthUser authUser) {
         commentService.deleteComment(commentId, authUser.getUserId());
         return ApiResponse.successResponse(ResultCode.OK);
@@ -68,7 +68,7 @@ public class CommentController {
 
     @Operation(summary = "대댓글 작성 API", description = "대댓글 작성 API")
     @PostMapping("/{commentId}/replies")
-    public ApiResponse<ResultCode> saveReply(@RequestBody @Valid CreateComment request,
+    public ApiResponse<Void> saveReply(@RequestBody @Valid CreateComment request,
                                              @PathVariable("postId") Long postId,
                                              @PathVariable("commentId") Long commentId,
                                              @AuthenticationPrincipal AuthUser authUser) {

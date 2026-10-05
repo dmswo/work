@@ -42,7 +42,7 @@ public class NotificationController {
 
     @Operation(summary = "알림 읽음 처리 API", description = "특정 알림을 읽음 상태로 변경합니다.")
     @PatchMapping("/{notificationId}/read")
-    public ApiResponse<ResultCode> readNotification(
+    public ApiResponse<Void> readNotification(
             @PathVariable("notificationId") Long notificationId,
             @AuthenticationPrincipal AuthUser authUser) {
         notificationService.readNotification(notificationId, authUser.getUserId());

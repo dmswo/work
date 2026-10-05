@@ -8,7 +8,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import spring.work.global.dto.ApiResponse;
-import spring.work.global.constant.ResultCode;
 import spring.work.global.dto.TokenInfo;
 import spring.work.global.utils.UtilService;
 import spring.work.user.dto.request.*;
@@ -26,7 +25,7 @@ public class UserAuthController {
 
     @Operation(summary = "회원가입 API", description = "회원가입 API")
     @PostMapping("/signup")
-    public ApiResponse<ResultCode> signup(@RequestBody @Valid Signup signup) {
+    public ApiResponse<Void> signup(@RequestBody @Valid Signup signup) {
         return ApiResponse.successResponse(userAuthService.signup(signup));
     }
 
@@ -38,7 +37,7 @@ public class UserAuthController {
 
     @Operation(summary = "로그아웃 API", description = "로그아웃 API")
     @PostMapping("/logout")
-    public ApiResponse<ResultCode> logout(HttpServletRequest request) {
+    public ApiResponse<Void> logout(HttpServletRequest request) {
         return ApiResponse.successResponse(userAuthService.logout(request));
     }
 

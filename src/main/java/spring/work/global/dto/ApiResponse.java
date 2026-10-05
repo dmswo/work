@@ -16,7 +16,7 @@ public class ApiResponse <T> {
     private String code;
     private String message;
 
-    public static ApiResponse<ResultCode> successResponse(ResultCode resultCode) {
+    public static ApiResponse<Void> successResponse(ResultCode resultCode) {
         return new ApiResponse<>(resultCode);
     }
 

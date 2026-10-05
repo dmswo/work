@@ -22,14 +22,14 @@ public class PostLikeController {
 
     @Operation(summary = "게시글 좋아요 저장 API", description = "게시글 좋아요 저장 API")
     @PostMapping
-    public ApiResponse<ResultCode> savePostLike(@PathVariable("postId") Long postId, @AuthenticationPrincipal AuthUser authUser) {
+    public ApiResponse<Void> savePostLike(@PathVariable("postId") Long postId, @AuthenticationPrincipal AuthUser authUser) {
         postLikeService.savePostLike(postId, authUser.getUserId());
         return ApiResponse.successResponse(ResultCode.OK);
     }
 
     @Operation(summary = "게시글 좋아요 취소 API", description = "게시글 좋아요 취소 API")
     @DeleteMapping
-    public ApiResponse<ResultCode> deletePostLike(@PathVariable("postId") Long postId, @AuthenticationPrincipal AuthUser authUser) {
+    public ApiResponse<Void> deletePostLike(@PathVariable("postId") Long postId, @AuthenticationPrincipal AuthUser authUser) {
         postLikeService.deletePostLike(postId, authUser.getUserId());
         return ApiResponse.successResponse(ResultCode.OK);
     }
