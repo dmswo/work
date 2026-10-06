@@ -33,7 +33,7 @@ public class PointRequesterImpl implements PointRequester {
     @Override
     public UserPointInfoApiResponse getUserPoint(String userId) {
         ParameterizedTypeReference<PointCommonResponse<UserPointInfoApiResponse>> responseType = new ParameterizedTypeReference<>() {};
-        HttpHeaders headers = makeHttpHeaders(null);
+        HttpHeaders headers = makeHttpHeaders(userId);
         WebClientResponse<PointCommonResponse<UserPointInfoApiResponse>> response = apiRequester.requestGet(
                 ApiRequest.of(pointProperty.getHostUrl(), pointProperty.getGetUserPointUri(userId), headers, null, responseType));
 

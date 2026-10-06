@@ -15,6 +15,10 @@ CDC(Change Data Capture) + Elasticsearch**, **Prometheus/Grafana
 모니터링** 등을 적용하여 실제 운영 환경을 고려한 백엔드 시스템을
 구현했습니다.
 
+여기에 더해 **Spring AI(OpenAI) 기반 게시글 검수/환영 메일 생성**,
+**SSE 기반 실시간 알림**을 적용하여 단순 게시판을 넘어서는 부가 기능까지
+확장했습니다.
+
 ------------------------------------------------------------------------
 
 # 🛠 기술 스택
@@ -42,6 +46,11 @@ CDC(Change Data Capture) + Elasticsearch**, **Prometheus/Grafana
 
 -   Elasticsearch
 
+## AI
+
+-   Spring AI
+-   OpenAI
+
 ## CDC
 
 -   Debezium
@@ -67,11 +76,13 @@ CDC(Change Data Capture) + Elasticsearch**, **Prometheus/Grafana
 ## 사용자 기능
 
 -   회원가입 / 로그인(JWT)
--   게시글 CRUD
--   댓글 CRUD
+-   게시글 CRUD (작성자 본인 검증 포함)
+-   댓글 CRUD (작성자 본인 검증 포함)
 -   게시글 좋아요
 -   Elasticsearch 기반 게시글 검색
--   이벤트 기반 알림 기능
+-   SSE 기반 실시간 알림 기능
+-   AI 기반 게시글 검수 (욕설/혐오 표현 등 부적절한 콘텐츠 작성 차단)
+-   회원가입 시 AI가 작성한 환영 메일 비동기 발송
 
 ## 관리자 기능
 
@@ -206,6 +217,22 @@ DB 변경 사항이 이벤트로 전파되어 Elasticsearch 인덱스에 반영�
 
 ------------------------------------------------------------------------
 
+# 🤖 AI 연동 (Spring AI + OpenAI)
+
+Spring AI의 `ChatClient`를 통해 OpenAI 모델을 두 가지 시나리오에서
+활용합니다.
+
+-   **게시글 검수**: 게시글 작성 요청을 처리하는 과정에서 AI에게 제목/
+    본문을 전달해 욕설, 비방, 혐오 표현, 음란성 등 부적절한 콘텐츠
+    여부(`passed`)와 판단 근거(`reason`)를 JSON으로 응답받아 검수에
+    실패하면 게시글 등록을 차단합니다.
+-   **환영 메일 생성**: 회원가입 이벤트(Kafka)를 소비하는 시점에 AI가
+    닉네임 기반으로 환영 메일 제목/본문을 생성하고, 이를 메일 발송에
+    사용합니다. 회원가입 요청 흐름과 분리되어 있어 AI 응답 지연이
+    가입 API 응답 속도에 영향을 주지 않습니다.
+
+------------------------------------------------------------------------
+
 # 🔒 동시성 제어
 
 Scheduler는 `FOR UPDATE SKIP LOCKED`를 사용하여 Outbox 이벤트를
@@ -221,6 +248,8 @@ Scheduler는 `FOR UPDATE SKIP LOCKED`를 사용하여 Outbox 이벤트를
 -   `@EnableMethodSecurity`
 -   `@PreAuthorize` 기반 메서드 권한 제어
 -   관리자 API 접근 제한
+-   게시글/댓글 수정·삭제 시 작성자 본인 여부 검증 (IDOR 방지)
+-   Access Token / Refresh Token의 Redis TTL을 각 토큰 수명에 맞게 분리 관리
 
 ------------------------------------------------------------------------
 
@@ -256,3 +285,5 @@ Global Exception Handler를 통해 Validation, Business Exception,
 -   Spring Security 기반 역할(Role)별 접근 제어
 -   Prometheus/Grafana 기반 운영 모니터링 구축
 -   관리자 수동 재처리 기능 제공
+-   게시글/댓글 소유자 검증을 통한 IDOR 취약점 방지
+-   AI(Spring AI + OpenAI)를 활용한 게시글 콘텐츠 검수 및 환영 메일 생성 자동화
