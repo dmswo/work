@@ -3,6 +3,7 @@ HELP.md
 build/
 *.yml
 !docker-compose.yml
+!application.yml
 !gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/
 !**/src/test/**/build/
