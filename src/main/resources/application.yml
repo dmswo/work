@@ -1,9 +1,19 @@
 spring:
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        use_sql_comments: true
+
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/work?serverTimezone=UTC&characterEncoding=utf8
-    username: root
-    password: root
+    url: jdbc:mysql://localhost:3306/work?serverTimezone=Asia/Seoul&characterEncoding=utf8
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
 
   security:
     user:
@@ -19,20 +29,6 @@ spring:
       acks: all
       retries: 3
 
-    consumer:
-      group-id: mail-consumer-group
-      auto-offset-reset: earliest
-      enable-auto-commit: true
-      key-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
-      value-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
-      properties:
-        spring.deserializer.key.delegate.class: org.apache.kafka.common.serialization.StringDeserializer
-        spring.deserializer.value.delegate.class: org.springframework.kafka.support.serializer.JsonDeserializer
-        spring.json.trusted.packages: spring.work.global.kafka.dto
-
-    listener:
-      ack-mode: record
-
   redis:
     host: 127.0.0.1
     port: 6379
@@ -40,8 +36,8 @@ spring:
   mail:
     host: smtp.gmail.com
     port: 587
-    username: kimeun106@gmail.com
-    password: shnjzbbafvguhazz
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
     properties:
       mail:
         smtp:
@@ -50,17 +46,20 @@ spring:
             enable: true
   elasticsearch:
     uris: http://localhost:9200
+  ai:
+    openai:
+      api-key: ${OPENAI_API_KEY}
+
+  http:
+    client:
+      connect-timeout: 3s
+      read-timeout: 5s
 
 jwt:
-  secret: dfda343jhadjkfu3hjhdjkauf3jhdjfhuak3jdhfudj32k2jkjk3j2k2jk32j3k2j3kj2k3jk2dfdasdfsdkfjdkfjielsakdjfkdlasijdkfld
+  secret: ${JWT_KEY}
 
 aes:
-  key: dkfjaielkrjdidkjksladifjkld
-
-mybatis:
-  config-location: classpath:mybatis-config.xml
-  mapper-locations: classpath:mapper/*.xml
-  type-aliases-package: com.study.board
+  key: ${AES_KEY}
 
 Authorization:
   work-point:
@@ -73,3 +72,18 @@ external:
     endpoint:
       get-user-point: /api/v1/point/user/{userId}
       create-user-point: /api/v1/point/user
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+
+  endpoint:
+    health:
+      show-details: always
+
+  metrics:
+    distribution:
+      percentiles-histogram:
+        http.server.requests: true
